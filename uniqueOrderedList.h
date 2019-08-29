@@ -76,7 +76,7 @@ typedef bool (*elementGreaterThan)(Element e1, Element e2);
 * 	NULL - if one of the parameters is NULL or allocations failed.
 * 	A new List in case of success.
 */
-UniqueOrderedList uniqueOrderedListCreate(copyElements, freeElements, elementsEquals, elementGreaterThan);
+UniqueOrderedList uniqueOrderedListCreate(copyElements, freeElements);
 
 /**
 * Deallocates an existing list. Clears all elements by using the
@@ -126,7 +126,7 @@ bool uniqueOrderedListContains(UniqueOrderedList, Element, elementsEquals);
  * 											 to the new element
  * UNIQUE_ORDERED_LIST_SUCCESS - in case of successful insertion.
  */
-UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList, Element);
+UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList, Element, elementsEquals, elementGreaterThan);
 
 /**
  * removes an element from the list if there is an element equals to it in the list.

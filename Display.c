@@ -156,7 +156,7 @@ LedSignResult initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int num
     mainBoard->MatsPerLine[2] = num_port3;
     mainBoard->MatsPerLine[3] = num_port4;
     //}
-    mainBoard->subBoards = uniqueOrderedListCreate(copyDisplay, destroyDisplay, disps_intersect, disp_is_greater);
+    mainBoard->subBoards = uniqueOrderedListCreate(copyDisplay, destroyDisplay);
     return LED_SIGN_SUCCESS;
 }
 
@@ -210,7 +210,7 @@ LedSignResult addDisplay(int dispID, int x, int y, int lenX, int lenY){ //indece
         destroyDisplay(disp);
         return LED_SIGN_OUT_OF_BOARD_COARDINATES;
     }
-    if(uniqueOrderedListInsert(mainBoard->subBoards, disp) == UNIQUE_ORDERED_LIST_ITEM_ALREADY_EXISTS){
+    if(uniqueOrderedListInsert(mainBoard->subBoards, disp, disps_intersect, disp_is_greater) == UNIQUE_ORDERED_LIST_ITEM_ALREADY_EXISTS){
         destroyDisplay(disp);
         return LED_SIGN_ANOTHER_DISPLAY_LOCATED_THERE;
     }

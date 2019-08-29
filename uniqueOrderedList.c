@@ -15,8 +15,6 @@ struct uniqueOrderedList_t{
     int size;
     copyElements copyFunc;
     freeElements freeFunc;
-    elementsEquals equalFunc;
-    elementGreaterThan greaterThanFunc;
     Node iterator;
 };
 
@@ -37,8 +35,8 @@ void nodeDestroy(Node node, freeElements freeFun){
     free(node);
 }
 
-UniqueOrderedList uniqueOrderedListCreate(copyElements copyFF, freeElements freeFF, elementsEquals equalFF, elementGreaterThan greaterThanFF){
-    if(!copyFF || !freeFF || !equalFF || !greaterThanFF){
+UniqueOrderedList uniqueOrderedListCreate(copyElements copyFF, freeElements freeFF){
+    if(!copyFF || !freeFF){
         return NULL;
     }
 
@@ -50,8 +48,6 @@ UniqueOrderedList uniqueOrderedListCreate(copyElements copyFF, freeElements free
     newList->size = 0;
     newList->copyFunc = copyFF;
     newList->freeFunc = freeFF;
-    newList->equalFunc = equalFF;
-    newList->greaterThanFunc = greaterThanFF;
     //bl3md lo et7alte el-iterator
     return newList;
 }
@@ -73,7 +69,7 @@ UniqueOrderedList uniqueOrderedListCopy(UniqueOrderedList list){
     if(!list){
         return NULL;
     }
-    UniqueOrderedList newList = uniqueOrderedListCreate(list->copyFunc, list->freeFunc, list->equalFunc, list->greaterThanFunc);
+    UniqueOrderedList newList = uniqueOrderedListCreate(list->copyFunc, list->freeFunc);
     newList->size = list->size;
 
     Node tmp = list->head;
@@ -116,7 +112,7 @@ bool uniqueOrderedListContains(UniqueOrderedList list, Element element, elements
     return false;
 }
 
-UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList list, Element element){
+UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList list, Element element, elementsEquals equFunc, elementGreaterThan greaFunc){
     if(list == NULL || element == NULL){
         return UNIQUE_ORDERED_LIST_NULL_ARGUMENT;
     }
@@ -124,10 +120,10 @@ UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList list, Element 
         Node tmp = list->head;
         Node last_tmp = tmp;
         while (tmp != NULL) {
-            if (list->equalFunc(tmp->element, element) == true) {
+            if (equFunc(tmp->element, element) == true) {
                 return UNIQUE_ORDERED_LIST_ITEM_ALREADY_EXISTS;
             }
-            if (list->greaterThanFunc(element, tmp->element)) {
+            if (greaFunc(element, tmp->element)) {
                 last_tmp = tmp;
                 tmp = tmp->next;
             }
@@ -235,6 +231,4 @@ void uniqueOrderedListClear(UniqueOrderedList list){
         free(ptr);
     }
     list->size = 0;
-
-    return;
 }

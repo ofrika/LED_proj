@@ -237,7 +237,6 @@ void destroyPicObject(PicObject picObject){
         free(arr);
     }
     free(picObject);
-    return;
 }
 
 int getPicID(PicObject picObject){
