@@ -136,8 +136,7 @@ struct picObject_t{
                         // Otherwise, interpret as 2D array of RGB
 };
 
-Existing_Pics convertPicStrToEnumExisting(void* data){
-    char* picName = data;
+Existing_Pics convertPicStrToEnumExisting(char* data){
     if(strcmp(data, "up") == 0){
         return U;
     } else if(strcmp(data, "down") == 0){
@@ -155,13 +154,12 @@ Existing_Pics convertPicStrToEnumExisting(void* data){
     }
 }
 
-RGB** convertPicStrToRGBArray(void* data, int width, int height){
-    char* str = data;
+RGB** convertPicStrToRGBArray(char* data, int width, int height){
     RGB** arr = malloc(sizeof(*arr)*height);
     for(int i=0; i<height; i++){
         arr[i] = malloc(sizeof(**arr)*width);
     }
-    char *ptr = strtok(str, ",;");
+    char *ptr = strtok(data, ",;");
     int count = 0;
     byte r=0, g=0, b=0;
     for(int i=0; ptr != NULL && i<height; i++){
@@ -190,7 +188,7 @@ RGB** convertPicStrToRGBArray(void* data, int width, int height){
     return arr;
 }
 
-PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, Picture_Type type, void* data){
+PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, Picture_Type type, char* data){
     PicObject newPic = malloc(sizeof(*newPic));
     if(!newPic){
         return NULL;
@@ -200,10 +198,12 @@ PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, P
     newPic->y = y;
     newPic->lenX = lenX;
     newPic->lenY = lenY;
-    newPic->color = copyRGB(color);
-    if(!newPic->color){
-        free(newPic);
-        return NULL;
+    if(type == EXISTING){
+        newPic->color = copyRGB(color);
+        if(!newPic->color){
+            free(newPic);
+            return NULL;
+        }
     }
     newPic->type = type;
     if(type == EXISTING){

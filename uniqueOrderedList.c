@@ -102,16 +102,13 @@ int uniqueOrderedListSize(UniqueOrderedList list){
     return list->size;
 }
 
-bool uniqueOrderedListContains(UniqueOrderedList list, Element element){
+bool uniqueOrderedListContains(UniqueOrderedList list, Element element, elementsEquals equFunc){
     if(list == NULL || element == NULL){
         return false;
     }
     Node tmp = list->head;
     while(tmp != NULL){
-        if(list->greaterThanFunc(tmp->element, element)){
-            return false;
-        }
-        if(list->equalFunc(tmp->element, element) == true){
+        if(equFunc(tmp->element, element) == true){
             return true;
         }
         tmp = tmp->next;
@@ -162,7 +159,7 @@ UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList list, Element 
 
 }
 
-UniqueOrderedListResult uniqueOrderedListRemove(UniqueOrderedList list, Element element){
+UniqueOrderedListResult uniqueOrderedListRemove(UniqueOrderedList list, Element element, elementsEquals equFunc){
     if(list == NULL || element == NULL){
         return UNIQUE_ORDERED_LIST_NULL_ARGUMENT;
     }
@@ -170,7 +167,7 @@ UniqueOrderedListResult uniqueOrderedListRemove(UniqueOrderedList list, Element 
     Node tmp = list->head;
     Node last_tmp = tmp;
     while(tmp != NULL){
-        if (list->equalFunc(tmp->element, element) == true) {
+        if (equFunc(tmp->element, element) == true) {
             Node newNode = tmp->next;
             nodeDestroy(tmp, list->freeFunc);
             if(tmp == list->head){

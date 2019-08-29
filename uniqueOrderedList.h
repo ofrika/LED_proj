@@ -114,7 +114,7 @@ int uniqueOrderedListSize(UniqueOrderedList);
  * 	true - if there exists an element which is equal to the element passed to the function.
  * 	false - otherwise.
  */
-bool uniqueOrderedListContains(UniqueOrderedList, Element);
+bool uniqueOrderedListContains(UniqueOrderedList, Element, elementsEquals);
 
 /**
  * Inserts an element into the list if there is no element equals to it in the list.
@@ -139,7 +139,7 @@ UniqueOrderedListResult uniqueOrderedListInsert(UniqueOrderedList, Element);
  * 											 to the passed element
  * UNIQUE_ORDERED_LIST_SUCCESS - in case of successful removal.
  */
-UniqueOrderedListResult uniqueOrderedListRemove(UniqueOrderedList, Element);
+UniqueOrderedListResult uniqueOrderedListRemove(UniqueOrderedList, Element, elementsEquals);
 
 /**
 * Sets the internal iterator to the first (lowest) element and retrieves it.

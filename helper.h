@@ -31,7 +31,7 @@ int getTextLenY(TextObject textObject);
 /* *************************** PictureObject Declerations**************************** */
 typedef struct picObject_t *PicObject;
 
-PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, Picture_Type type, void* data);
+PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, Picture_Type type, char* data);
 PicObject copyPicObject(PicObject picObject);
 void destroyPicObject(PicObject picObject);
 int getPicID(PicObject picObject);

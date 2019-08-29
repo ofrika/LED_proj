@@ -16,7 +16,7 @@ struct mixedList_t{
     Node iterator;
 };
 
-Node nodeCreate(Element element, Object_Type type){
+Node mixedNodeCreate(Element element, Object_Type type){
     Node newNode = malloc(sizeof(*newNode));
     if(!newNode){
         return NULL;
@@ -31,7 +31,7 @@ Node nodeCreate(Element element, Object_Type type){
     return newNode;
 }
 
-void nodeDestroy(Node node){
+void mixedNodeDestroy(Node node){
     if(node->type == Text){
         destroyTextObject(node->element);
     } else {
@@ -57,7 +57,7 @@ void mixedListDestroy(MixedList list){
     while(list->head != NULL){
         Node willDelete = list->head;
         list->head = list->head->next;
-        nodeDestroy(willDelete);
+        mixedNodeDestroy(willDelete);
     }
     free(list);
 }
@@ -170,7 +170,7 @@ MixedListResult mixedListInsert(MixedList list, Element element, Object_Type typ
                 tmp = tmp->next;
             }
             else{
-                Node newNode = nodeCreate(element, type);
+                Node newNode = mixedNodeCreate(element, type);
                 if(tmp == list->head){
                     newNode->next = list->head;
                     list->head = newNode;
@@ -183,14 +183,14 @@ MixedListResult mixedListInsert(MixedList list, Element element, Object_Type typ
                 return MIXED_LIST_SUCCESS;
             }
         }
-        Node newNode = nodeCreate(element, type);
+        Node newNode = mixedNodeCreate(element, type);
         last_tmp->next = newNode;
         list->size++;
         return MIXED_LIST_SUCCESS;
 
     }
     else{
-        list->head = nodeCreate(element, type); // what if the allocation failed?
+        list->head = mixedNodeCreate(element, type); // what if the allocation failed?
         list->size++;
         return MIXED_LIST_SUCCESS;
     }
@@ -223,7 +223,7 @@ MixedListResult mixedListRemove(MixedList list, int id){
     while(tmp != NULL){
         if (objectsAreEqual(tmp->element, tmp->type, id)) {
             Node newNode = tmp->next;
-            nodeDestroy(tmp);
+            mixedNodeDestroy(tmp);
             if(tmp == list->head){
                 list->head = newNode;
             }
@@ -308,7 +308,7 @@ void mixedListClear(MixedList list){
     while (list->head) {
         Node ptr=list->head;
         list->head=ptr->next;
-        nodeDestroy(ptr);
+        mixedNodeDestroy(ptr);
     }
     list->size = 0;
 

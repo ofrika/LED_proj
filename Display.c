@@ -6,38 +6,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-static int static_id = 1;
-// ******************* Basic data structures *******************
-
-typedef struct screen_t
-{
-    char** R;
-    char** G;
-    char** B;
-    int lenRow; // Default: 4*32
-    int lenCol; // Default: 8*32
-}*Screen;
-
-typedef struct board_t
-{
-    char* ip_add;
-    int numPorts; // Default: 4
-    int* MatsPerLine;
-    int numLedsInMatrix; // Default: 32
-    UniqueOrderedList subBoards;
-}*Board;
-
-typedef struct display_t
-{
-    int id;
-    int x;
-    int y;
-    int lenX;
-    int lenY;
-    MixedList objects;
-}*Display;
-
-/* ***************************** Implementations ******************************* */
 
 // ******************* Global variables *******************
 
@@ -46,17 +14,51 @@ unsigned char* port2 = (unsigned char *) 0x42000000;
 unsigned char* port3 = (unsigned char *) 0x44000000;
 unsigned char* port4 = (unsigned char *) 0x46000000;
 
+typedef struct screen_t *Screen;
+typedef struct board_t *Board;
+typedef struct display_t *Display;
 Board mainBoard;
 Screen oldScreen;
 Screen newScreen;
 
-// ********************************************************
-Display createDisplay(int x, int y, int lenX, int lenY){
+// *************************** Data structures ********************************
+
+
+// *************************** Screen ********************************
+struct screen_t{
+    char** R;
+    char** G;
+    char** B;
+    int lenRow; // Default: 4*32
+    int lenCol; // Default: 8*32
+};
+
+// ********************************** Board ************************************
+struct board_t
+{
+    char* ip_add;
+    int numPorts; // Default: 4
+    int* MatsPerLine;
+    int numLedsInMatrix; // Default: 32
+    UniqueOrderedList subBoards;
+};
+
+// ********************************* Display ***********************************
+struct display_t{
+    int id;
+    int x;
+    int y;
+    int lenX;
+    int lenY;
+    MixedList objects;
+};
+
+Display createDisplay(int id, int x, int y, int lenX, int lenY){
     Display new_disp = malloc(sizeof(*new_disp));
     if(!new_disp){
         return NULL;
     }
-    new_disp->id = static_id;
+    new_disp->id = id;
     new_disp->x = x;
     new_disp->y = y;
     new_disp->lenX = lenX;
@@ -69,11 +71,12 @@ Display createDisplay(int x, int y, int lenX, int lenY){
     return new_disp;
 }
 
-Display copyDisplay(Display disp){
+Element copyDisplay(Element d){
+    Display disp = d;
     if(!disp){
         return NULL;
     }
-    Display new_disp = createDisplay(disp->x, disp->y, disp->lenX, disp->lenY);
+    Display new_disp = createDisplay(disp->id, disp->x, disp->y, disp->lenX, disp->lenY);
     if(!new_disp){
         return NULL;
     }
@@ -81,13 +84,24 @@ Display copyDisplay(Display disp){
     return new_disp;
 }
 
-void destroyDisplay(Display disp){
+void destroyDisplay(Element d){
+    Display disp = d;
     if(!disp){
         return;
     }
     mixedListDestroy(disp->objects);
     free(disp);
-    return;
+}
+
+bool is_disp_ID(Display disp, int ID){
+    if(disp->id == ID){
+        return true;
+    }
+    return false;
+}
+
+void clearDisplayObjects(Display disp){
+    uniqueOrderedListClear(disp->objects);
 }
 
 // I should recheck this function
@@ -99,7 +113,9 @@ bool is_in(Display disp1, Display disp2){
     return false;
 }
 
-bool disp_is_equal(Display disp1, Display disp2){
+bool disps_intersect(Element d1, Element d2){
+    Display disp1 = d1;
+    Display disp2 = d2;
     if(is_in(disp1, disp2) || is_in(disp2, disp2)){
         return true;
     } else {
@@ -107,7 +123,9 @@ bool disp_is_equal(Display disp1, Display disp2){
     }
 }
 
-bool disp_is_greater(Display disp1, Display disp2){
+bool disp_is_greater(Element d1, Element d2){
+    Display disp1 = d1;
+    Display disp2 = d2;
     if(disp1->y > disp2->y){
         return true;
     } else if(disp1->y==disp2->y && disp1->x > disp2->x){
@@ -118,11 +136,11 @@ bool disp_is_greater(Display disp1, Display disp2){
     }
 }
 
-int initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int num_port1, int num_port2, int num_port3, int num_port4)
+LedSignResult initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int num_port1, int num_port2, int num_port3, int num_port4)
 {
     mainBoard = malloc(sizeof(*mainBoard));
     if(!mainBoard){
-        return -1;
+        return LED_SIGN_OUT_OF_MEMORY;
     }
     mainBoard->ip_add = ip_add;
     mainBoard->numPorts = numPorts; // Default: 4
@@ -130,7 +148,7 @@ int initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int num_port1, in
     mainBoard->MatsPerLine = malloc(numPorts*sizeof(int));
     if(!(mainBoard->MatsPerLine)){
         free(mainBoard);
-        return -1;
+        return LED_SIGN_OUT_OF_MEMORY;
     }
     //for(int i=0; i<numPorts; i++){
     mainBoard->MatsPerLine[0] = num_port1;
@@ -138,12 +156,17 @@ int initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int num_port1, in
     mainBoard->MatsPerLine[2] = num_port3;
     mainBoard->MatsPerLine[3] = num_port4;
     //}
-    mainBoard->subBoards = uniqueOrderedListCreate(copyDisplay, destroyDisplay, disp_is_equal, disp_is_greater);
-    return 1;
+    mainBoard->subBoards = uniqueOrderedListCreate(copyDisplay, destroyDisplay, disps_intersect, disp_is_greater);
+    return LED_SIGN_SUCCESS;
+}
+
+void destroyBoard(){
+    free(mainBoard->MatsPerLine);
+    uniqueOrderedListDestroy(mainBoard->subBoards);
+    free(mainBoard);
 }
 
 /* ************************************************************ */
-
 bool is_legal_location(int x, int y, int lenX, int lenY){
     bool y_is_legal = false;
     for(int i=0; i<mainBoard->numPorts; i++){
@@ -164,23 +187,69 @@ bool is_legal_location(int x, int y, int lenX, int lenY){
     return true;
 }
 
-int addDisplay(int x, int y, int lenX, int lenY){ //indeces starts from 1
-    if(!is_legal_location(x,y,lenX,lenY)){
-        return -2;		// return "ILLEGAL LOCATION"
+bool disp_is_equal(Element d1, Element d2){
+    Display disp1 = d1;
+    Display disp2 = d2;
+    if(disp1->id == disp2->id){
+        return true;
     }
-    Display disp = createDisplay(x,y,lenX,lenY);
+    return false;
+}
+
+
+LedSignResult addDisplay(int dispID, int x, int y, int lenX, int lenY){ //indeces starts from 1
+    Display disp = createDisplay(dispID, x,y,lenX,lenY);
     if(!disp){
-        return -1;		// return :PROBLEM ALLOCATING DISP"
+        return LED_SIGN_OUT_OF_MEMORY;
     }
-    if(uniqueOrderedListContains(mainBoard->subBoards, disp)){
-        return -2;		//return "ILLEGAL LOCATION"
+    if(uniqueOrderedListContains(mainBoard->subBoards, disp, disp_is_equal)){
+        destroyDisplay(disp);
+        return LED_SIGN_DISPLAY_ID_ALREADY_EXIST;
     }
-    uniqueOrderedListInsert(mainBoard->subBoards, disp);
+    if(!is_legal_location(x,y,lenX,lenY)){
+        destroyDisplay(disp);
+        return LED_SIGN_OUT_OF_BOARD_COARDINATES;
+    }
+    if(uniqueOrderedListInsert(mainBoard->subBoards, disp) == UNIQUE_ORDERED_LIST_ITEM_ALREADY_EXISTS){
+        destroyDisplay(disp);
+        return LED_SIGN_ANOTHER_DISPLAY_LOCATED_THERE;
+    }
     destroyDisplay(disp);
     return 0;
 
 }
 
-int addObject(Object_Type o, int id, int x, int y, int lenX, int lenY, bool scrollable, int size){
+/* ************************************************************ */
+LedSignResult cleanDisplay(int dispID){
+    Display lastDisp = uniqueOrderedListGetGreatest(mainBoard->subBoards);
+    if(!lastDisp){
+        return LED_SIGN_SUCCESS;
+    }
+    for(Display itr = uniqueOrderedListGetLowest(mainBoard->subBoards);  ; uniqueOrderedListGetNext(mainBoard->subBoards)){
+        if(is_disp_ID(itr, dispID)){
+            clearDisplayObjects(itr);
+            return LED_SIGN_SUCCESS;
+        }
+        if(itr == lastDisp){
+            break;
+        }
+    }
+    return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
+}
 
+LedSignResult deleteDisplay(int dispID){
+    Display lastDisp = uniqueOrderedListGetGreatest(mainBoard->subBoards);
+    if(!lastDisp){
+        return LED_SIGN_SUCCESS;
+    }
+    for(Display itr = uniqueOrderedListGetLowest(mainBoard->subBoards);  ; uniqueOrderedListGetNext(mainBoard->subBoards)){
+        if(is_disp_ID(itr, dispID)){
+            uniqueOrderedListRemove(mainBoard->subBoards, itr, disp_is_equal);
+            return LED_SIGN_SUCCESS;
+        }
+        if(itr == lastDisp){
+            break;
+        }
+    }
+    return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
