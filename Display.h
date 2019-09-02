@@ -1,9 +1,12 @@
 // Created by Anabusy on 8/29/2019.
-#ifndef MIXEDLIST_DISPLAY_H
-#define MIXEDLIST_DISPLAY_H
+#ifndef DISPLAY_H
+#define DISPLAY_H
 
-#include "helper.h"
+//#include "helper.h"
+#include <stdbool.h>
 
+typedef struct rgb_t *RGB;
+typedef enum pic_Type_e{EXISTING, NEW} Picture_Type;
 typedef enum ledSignResult_t LedSignResult;
 
 enum ledSignResult_t {

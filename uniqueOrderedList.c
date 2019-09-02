@@ -215,7 +215,6 @@ Element uniqueOrderedListGetNext(UniqueOrderedList list) {
         }
         return NULL;
     }
-
     return NULL;
 }
 
