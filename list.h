@@ -3,6 +3,12 @@
 #include <stdbool.h>
 
 typedef struct list_t* List;
+typedef enum type_e{
+    Text,
+    Picture,
+    SubBoard,
+    UNDEF_TYPE
+}Type;
 
 typedef enum ListResult_t {
     LIST_SUCCESS,
@@ -20,16 +26,19 @@ void listDestroy(List);
 
 int listSize(List);
 
-ListResult listInsert(List, Element);
+ListResult listInsert(List, Element, Type);
 
 ListResult listRemove(List, Element);
 
 Element listGetFirst(List);
 
+Type listGetIteratorType(List list);
+
 Element listGetLast(List);
+
+Element listGetLastType(List list);
 
 Element listGetNext(List);
 
-void listClear(List);
 
 #endif
