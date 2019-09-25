@@ -110,7 +110,6 @@ Type listGetIteratorType(List list){
     if(list == NULL || list->size == 0){
         return UNDEF_TYPE;
     }
-    list->iterator = list->head;
     return list->iterator->type;
 }
 

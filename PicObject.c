@@ -14,8 +14,8 @@ struct picObject_t{
     int lenX;
     int lenY;
     RGB color;
-    Picture_Type type;
-    void* data;         // If type = existing then interpret data as enum value
+    int picNumber;
+//    void* data;         // If type = existing then interpret data as enum value
     // Otherwise, interpret as 2D array of RGB
 };
 
@@ -52,7 +52,9 @@ RGB** convertPicStrToRGBArray(char* data, int width, int height){
     for(int i=0; i<height; i++){
         arr[i] = malloc(sizeof(**arr)*width);
     }
-    char *ptr = strtok(data, ",;");
+    char* tmp = malloc(strlen(data)+1);
+    strcpy(tmp,data);
+    char *ptr = strtok(tmp, ",;");
     int count = 0;
     byte r=0, g=0, b=0;
     for(int i=0; ptr != NULL && i<height; i++){
@@ -82,7 +84,7 @@ RGB** convertPicStrToRGBArray(char* data, int width, int height){
 }
 
 
-PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, Picture_Type type, char* data){
+PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, int picNumber){
     PicObject newPic = malloc(sizeof(*newPic));
     if(!newPic){
         return NULL;
@@ -92,23 +94,19 @@ PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, P
     newPic->y = y;
     newPic->lenX = lenX;
     newPic->lenY = lenY;
-    if(type == EXISTING){
-        newPic->color = copyRGB(color);
-        if(!newPic->color){
-            free(newPic);
-            return NULL;
-        }
+    newPic->color = copyRGB(color);
+    if(!newPic->color){
+        free(newPic);
+        return NULL;
     }
-    newPic->type = type;
-    if(type == EXISTING){
-        newPic->data = (void*)convertPicStrToEnumExisting(data);
-    } else {                //type = NEW
-        newPic->data = (void*)convertPicStrToRGBArray(data, lenX, lenY);
-    }
+    newPic->picNumber = picNumber;
+    // we will call this function when adding a new image to the magar
+    //    newPic->data = (void*)convertPicStrToRGBArray(data, lenX, lenY);
+    return newPic;
 }
 
 PicObject copyPicObject(PicObject picObject){
-    PicObject newPic = createPicObject(picObject->id, picObject->x, picObject->y, picObject->lenX, picObject->lenY, picObject->color,picObject->type, picObject->data);
+    PicObject newPic = createPicObject(picObject->id, picObject->x, picObject->y, picObject->lenX, picObject->lenY, picObject->color,picObject->picNumber);
     if(!newPic){
         return NULL;
     }
@@ -120,16 +118,17 @@ void destroyPicObject(PicObject picObject){
         return;
     }
     destroyRGB(picObject->color);
-    if(picObject->type == NEW){
-        RGB** arr = picObject->data;
-        for (int i = 0; i < picObject->lenY ; ++i) {
-            for (int j = 0; j < picObject->lenX; ++j) {
-                destroyRGB(arr[i][j]);
-            }
-            free(arr[i]);
-        }
-        free(arr);
-    }
+    // we will put this when destroying the images list in the mainBoard
+//    if(picObject->type == NEW){
+//        RGB** arr = picObject->data;
+//        for (int i = 0; i < picObject->lenY ; ++i) {
+//            for (int j = 0; j < picObject->lenX; ++j) {
+//                destroyRGB(arr[i][j]);
+//            }
+//            free(arr[i]);
+//        }
+//        free(arr);
+//    }
     free(picObject);
 }
 
@@ -168,25 +167,11 @@ int getPicLenY(PicObject picObject){
     return picObject->lenY;
 }
 
-int updatePicData(PicObject picObject, RGB newColor, Picture_Type newType, char* newData){
-    if(!picObject || !newColor || !newData){
+int updatePicNumber(PicObject picObject, RGB newColor, int newPicNumber){
+    if(!picObject || !newColor){
         return -1;
     }
-    if(picObject->type == EXISTING){
-        destroyRGB(picObject->color);
-    } else {
-        RGB** tmp = picObject->data;
-        for(int i = 0 ; i<picObject->lenY; i++){
-            free(tmp[i]);
-        }
-        free(tmp);
-    }
-    picObject->type = newType;
-    if(newType == EXISTING){
-        picObject->color = copyRGB(newColor);
-        picObject->data = (void*)convertPicStrToEnumExisting(newData);
-    } else {                //type = NEW
-        picObject->data = (void*)convertPicStrToRGBArray(newData, picObject->lenX, picObject->lenY);
-    }
+    destroyRGB(picObject->color);
+    picObject->picNumber = newPicNumber;
     return 0;
 }

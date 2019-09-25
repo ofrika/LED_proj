@@ -46,21 +46,28 @@ LedSignResult deleteSubBoard(int subBoardID);
 LedSignResult addText(int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int size, char* data);
 
 // Adds picture to the adequate Display. return -1 if the location is Illegal
-LedSignResult addPicture(int pictureID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, Picture_Type type, char* data);
+LedSignResult addPicture(int pictureID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, int picNumber);
 
 // update the text in the given display and writes a new data
 LedSignResult updateText(int dispID, int textID, char* data);
 
 // update the picture in the given display and draw a new data
-LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, Picture_Type type, char* data);
+LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, int newPicNumber);
 
 // Frees allocated memory for obj and deletes from list
 LedSignResult deleteObject(int dispID, int objID);
 
-// Draws new screen on LED screen
+// swap the poiters of two buffers
 int swapBuffer();
 
+// gets the current status of the system
+void getStatus();
+
+// Draws new screen on LED screen
+LedSignResult DrawBoard();
+
 // ******************* Test functions *******************
+
 // Draw one pixel on board
 void testOnePixel(int x, int y, byte r, byte g, byte b);
 // Draw running pixel on board

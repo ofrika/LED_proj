@@ -76,8 +76,7 @@ Display createDisplay(int id, int x, int y, int lenX, int lenY){
     return new_disp;
 }
 
-void destroyDisplay(Display d){
-    Display disp = d;
+void destroyDisplay(Display disp){
     if(!disp){
         return;
     }
@@ -115,7 +114,9 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
             arr[i][j] = RIGHT;
         }
     }
-    char *ptr = strtok(directionsStr, ",;");
+    char* tmp = malloc(strlen(directionsStr)+1);
+    strcpy(tmp,directionsStr);
+    char *ptr = strtok(tmp, ",;");
     int count = 0;
     int row=0, column=0;
     Direction dir = RIGHT;
@@ -123,27 +124,25 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
         if(count%3 == 0){
             int x = atoi(ptr);
             row = x;
-            printf("r == '%d'\n", row);
+//            printf("r == '%d'\n", row);
         } else if(count%3 == 1){
             int x = atoi(ptr);
             column = x;
-            printf("column == '%d'\n", column);
+//            printf("column == '%d'\n", column);
         } else if(count%3 == 2){
             Direction x = convertDirStrToEnumDir(ptr);
-            if(!x){
-                return NULL;
-            }
             dir = x;
-            printf("Direction == '%d'\n", dir);
+//            printf("Direction == '%d'\n", dir);
         } else {
             return NULL;
         }
         ptr = strtok(NULL, ",;");
-        if(count == 2) {         // then we can change direction
+        if(count%3 == 2) {         // then we can change direction
             arr[row][column] = dir;
         }
         count++;
     }
+    free(tmp);
     return arr;
 }
 
@@ -170,10 +169,10 @@ bool is_legal_location(int x, int y, int lenX, int lenY){
 }
 
 bool inside_in(int x1, int y1, int lenX1, int lenY1, int x2, int y2, int lenX2, int lenY2) {
-    if((x2>=x1 && x2<=x1+lenX1 &&  y2>=y1 && y2<=y1+lenY1 ) ||
-       (x2>=x1 && x2<=x1+lenX1 &&  y2+lenY2>=y1 && y2+lenY2<=y1+lenY1 ) ||
-       (x2+lenX2>=x1 && x2+lenX2<=x1+lenX1 && y2>=y1 && y2<=y1+lenY1 ) ||
-       (x2+lenX2>=x1 && x2+lenX2<=x1+lenX1 && y2+lenY2>=y1 && y2+lenY2<=y1+lenY1 )){
+    if((x2>=x1 && x2<x1+lenX1 &&  y2>=y1 && y2<y1+lenY1 ) ||
+       (x2>=x1 && x2<x1+lenX1 &&  y2+lenY2>y1 && y2+lenY2<=y1+lenY1 ) ||
+       (x2+lenX2>x1 && x2+lenX2<=x1+lenX1 && y2>=y1 && y2<y1+lenY1 ) ||
+       (x2+lenX2>x1 && x2+lenX2<=x1+lenX1 && y2+lenY2>y1 && y2+lenY2<=y1+lenY1 )){
         return true;
     }
     return false;
@@ -214,6 +213,7 @@ void deleteAllSubBoards(){
             }
         }
         destroyDisplay(itr_disp);
+        listRemove(mainBoard->subBoards,itr_disp);
     }
 }
 
@@ -237,6 +237,13 @@ LedSignResult initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int* po
         mainBoard->MatsPerLine[i] = ports[i];
     }
     mainBoard->matrixDirections = parseDirections(directions, ports, numPorts);
+
+    //Added for tests
+//    for (int i = 0; i < numPorts; ++i) {
+//        for (int j = 0; j <ports[i] ; ++j) {
+//            printf("%d\n",mainBoard->matrixDirections[i][j]);
+//        }
+//    }
     mainBoard->subBoards = listCreate();
     // I ignored Initializing buffer and handling all related issues
     return LED_SIGN_SUCCESS;
@@ -258,14 +265,14 @@ LedSignResult addSubBoard(int dispID, int x, int y, int lenX, int lenY){ //indec
     if(!new_disp){
         return LED_SIGN_OUT_OF_MEMORY;
     }
-    for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; listGetNext(mainBoard->subBoards)){
+    if(!is_legal_location(x,y,lenX,lenY)){
+        destroyDisplay(new_disp);
+        return LED_SIGN_OUT_OF_BOARD_COARDINATES;
+    }
+    for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             destroyDisplay(new_disp);
             return LED_SIGN_DISPLAY_ID_ALREADY_EXIST;
-        }
-        if(!is_legal_location(x,y,lenX,lenY)){
-            destroyDisplay(new_disp);
-            return LED_SIGN_OUT_OF_BOARD_COARDINATES;
         }
         if(shapes_intersect(x,y,lenX,lenY,itr_disp->x, itr_disp->y, itr_disp->lenX, itr_disp->lenY)){
             destroyDisplay(new_disp);
@@ -282,7 +289,7 @@ LedSignResult cleanSubBoard(int dispID){
     if(num_of_displays == 0){
         return LED_SIGN_SUCCESS;
     }
-    for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; listGetNext(mainBoard->subBoards)){
+    for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             for(Element e = listGetFirst(itr_disp->objects); listSize(itr_disp->objects) != 0 ; e = listGetFirst(itr_disp->objects)){
                 listRemove(itr_disp->objects,e);
@@ -310,6 +317,7 @@ LedSignResult deleteSubBoard(int dispID){
                 }
             }
             destroyDisplay(itr_disp);
+            listRemove(mainBoard->subBoards,itr_disp);
             return LED_SIGN_SUCCESS;
         }
     }
@@ -359,8 +367,8 @@ LedSignResult addText(int textID, int x, int y, int lenX, int lenY, byte r, byte
     return LED_SIGN_SUCCESS;
 }
 
-LedSignResult addPicture(int pictureID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, Picture_Type type, char* data){
-    PicObject picObject = createPicObject(pictureID,x,y,lenX,lenY,createRGB(r,g,b),type,data);
+LedSignResult addPicture(int pictureID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, int picNumber){
+    PicObject picObject = createPicObject(pictureID,x,y,lenX,lenY,createRGB(r,g,b),picNumber);
     if(!picObject){
         return LED_SIGN_OUT_OF_MEMORY;
     }
@@ -422,19 +430,20 @@ LedSignResult updateText(int dispID, int textID, char* newData){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, Picture_Type type, char* data){
+LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, int newPicNumber){
     for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
                 Type type = listGetIteratorType(itr_disp->objects);
                 if(type == Picture){
                     if(pictureID == getPicID((PicObject)e)){
-                        if(updatePicData((PicObject)e, createRGB(r,g,b),type,data) != -1){
+                        if(updatePicNumber((PicObject)e, createRGB(r,g,b),newPicNumber) != -1){
                             return LED_SIGN_SUCCESS;
                         }
                         return LED_SIGN_OUT_OF_MEMORY;
                     }
                 }
+
             }
             return LED_SIGN_NO_PICTURE_WITH_THE_GIVEN_ID;
         }
