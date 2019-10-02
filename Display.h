@@ -12,6 +12,9 @@ typedef enum Direction_t{UP, DOWN, LEFT, RIGHT, UNDEFINED_DIR} Direction;
 enum ledSignResult_t {
     LED_SIGN_SUCCESS,
     LED_SIGN_OUT_OF_MEMORY,
+    LED_SIGN_ILLEGAL_ARGUMENTS,
+    LED_SIGN_ERROR_WHILE_PARSING_DIRECTIONS,
+    LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK,
     LED_SIGN_OUT_OF_BOARD_COARDINATES,
     LED_SIGN_NO_DISPLAY_CAN_CONTAIN_THAT_TEXT,
     LED_SIGN_NO_DISPLAY_CAN_CONTAIN_THAT_PICTURE,
@@ -28,7 +31,7 @@ enum ledSignResult_t {
 // ************** Data structure handling function declerations *******************
 
 // Allocates space for board struct, fills in screen size values, creates 2 empty screen variables
-LedSignResult initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int* ports, char* directions);
+LedSignResult initBoard(char* ip_add, int numPorts, int* ports, char* directions);
 
 // Frees allocated memory for board
 void destroyBoard();
@@ -45,26 +48,30 @@ LedSignResult deleteSubBoard(int subBoardID);
 // Adds Text to the adequate Display. return -1 if the location is Illegal
 LedSignResult addText(int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int size, char* data);
 
+// Adds new image to the stock so the user can use "addPicture" operation
+LedSignResult addImageToStock(int imageID,  int height, int width, char* rgbData);
+
 // Adds picture to the adequate Display. return -1 if the location is Illegal
-LedSignResult addPicture(int pictureID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, int picNumber);
+LedSignResult addPicture(int pictureID, int x, int y, bool newColor, byte r, byte g, byte b, int imgId);
 
 // update the text in the given display and writes a new data
 LedSignResult updateText(int dispID, int textID, char* data);
 
 // update the picture in the given display and draw a new data
-LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, int newPicNumber);
+LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, int newImgId);
 
 // Frees allocated memory for obj and deletes from list
 LedSignResult deleteObject(int dispID, int objID);
 
 // swap the poiters of two buffers
-int swapBuffer();
+void swapBuffer();
 
 // gets the current status of the system
 void getStatus();
 
 // Draws new screen on LED screen
 LedSignResult DrawBoard();
+
 
 // ******************* Test functions *******************
 

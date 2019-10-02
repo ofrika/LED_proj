@@ -35,5 +35,29 @@ RGB copyRGB(RGB rgb){
 }
 
 void destroyRGB(RGB rgb){
+    if(!rgb){
+        return;
+    }
     free(rgb);
+}
+
+byte getR(RGB rgb){
+    if(!rgb){
+        return 0;
+    }
+    return rgb->r;
+}
+
+byte getG(RGB rgb){
+    if(!rgb){
+        return 0;
+    }
+    return rgb->g;
+}
+
+byte getB(RGB rgb){
+    if(!rgb){
+        return 0;
+    }
+    return rgb->b;
 }

@@ -3,6 +3,7 @@
 //
 
 #include "PicObject.h"
+#include "Image.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -14,77 +15,12 @@ struct picObject_t{
     int lenX;
     int lenY;
     RGB color;
-    int picNumber;
+    Image imgPtr;
 //    void* data;         // If type = existing then interpret data as enum value
     // Otherwise, interpret as 2D array of RGB
 };
 
-enum existing_Pics_e{
-    U,
-    D,
-    L,
-    R,
-    FLOWER,
-    SMILEY,
-    UNDEFINED
-};
-
-Existing_Pics convertPicStrToEnumExisting(char* data){
-    if(strcmp(data, "up") == 0){
-        return U;
-    } else if(strcmp(data, "down") == 0){
-        return D;
-    } else if(strcmp(data, "left") == 0){
-        return L;
-    } else if(strcmp(data, "right") == 0){
-        return R;
-    } else if(strcmp(data, "smiley") == 0){
-        return SMILEY;
-    } else if(strcmp(data, "flower") == 0){
-        return FLOWER;
-    } else {
-        return UNDEFINED;
-    }
-}
-
-RGB** convertPicStrToRGBArray(char* data, int width, int height){
-    RGB** arr = malloc(sizeof(*arr)*height);
-    for(int i=0; i<height; i++){
-        arr[i] = malloc(sizeof(**arr)*width);
-    }
-    char* tmp = malloc(strlen(data)+1);
-    strcpy(tmp,data);
-    char *ptr = strtok(tmp, ",;");
-    int count = 0;
-    byte r=0, g=0, b=0;
-    for(int i=0; ptr != NULL && i<height; i++){
-        for(int j=0; ptr != NULL && j<width; j++){
-            byte x = atoi(ptr);
-            if(count%3 == 0){
-                r = x;
-                printf("r == '%d'\n", r);
-            } else if(count%3 == 1){
-                g = x;
-                printf("g == '%d'\n", g);
-            } else if(count%3 == 2){
-                b = x;
-                printf("b == '%d'\n", b);
-            } else {
-                return NULL;
-            }
-            ptr = strtok(NULL, ",;");
-            if(count == 2) {         // then we can construct an RGB item
-                RGB newRGB = createRGB(r, g, b);
-                arr[i][j] = newRGB;
-            }
-            count++;
-        }
-    }
-    return arr;
-}
-
-
-PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, int picNumber){
+PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, Image imgPtr){
     PicObject newPic = malloc(sizeof(*newPic));
     if(!newPic){
         return NULL;
@@ -99,17 +35,9 @@ PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, i
         free(newPic);
         return NULL;
     }
-    newPic->picNumber = picNumber;
+    newPic->imgPtr = imgPtr;
     // we will call this function when adding a new image to the magar
     //    newPic->data = (void*)convertPicStrToRGBArray(data, lenX, lenY);
-    return newPic;
-}
-
-PicObject copyPicObject(PicObject picObject){
-    PicObject newPic = createPicObject(picObject->id, picObject->x, picObject->y, picObject->lenX, picObject->lenY, picObject->color,picObject->picNumber);
-    if(!newPic){
-        return NULL;
-    }
     return newPic;
 }
 
@@ -167,11 +95,19 @@ int getPicLenY(PicObject picObject){
     return picObject->lenY;
 }
 
-int updatePicNumber(PicObject picObject, RGB newColor, int newPicNumber){
+Image getPicImg(PicObject picObject){
+    if(!picObject){
+        return NULL;
+    }
+    return picObject->imgPtr;
+}
+
+int updatePicImage(PicObject picObject, RGB newColor, Image newImgPtr){
     if(!picObject || !newColor){
         return -1;
     }
     destroyRGB(picObject->color);
-    picObject->picNumber = newPicNumber;
+    picObject->color = newColor;
+    picObject->imgPtr = newImgPtr;
     return 0;
 }

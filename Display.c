@@ -6,9 +6,11 @@
 #include <string.h>
 #include "TextObject.h"
 #include "PicObject.h"
+#include "Image.h"
 
 // ******************* Global variables *******************
-
+#define N 32
+int *copy_cntl = (int *) 0x43C00000;        // we should update the address of the copy register
 unsigned char* port1 = (unsigned char *) 0x40000000;
 unsigned char* port2 = (unsigned char *) 0x42000000;
 unsigned char* port3 = (unsigned char *) 0x44000000;
@@ -17,8 +19,6 @@ unsigned char* port4 = (unsigned char *) 0x46000000;
 typedef struct display_t *Display;
 typedef struct board_t *Board;
 typedef struct buffer_t *Buffer;
-typedef enum type_e Type;
-typedef enum Direction_t Direction;
 
 Board mainBoard;
 
@@ -38,11 +38,11 @@ struct board_t
     char* ip_add;
     int numPorts; // Default: 4
     int* MatsPerLine;
-    int numLedsInMatrix; // Default: 32
     List subBoards;
+    List imagesStock;
     Direction** matrixDirections;
-    Buffer original; // Original screen before considerating matrix rotation
-    Buffer rotationIncluded; // Screen after considerating matrix rotation - ready to send
+    Buffer original; // Original screen before consider matrix rotation
+    Buffer rotationIncluded; // Screen after consider matrix rotation - ready to send
 };
 
 struct buffer_t{
@@ -88,6 +88,7 @@ void destroyDisplay(Display disp){
 
 Direction convertDirStrToEnumDir(char* data);
 Direction** parseDirections(char* directionsStr, int* ports, int numPorts);
+RGB** convertPicStrToRGBArray(int width, int height, char* data);
 
 // ************************** Message parsing methods implementation *******************************
 
@@ -131,6 +132,13 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
 //            printf("column == '%d'\n", column);
         } else if(count%3 == 2){
             Direction x = convertDirStrToEnumDir(ptr);
+            if(x == UNDEFINED_DIR){
+                for(int i=0; i<numPorts; i++){
+                    free(arr[i]);
+                }
+                free(arr);
+                return NULL;
+            }
             dir = x;
 //            printf("Direction == '%d'\n", dir);
         } else {
@@ -146,18 +154,60 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
     return arr;
 }
 
+RGB** convertPicStrToRGBArray(int width, int height, char* data){
+    RGB** arr = malloc(sizeof(*arr)*height);
+    for(int i=0; i<height; i++){
+        arr[i] = malloc(sizeof(**arr)*width);
+    }
+    char* tmp = malloc(strlen(data)+1);
+    strcpy(tmp,data);
+    char *ptr = strtok(tmp, ",;");
+    int count = 0;
+    byte r=0, g=0, b=0;
+    int i=0, j=0;
+    while (ptr != NULL){
+        byte x = atoi(ptr);
+        if(count%3 == 0){
+            r = x;
+//            printf("r == '%d'\n", r);
+        } else if(count%3 == 1){
+            g = x;
+//            printf("g == '%d'\n", g);
+        } else if(count%3 == 2){
+            b = x;
+//            printf("b == '%d'\n", b);
+            RGB newRGB = createRGB(r, g, b);
+            arr[i/3][j/3] = newRGB;
+        } else {
+            return NULL;
+        }
+        ptr = strtok(NULL, ",;");
+        j++;
+        if(j==3*width){
+            i++;
+            if(i==3*height){
+                break;
+            }
+            j=0;
+        }
+        count++;
+    }
+    free(tmp);
+    return arr;
+}
+
 // ************************** private function *******************************
 
 bool is_legal_location(int x, int y, int lenX, int lenY){
     bool y_is_legal = false;
     for(int i=0; i<mainBoard->numPorts; i++){
-        if(y>i*mainBoard->numLedsInMatrix && y<=(i+1)*mainBoard->numLedsInMatrix){
-            if(y+lenY > 0 && y+lenY > (mainBoard->numPorts)*(mainBoard->numLedsInMatrix)){
+        if(y>=i*N && y<(i+1)*N){
+            if(y+lenY > 0 && y+lenY > (mainBoard->numPorts)*N){
                 return false;
             }
             y_is_legal = true;
-            if(!(x>0 && x<=(mainBoard->MatsPerLine[i])*(mainBoard->numLedsInMatrix)
-                 && x+lenX>0 && x+lenX<=(mainBoard->MatsPerLine[i])*(mainBoard->numLedsInMatrix))){
+            if(!(x>=0 && x<(mainBoard->MatsPerLine[i])*N
+                 && x+lenX>0 && x+lenX<(mainBoard->MatsPerLine[i])*N)){
                 return false;
             }
         }
@@ -219,7 +269,7 @@ void deleteAllSubBoards(){
 
 // ************************* Called by user functions implementations *****************************
 
-LedSignResult initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int* ports, char* directions)
+LedSignResult initBoard(char* ip_add, int numPorts, int* ports, char* directions)
 {
     mainBoard = malloc(sizeof(*mainBoard));
     if(!mainBoard){
@@ -227,7 +277,6 @@ LedSignResult initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int* po
     }
     mainBoard->ip_add = ip_add;
     mainBoard->numPorts = numPorts; // Default: 4
-    mainBoard->numLedsInMatrix = numLedsInMatrix; // Default: 32
     mainBoard->MatsPerLine = malloc(numPorts*sizeof(int));
     if(!(mainBoard->MatsPerLine)){
         free(mainBoard);
@@ -237,7 +286,9 @@ LedSignResult initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int* po
         mainBoard->MatsPerLine[i] = ports[i];
     }
     mainBoard->matrixDirections = parseDirections(directions, ports, numPorts);
-
+    if(!mainBoard->matrixDirections){
+        return LED_SIGN_ERROR_WHILE_PARSING_DIRECTIONS;
+    }
     //Added for tests
 //    for (int i = 0; i < numPorts; ++i) {
 //        for (int j = 0; j <ports[i] ; ++j) {
@@ -245,6 +296,8 @@ LedSignResult initBoard(char* ip_add, int numPorts, int numLedsInMatrix, int* po
 //        }
 //    }
     mainBoard->subBoards = listCreate();
+    mainBoard->imagesStock = listCreate();
+
     // I ignored Initializing buffer and handling all related issues
     return LED_SIGN_SUCCESS;
 }
@@ -260,7 +313,10 @@ void destroyBoard(){
     free(mainBoard);
 }
 
-LedSignResult addSubBoard(int dispID, int x, int y, int lenX, int lenY){ //indeces starts from 1
+LedSignResult addSubBoard(int dispID, int x, int y, int lenX, int lenY){ //indeces starts from 0, as usual
+    if(lenX <=0 || lenY <=0 ){
+        return LED_SIGN_ILLEGAL_ARGUMENTS;
+    }
     Display new_disp = createDisplay(dispID, x,y,lenX,lenY);
     if(!new_disp){
         return LED_SIGN_OUT_OF_MEMORY;
@@ -325,6 +381,9 @@ LedSignResult deleteSubBoard(int dispID){
 }
 
 LedSignResult addText(int textID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int size, char* data){
+    if(lenX <=0 || lenY <=0 ){
+        return LED_SIGN_ILLEGAL_ARGUMENTS;
+    }
     TextObject textObject = createTextObject(textID,x,y,lenX,lenY,createRGB(r,g,b),scrollable,size,data);
     if(!textObject){
         return LED_SIGN_OUT_OF_MEMORY;
@@ -367,9 +426,41 @@ LedSignResult addText(int textID, int x, int y, int lenX, int lenY, byte r, byte
     return LED_SIGN_SUCCESS;
 }
 
-LedSignResult addPicture(int pictureID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, int picNumber){
-    PicObject picObject = createPicObject(pictureID,x,y,lenX,lenY,createRGB(r,g,b),picNumber);
+Image find_image(int imgId){
+    for(Element e = listGetFirst(mainBoard->imagesStock); e != listGetLast(mainBoard->imagesStock); e = listGetNext(mainBoard->imagesStock)){
+        if(getImageId((Image)e) == imgId){
+            return e;
+        }
+    }
+    return NULL;
+}
+
+LedSignResult addImageToStock(int imageID, int height, int width, char* rgbData){
+    if(width<=0|| height<=0){
+        return LED_SIGN_ILLEGAL_ARGUMENTS;
+    }
+    RGB** rgbArr =  convertPicStrToRGBArray(width,height,rgbData);
+    Image newImg = createImage(imageID,width,height, rgbArr);
+    if(!newImg){
+        return LED_SIGN_OUT_OF_MEMORY;
+    }
+    listInsert(mainBoard->imagesStock,newImg,UNDEF_TYPE);
+    return LED_SIGN_SUCCESS;
+}
+
+LedSignResult addPicture(int pictureID, int x, int y, bool newColor, byte r, byte g, byte b, int imgId){
+    RGB rgb = NULL;
+    Image img = find_image(imgId);
+    if(!img){
+        return LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK;
+    }
+    int lenX=getImageWidth(img), lenY=getImageHeight(img);
+    if(newColor){
+        rgb = createRGB(r,g,b);
+    }
+    PicObject picObject = createPicObject(pictureID,x,y,lenX,lenY,rgb,img);
     if(!picObject){
+        destroyRGB(rgb);
         return LED_SIGN_OUT_OF_MEMORY;
     }
     Display disp = find_containing_Display(x,y,lenX,lenY);
@@ -430,14 +521,18 @@ LedSignResult updateText(int dispID, int textID, char* newData){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, int newPicNumber){
+LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, int newImgId){
+    Image newImg = find_image(newImgId);
+    if(!newImg){
+        return LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK;
+    }
     for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
                 Type type = listGetIteratorType(itr_disp->objects);
                 if(type == Picture){
                     if(pictureID == getPicID((PicObject)e)){
-                        if(updatePicNumber((PicObject)e, createRGB(r,g,b),newPicNumber) != -1){
+                        if(updatePicImage((PicObject)e, createRGB(r,g,b),newImg) != -1){
                             return LED_SIGN_SUCCESS;
                         }
                         return LED_SIGN_OUT_OF_MEMORY;
@@ -475,3 +570,141 @@ LedSignResult deleteObject(int dispID, int objID){
     }
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
+
+void swapBuffer(){
+    *(copy_cntl+0) = 0Xffffffff;
+    *(copy_cntl+0) = 0;
+}
+
+/*
+//that's how we can print one matrix to the FPGA
+void one_matrgb(unsigned char *rdata,unsigned char *gdata,unsigned char *bdata,int img_size_x,int img_size_y, int pos_x,int pos_y,unsigned char* port,int matrix_shift)
+{
+    unsigned char pixel[4];
+    int i,j;
+    for (j = 0; j<32; j++)
+        for (i = 0; i<32 ; i++)
+        {
+            pixel[3] = *(rdata+ img_size_x*((pos_y+j)%img_size_y) + ((pos_x+i)%img_size_x));
+            pixel[2] = *(gdata+ img_size_x*((pos_y+j)%img_size_y) + ((pos_x+i)%img_size_x));
+            pixel[1] = *(bdata+ img_size_x*((pos_y+j)%img_size_y) + ((pos_x+i)%img_size_x));
+
+            Xil_Out32(port + j*1024 + (i+N*matrix_shift)*4 ,*((int*)pixel));
+        }
+}
+*/
+
+void rotate_90_clockwise(int board_rgb[128][256], int matrix_line, int matrix_column){
+    int tmp[N][N];
+    for (int i = N-1; i >= 0; i--) {
+        for (int j = N-1; j >= 0; j--) {
+            tmp[i][j] = board_rgb[matrix_line*N + N-1-j][matrix_column*N + i];
+        }
+    }
+    for (int i = 0; i < N ; ++i) {
+        for (int j = 0; j < N; ++j) {
+            board_rgb[matrix_line*N+i][matrix_column*N+j]=tmp[i][j];
+        }
+    }
+}
+void rotate_180(int board_rgb[128][256], int matrix_line, int matrix_column){
+    for (int i = 0; i < N/2 ; ++i) {
+        for (int j = N-1; j >= 0; j--) {
+            int tmp = board_rgb[matrix_line*N + j][matrix_column*N + i];
+            board_rgb[matrix_line*N+j][matrix_column*N+i] = board_rgb[matrix_line*N + N-1-j][matrix_column*N + N-1-i];
+            board_rgb[matrix_line*N + N-1-j][matrix_column*N + N-1-i] = tmp;
+        }
+    }
+}
+
+void rotate_90_counter_clockwise(int board_rgb[128][256], int matrix_line, int matrix_column){
+    int tmp[N][N];
+    for (int i = 0; i < N; i++) {
+        for (int j = N-1; j >= 0; j--) {
+            tmp[i][N-1-j] = board_rgb[matrix_line*N + N-1-j][matrix_column*N + N-1-i];
+        }
+    }
+    for (int i = 0; i < N ; ++i) {
+        for (int j = 0; j < N; ++j) {
+            board_rgb[matrix_line*N+i][matrix_column*N+j]=tmp[i][j];
+        }
+    }
+}
+
+void print_board(int board[128][256]){
+    for(int i=0; i<(mainBoard->numPorts)*N; i++){
+        for(int j=0; j<mainBoard->MatsPerLine[i]*N; j++) {
+            if(i/N<1){
+                Xil_Out32(port1 + i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
+            } else if(i/N<2 && i/N>=1){
+                Xil_Out32(port2 + i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
+            } else if(i/N<3 && i/N>=2){
+                Xil_Out32(port3 + i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
+            } else {
+                Xil_Out32(port4 + i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
+            }
+        }
+    }
+}
+
+void rotate_board_matrices(int board[128][256])
+{
+        for(int i=0; i<mainBoard->numPorts; i++){
+            for(int j=0; j<mainBoard->MatsPerLine[i]; j++){
+                switch(mainBoard->matrixDirections[i][j]){
+                    case RIGHT:
+                        break;
+                    case DOWN:
+                        rotate_90_clockwise(board,i,j);
+                        break;
+                    case LEFT:
+                        rotate_180(board,i,j);
+                        break;
+                    case UP:
+                        rotate_90_counter_clockwise(board,i,j);
+                        break;
+                    default:
+                        break;
+                };
+            }
+        }
+};
+
+LedSignResult DrawBoard() {
+    int board_rgb[128][256];        // we should initialize it & replace the numbers with adequate malloc and right lengths
+    for (Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards); itr_disp = listGetNext(mainBoard->subBoards)) {
+        for (Element itr_obj = listGetFirst(itr_disp->objects); itr_obj != listGetLast(itr_disp->objects); itr_obj = listGetNext(itr_disp->objects)) {
+            if (listGetIteratorType(itr_disp->objects) == Text) {
+                TextObject text_obj = (TextObject)itr_obj;
+                // we should continue here..
+            } else {
+                PicObject pic_obj = (PicObject)itr_obj;
+                int x = getPicX(pic_obj);
+                int y = getPicY(pic_obj);
+                Image imgPtr = getPicImg(pic_obj);
+                int lenX = getImageWidth(imgPtr);
+                int lenY = getImageHeight(imgPtr);
+                RGB** rgbArr = getImageRGB(imgPtr);
+                for (int i = y, k=0; i < y+lenY; ++i,++k) {
+                    for (int j = x, m=0; j < x+lenX; ++j, ++m) {
+                        byte* ptr = (byte*)(&(board_rgb[i][j]));
+                        ptr++;
+                        *ptr = getR(rgbArr[k][m]);
+                        ptr++;
+                        *ptr = getG(rgbArr[k][m]);
+                        ptr++;
+                        *ptr = getB(rgbArr[k][m]);
+                    }
+                }
+            }
+
+
+        }
+    }
+    rotate_board_matrices(board_rgb);
+    print_board(board_rgb);
+    swapBuffer();       // enough to call once?
+    return LED_SIGN_SUCCESS;
+}
+
+
