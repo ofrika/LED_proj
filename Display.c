@@ -10,7 +10,8 @@
 
 // ******************* Global variables *******************
 #define N 32
-int *copy_cntl = (int*) 0x43C00000;        // we should update the address of the copy register
+int *copy_cntl = (int *) 0x43C00000;
+
 unsigned char* port1 = (unsigned char *) 0x40000000;
 unsigned char* port2 = (unsigned char *) 0x42000000;
 unsigned char* port3 = (unsigned char *) 0x44000000;
@@ -111,6 +112,9 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
         for(int j=0; j<ports[i]; j++){
             arr[i][j] = RIGHT;
         }
+    }
+    if(strlen(directionsStr) == 0) {
+        return arr;
     }
     char* tmp = malloc(strlen(directionsStr)+1);
     strcpy(tmp,directionsStr);
@@ -435,6 +439,8 @@ LedSignResult addImageToStock(int imageID, int height, int width, char* rgbData)
     if(width<=0|| height<=0){
         return LED_SIGN_ILLEGAL_ARGUMENTS;
     }
+    // we should check that the imageID doesn't exist in the stock yet
+
     RGB** rgbArr =  convertPicStrToRGBArray(width,height,rgbData);
     Image newImg = createImage(imageID,width,height, rgbArr);
     if(!newImg){
@@ -448,6 +454,9 @@ LedSignResult addImageToStockRGBArrays(int imageID, int height, int width, byte*
     if(width<=0|| height<=0){
         return LED_SIGN_ILLEGAL_ARGUMENTS;
     }
+
+    // we should check that the imageID doesn't exist in the stock yet
+
     RGB** rgbArr = malloc(sizeof(*rgbArr)*height);
     for(int i=0; i<height; i++){
         rgbArr[i] = malloc(sizeof(**rgbArr)*width);
