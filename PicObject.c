@@ -30,14 +30,8 @@ PicObject createPicObject(int id, int x, int y, int lenX, int lenY, RGB color, I
     newPic->y = y;
     newPic->lenX = lenX;
     newPic->lenY = lenY;
-    newPic->color = copyRGB(color);
-    if(!newPic->color){
-        free(newPic);
-        return NULL;
-    }
+    newPic->color = color;
     newPic->imgPtr = imgPtr;
-    // we will call this function when adding a new image to the magar
-    //    newPic->data = (void*)convertPicStrToRGBArray(data, lenX, lenY);
     return newPic;
 }
 

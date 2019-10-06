@@ -10,7 +10,7 @@
 
 // ******************* Global variables *******************
 #define N 32
-int *copy_cntl = (int *) 0x43C00000;        // we should update the address of the copy register
+int *copy_cntl = (int*) 0x43C00000;        // we should update the address of the copy register
 unsigned char* port1 = (unsigned char *) 0x40000000;
 unsigned char* port2 = (unsigned char *) 0x42000000;
 unsigned char* port3 = (unsigned char *) 0x44000000;
@@ -35,14 +35,11 @@ struct display_t{
 
 struct board_t
 {
-    char* ip_add;
     int numPorts; // Default: 4
     int* MatsPerLine;
     List subBoards;
     List imagesStock;
     Direction** matrixDirections;
-    Buffer original; // Original screen before consider matrix rotation
-    Buffer rotationIncluded; // Screen after consider matrix rotation - ready to send
 };
 
 struct buffer_t{
@@ -269,13 +266,12 @@ void deleteAllSubBoards(){
 
 // ************************* Called by user functions implementations *****************************
 
-LedSignResult initBoard(char* ip_add, int numPorts, int* ports, char* directions)
+LedSignResult initBoard(int numPorts, int* ports, char* directions)
 {
     mainBoard = malloc(sizeof(*mainBoard));
     if(!mainBoard){
         return LED_SIGN_OUT_OF_MEMORY;
     }
-    mainBoard->ip_add = ip_add;
     mainBoard->numPorts = numPorts; // Default: 4
     mainBoard->MatsPerLine = malloc(numPorts*sizeof(int));
     if(!(mainBoard->MatsPerLine)){
@@ -576,24 +572,6 @@ void swapBuffer(){
     *(copy_cntl+0) = 0;
 }
 
-/*
-//that's how we can print one matrix to the FPGA
-void one_matrgb(unsigned char *rdata,unsigned char *gdata,unsigned char *bdata,int img_size_x,int img_size_y, int pos_x,int pos_y,unsigned char* port,int matrix_shift)
-{
-    unsigned char pixel[4];
-    int i,j;
-    for (j = 0; j<32; j++)
-        for (i = 0; i<32 ; i++)
-        {
-            pixel[3] = *(rdata+ img_size_x*((pos_y+j)%img_size_y) + ((pos_x+i)%img_size_x));
-            pixel[2] = *(gdata+ img_size_x*((pos_y+j)%img_size_y) + ((pos_x+i)%img_size_x));
-            pixel[1] = *(bdata+ img_size_x*((pos_y+j)%img_size_y) + ((pos_x+i)%img_size_x));
-
-            Xil_Out32(port + j*1024 + (i+N*matrix_shift)*4 ,*((int*)pixel));
-        }
-}
-*/
-
 void rotate_90_clockwise(int board_rgb[128][256], int matrix_line, int matrix_column){
     int tmp[N][N];
     for (int i = N-1; i >= 0; i--) {
@@ -635,13 +613,13 @@ void print_board(int board[128][256]){
     for(int i=0; i<(mainBoard->numPorts)*N; i++){
         for(int j=0; j<mainBoard->MatsPerLine[i]*N; j++) {
             if(i/N<1){
-                Xil_Out32(port1 + i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
+                Xil_Out32(port1 + 4*i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));       // multiplied by 4 cuz port1 is of type char*
             } else if(i/N<2 && i/N>=1){
-                Xil_Out32(port2 + i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
+                Xil_Out32(port2 + 4*i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
             } else if(i/N<3 && i/N>=2){
-                Xil_Out32(port3 + i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
+                Xil_Out32(port3 + 4*i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
             } else {
-                Xil_Out32(port4 + i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
+                Xil_Out32(port4 + 4*i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
             }
         }
     }
@@ -703,8 +681,6 @@ LedSignResult DrawBoard() {
     }
     rotate_board_matrices(board_rgb);
     print_board(board_rgb);
-    swapBuffer();       // enough to call once?
+    swapBuffer();
     return LED_SIGN_SUCCESS;
 }
-
-

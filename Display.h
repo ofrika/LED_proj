@@ -31,7 +31,7 @@ enum ledSignResult_t {
 // ************** Data structure handling function declerations *******************
 
 // Allocates space for board struct, fills in screen size values, creates 2 empty screen variables
-LedSignResult initBoard(char* ip_add, int numPorts, int* ports, char* directions);
+LedSignResult initBoard(int numPorts, int* ports, char* directions);
 
 // Frees allocated memory for board
 void destroyBoard();
@@ -70,7 +70,7 @@ void swapBuffer();
 void getStatus();
 
 // Draws new screen on LED screen
-LedSignResult DrawBoard();
+//LedSignResult DrawBoard();
 
 
 // ******************* Test functions *******************
