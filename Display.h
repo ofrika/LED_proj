@@ -51,6 +51,10 @@ LedSignResult addText(int TextID, int x, int y, int lenX, int lenY, byte r, byte
 // Adds new image to the stock so the user can use "addPicture" operation
 LedSignResult addImageToStock(int imageID,  int height, int width, char* rgbData);
 
+// ********* This function wasn't tested :: we can use it with logoR0/logoG0/logoB0 files ********* //
+// Adds new image to the stock with a seperated R, G, B arrays
+LedSignResult addImageToStockRGBArrays(int imageID,  int height, int width,  byte** rData, byte** gData, byte** bData);
+
 // Adds picture to the adequate Display. return -1 if the location is Illegal
 LedSignResult addPicture(int pictureID, int x, int y, bool newColor, byte r, byte g, byte b, int imgId);
 

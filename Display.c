@@ -444,6 +444,28 @@ LedSignResult addImageToStock(int imageID, int height, int width, char* rgbData)
     return LED_SIGN_SUCCESS;
 }
 
+LedSignResult addImageToStockRGBArrays(int imageID, int height, int width, byte** rData, byte** gData, byte** bData){
+    if(width<=0|| height<=0){
+        return LED_SIGN_ILLEGAL_ARGUMENTS;
+    }
+    RGB** rgbArr = malloc(sizeof(*rgbArr)*height);
+    for(int i=0; i<height; i++){
+        rgbArr[i] = malloc(sizeof(**rgbArr)*width);
+    }
+    for (int i = 0; i < height ; ++i) {
+        for (int j = 0; j < width ; ++j) {
+            RGB newRGB = createRGB(rData[i][j], gData[i][j], bData[i][j]);
+            rgbArr[i][j] = newRGB;
+        }
+    }
+    Image newImg = createImage(imageID, width, height, rgbArr);
+    if(!newImg){
+        return LED_SIGN_OUT_OF_MEMORY;
+    }
+    listInsert(mainBoard->imagesStock,newImg,UNDEF_TYPE);
+    return LED_SIGN_SUCCESS;
+}
+
 LedSignResult addPicture(int pictureID, int x, int y, bool newColor, byte r, byte g, byte b, int imgId){
     RGB rgb = NULL;
     Image img = find_image(imgId);
