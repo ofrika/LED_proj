@@ -1,24 +1,31 @@
 //
 // Created by Anabusy on 9/29/2019.
 //
-#include "RGB.h"
 #include "Image.h"
+
 #include "stdlib.h"
+#include "RGB.h"
+#include "xil_io.h"
 
 struct image_t{
     int id;
     int width;
     int height;
-    RGB** colorArr;
+    byte* colorR;
+    byte* colorG;
+    byte* colorB;
 };
 
-Image createImage(int id, int width, int height, RGB** colordata){
+Image createImage(int id, int width, int height, byte* rData, byte* gData, byte* bData){
     Image newImg = malloc(sizeof(*newImg));
     if(!newImg){
+    	xil_printf("haa??\n");
         return NULL;
     }
     newImg->id = id;
-    newImg->colorArr = colordata;
+    newImg->colorR = rData;
+    newImg->colorG = gData;
+    newImg->colorB = bData;
     newImg->width = width;
     newImg->height = height;
     return newImg;
@@ -26,9 +33,10 @@ Image createImage(int id, int width, int height, RGB** colordata){
 
 void destroyImage(Image img){
     for(int i=0; i<img->height; i++){
-        free(img->colorArr[i]);
+        free(img->colorR);
+        free(img->colorG);
+        free(img->colorB);
     }
-    free(img->colorArr);
     free(img);
 }
 
@@ -53,9 +61,23 @@ int getImageHeight(Image img){
     return img->height;
 }
 
-RGB** getImageRGB(Image img){
+byte* getImageR(Image img){
     if(!img){
         return NULL;
     }
-    return img->colorArr;
+    return img->colorR;
+}
+
+byte* getImageG(Image img){
+    if(!img){
+        return NULL;
+    }
+    return img->colorG;
+}
+
+byte* getImageB(Image img){
+    if(!img){
+        return NULL;
+    }
+    return img->colorB;
 }

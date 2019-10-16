@@ -1,8 +1,8 @@
 #ifndef MIXEDLIST_TEXTOBJECT_H
 #define MIXEDLIST_TEXTOBJECT_H
 
-#include "RGB.h"
 #include <stdbool.h>
+#include "RGB.h"
 
 typedef struct textObject_t *TextObject;
 

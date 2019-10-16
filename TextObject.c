@@ -3,6 +3,7 @@
 //
 
 #include "TextObject.h"
+
 #include <stdlib.h>
 #include <string.h>
 

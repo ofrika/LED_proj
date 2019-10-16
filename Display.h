@@ -3,11 +3,13 @@
 #define DISPLAY_H
 
 #include <stdbool.h>
-#include "RGB.h"
 #include "PicObject.h"
+#include "RGB.h"
 
 typedef enum ledSignResult_t LedSignResult;
 typedef enum Direction_t{UP, DOWN, LEFT, RIGHT, UNDEFINED_DIR} Direction;
+
+#define N 32
 
 enum ledSignResult_t {
     LED_SIGN_SUCCESS,
@@ -28,6 +30,7 @@ enum ledSignResult_t {
     LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID
 };
 
+
 // ************** Data structure handling function declerations *******************
 
 // Allocates space for board struct, fills in screen size values, creates 2 empty screen variables
@@ -46,17 +49,15 @@ LedSignResult cleanSubBoard(int subBoardID);
 LedSignResult deleteSubBoard(int subBoardID);
 
 // Adds Text to the adequate Display. return -1 if the location is Illegal
-LedSignResult addText(int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int size, char* data);
+LedSignResult addText(int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, int scrollable, int size, char* data);
 
 // Adds new image to the stock so the user can use "addPicture" operation
-LedSignResult addImageToStock(int imageID,  int height, int width, char* rgbData);
+LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, byte** gData, byte** bData);
 
-// ********* This function wasn't tested :: we can use it with logoR0/logoG0/logoB0 files ********* //
-// Adds new image to the stock with a seperated R, G, B arrays
-LedSignResult addImageToStockRGBArrays(int imageID,  int height, int width, byte** rData, byte** gData, byte** bData);
+LedSignResult addFourByFourImgToStock(int imageID, int height, int width, byte rData[4][4], byte gData[4][4], byte bData[4][4]);
 
 // Adds picture to the adequate Display. return -1 if the location is Illegal
-LedSignResult addPicture(int pictureID, int x, int y, bool newColor, byte r, byte g, byte b, int imgId);
+LedSignResult addPicture(int pictureID, int imgId, int x, int y, bool newColor, byte r, byte g, byte b);
 
 // update the text in the given display and writes a new data
 LedSignResult updateText(int dispID, int textID, char* data);
@@ -67,7 +68,7 @@ LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, i
 // Frees allocated memory for obj and deletes from list
 LedSignResult deleteObject(int dispID, int objID);
 
-// swap the poiters of two buffers
+// swap the pointers of two buffers
 void swapBuffer();
 
 // gets the current status of the system

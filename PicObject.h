@@ -1,8 +1,8 @@
 #ifndef MIXEDLIST_PICOBJECT_H
 #define MIXEDLIST_PICOBJECT_H
 
-#include "RGB.h"
 #include "Image.h"
+#include "RGB.h"
 
 typedef struct picObject_t *PicObject;
 

@@ -1,122 +1,458 @@
-#include <stdio.h>
-#include "list.h"
-#include "Display.h"
+/*
+ * Copyright (C) 2018 Xilinx, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. The name of the author may not be used to endorse or promote products
+ *    derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+ * OF SUCH DAMAGE.
+ *
+ */
 
-int main() {
-    int arr[] = {2,2,2,2};
-    LedSignResult res1 = initBoard(4,arr,"0,1,U;2,1,L;");
+// ################################################## XILINX CODE START ##################################################
+
+#include <stdio.h>
+#include "xparameters.h"
+#include "netif/xadapter.h"
+#include "platform.h"
+#include "platform_config.h"
+#include "lwipopts.h"
+#include "xil_printf.h"
+#include "sleep.h"
+#include "lwip/priv/tcp_priv.h"
+#include "lwip/init.h"
+#include "lwip/inet.h"
+#include "Display.h"
+#include "logoR0.h"
+#include "logoB0.h"
+#include "logoG0.h"
+
+#define LWIP_IPV6 0
+#if LWIP_IPV6==1
+#include "lwip/ip6_addr.h"
+#include "lwip/ip6.h"
+#else
+
+#if LWIP_DHCP==1
+#include "lwip/dhcp.h"
+extern volatile int dhcp_timoutcntr;
+#endif
+
+#define DEFAULT_IP_ADDRESS	"132.68.61.6"
+#define DEFAULT_IP_MASK		"255.255.255.128"
+#define DEFAULT_GW_ADDRESS	"132.68.61.126"
+#endif /* LWIP_IPV6 */
+
+extern volatile int TcpFastTmrFlag;
+extern volatile int TcpSlowTmrFlag;
+
+void platform_enable_interrupts(void);
+void start_application(void);
+void transfer_data(void);
+void print_app_header(void);
+
+#if defined (__arm__) && !defined (ARMR5)
+#if XPAR_GIGE_PCS_PMA_SGMII_CORE_PRESENT == 1 || \
+		 XPAR_GIGE_PCS_PMA_1000BASEX_CORE_PRESENT == 1
+int ProgramSi5324(void);
+int ProgramSfpPhy(void);
+#endif
+#endif
+
+#ifdef XPS_BOARD_ZCU102
+#ifdef XPAR_XIICPS_0_DEVICE_ID
+int IicPhyReset(void);
+#endif
+#endif
+
+struct netif server_netif;
+
+#if LWIP_IPV6==1
+static void print_ipv6(char *msg, ip_addr_t *ip)
+{
+	print(msg);
+	xil_printf(" %s\n\r", inet6_ntoa(*ip));
+}
+#else
+
+static void print_ip(char *msg, ip_addr_t *ip)
+{
+	print(msg);
+	xil_printf("%d.%d.%d.%d\r\n", ip4_addr1(ip), ip4_addr2(ip),
+			ip4_addr3(ip), ip4_addr4(ip));
+}
+
+static void print_ip_settings(ip_addr_t *ip, ip_addr_t *mask, ip_addr_t *gw)
+{
+	print_ip("Board IP:       ", ip);
+	print_ip("Netmask :       ", mask);
+	print_ip("Gateway :       ", gw);
+}
+
+static void assign_default_ip(ip_addr_t *ip, ip_addr_t *mask, ip_addr_t *gw)
+{
+	int err;
+
+	xil_printf("Configuring default IP %s \r\n", DEFAULT_IP_ADDRESS);
+
+	err = inet_aton(DEFAULT_IP_ADDRESS, ip);
+	if (!err)
+		xil_printf("Invalid default IP address: %d\r\n", err);
+
+	err = inet_aton(DEFAULT_IP_MASK, mask);
+	if (!err)
+		xil_printf("Invalid default IP MASK: %d\r\n", err);
+
+	err = inet_aton(DEFAULT_GW_ADDRESS, gw);
+	if (!err)
+		xil_printf("Invalid default gateway address: %d\r\n", err);
+}
+#endif /* LWIP_IPV6 */
+
+// ################################################## XILINX CODE END ##################################################
+
+
+
+
+// ############################################## OFRI & SAMAH CODE START ##############################################
+
+unsigned char* port44 = (unsigned char *) 0x46000000;
+
+
+/*
+void One_Mat_RGB(unsigned char* port,int matrix_shift)
+{
+	unsigned char pixel[4];
+	int i,j;
+	for (j = 0; j<32; j++)
+	{
+		for (i = 0; i<32 ; i++)
+		{
+			pixel[3] = 0;	// r
+			pixel[2] = 150;	// g
+			pixel[1] = 150;	// b
+
+			Xil_Out32((u32) (port + j*1024 + (i+N*matrix_shift)*4) ,*((int*)pixel));
+		}
+	}
+	xil_printf("matrix shift %d end\r\n",matrix_shift);
+}
+
+
+void Test_Running_Pixel()
+{
+	Draw_Picture();
+
+	unsigned char running_pixel[4];
+
+	running_pixel[3] = 255;	// r
+	running_pixel[2] = 0;	// g
+	running_pixel[1] = 0;	// b
+
+	unsigned char bg_pixel[4];
+
+	bg_pixel[3] = 0;	// r
+	bg_pixel[2] = 150;	// g
+	bg_pixel[1] = 150;	// b
+
+	int i,j, prevI=31, prevJ=31;
+	for (j = 31; j>=0; j--)
+	{
+		if (j !=31 )
+			prevJ = j+1;
+		for (i = 31; i>=0 ; i--)
+		{
+			if (i !=31 )
+				prevI = i+1;
+			Xil_Out32((u32) (port44 + j*1024 + (i+N*6)*4) ,*((int*)running_pixel));
+			Xil_Out32((u32) (port44 + prevJ*1024 + (prevI+N*6)*4) ,*((int*)bg_pixel));
+			swapBuffer();
+			sleep(1);
+		}
+		prevI = 31;
+	}
+
+}
+
+*/
+
+//void Draw_Picture()
+//{
+//	int i;
+//	xil_printf("Draw picture start\r\n");
+//	/*for (i = 7; i>=0 ; i--){one_matrgb(port1,i);}
+//	 	xil_printf(" painting port 1 done\r\n");
+//		for (i = 7; i>=0 ; i--){one_matrgb(port2,i);}
+//		 xil_printf(" painting port 2 done\r\n");
+//		 for (i = 7; i>=0;  i--){one_matrgb(port3,i);}
+//		 xil_printf(" painting port 3 done\r\n");
+//*/
+//	for (i = 7; i>=6 ; i--)
+//	{
+//		One_Mat_RGB(port44,i);
+//	}
+//
+////	for (i = 0; i<=100; i++)
+////	{
+////		xil_printf(" painting port 4 done\r\n");
+////		Xil_Out32((u32) (port4 + (8191-i)*4) ,*((int*)pixel));
+////		swapBuffer();
+////		sleep(1);
+////	}
+//
+//	swapBuffer();
+//	xil_printf(" buffer swap triggered\r\n");
+//}
+
+// ############################################### OFRI & SAMAH CODE END ###############################################
+
+
+
+
+// ################################################## XILINX CODE START ##################################################
+
+int main(void)
+{
+	struct ip4_addr ipaddr, netmask, gw;
+	struct netif *netif;
+
+	// The MAC address of the board. this should be unique per board
+	unsigned char mac_ethernet_address[] = {
+		0x00, 0x0a, 0x35, 0x00, 0x01, 0x02 };
+
+	netif = &server_netif;
+	#if defined (__arm__) && !defined (ARMR5)
+		#if XPAR_GIGE_PCS_PMA_SGMII_CORE_PRESENT == 1 || \
+			XPAR_GIGE_PCS_PMA_1000BASEX_CORE_PRESENT == 1
+			ProgramSi5324();
+			ProgramSfpPhy();
+		#endif
+	#endif
+
+	// Define this board specific macro in order perform PHY reset on ZCU102
+	#ifdef XPS_BOARD_ZCU102
+			IicPhyReset();
+	#endif
+
+	init_platform();
+	IP4_ADDR(&ipaddr,  132, 68,   61,   6);
+	IP4_ADDR(&netmask, 255, 255, 255, 128);
+	IP4_ADDR(&gw,      132, 68,   61, 126);
+
+	xil_printf("\r\n\r\n ------------------------------------------------------ \r\n");
+	xil_printf(" ------ lwIP RAW Mode TCP Client Application ------ \r\n");
+
+	lwip_init();
+
+	/* Add network interface to the netif_list, and set it as default */
+	if (!xemac_add(netif, NULL, NULL, NULL, mac_ethernet_address,
+				PLATFORM_EMAC_BASEADDR)) {
+		xil_printf("Error adding N/W interface\r\n");
+		return -1;
+	}
+
+	netif_set_default(netif);
+	platform_enable_interrupts();
+	netif_set_up(netif);
+
+	#if (LWIP_IPV6==0)
+	#if (LWIP_DHCP==1)
+		/* Create a new DHCP client for this interface.
+		 * Note: you must call dhcp_fine_tmr() and dhcp_coarse_tmr() at
+		 * the predefined regular intervals after starting the client. */
+		dhcp_start(netif);
+		dhcp_timoutcntr = 24;
+		while (((netif->ip_addr.addr) == 0) && (dhcp_timoutcntr > 0))
+			xemacif_input(netif);
+		if (dhcp_timoutcntr <= 0) {
+			if ((netif->ip_addr.addr) == 0) {
+				xil_printf("ERROR: DHCP request timed out\r\n");
+				assign_default_ip(&(netif->ip_addr),
+						&(netif->netmask), &(netif->gw));
+			}
+		}
+
+	#else
+		assign_default_ip(&(netif->ip_addr), &(netif->netmask), &(netif->gw));
+	#endif
+		print_ip_settings(&(netif->ip_addr), &(netif->netmask), &(netif->gw));
+	#endif // LWIP_IPV6
+	print_app_header();
+
+	// ################################################## XILINX CODE END ##################################################
+
+
+
+
+	// ############################################## Ofri & Samah CODE START ##############################################
+
+	start_application();
+
+	xil_printf("\r\n ------- Starting ~Ofri & Samah ------- \r\n");
+
+	/*
+	xil_printf("Entering loop to read input from user\r\n");
+	char buff[1024];
+	int isDone=0;
+	xil_printf("Please insert input:\r\n");
+	do
+	{
+		if (scanf("%s", buff) != -1)
+		{
+			if (strcmp(buff, "Done") == 0)
+				isDone = 1;
+			if (strcmp(buff, "DrawPic") == 0)
+				Draw_Picture();
+			if (strcmp(buff, "TestRunningPixel") == 0)
+				Test_Running_Pixel();
+			xil_printf("I just received: %s\r\n", buff);
+		}
+		sleep(1);
+	} while(isDone == 0);
+
+	xil_printf("Receiving input from user loop has ended.");
+*/
+
+/*
+    int arr[] = {8,8,8,8};
+    LedSignResult res1 = initBoard(4,arr,"");
     if(res1 != LED_SIGN_SUCCESS){
         printf("res1 ERROR!!\n");
+    	destroyBoard();
+        return 0;
     }
-    LedSignResult res2 = addSubBoard(5,35,35,30,5);
-    if(res2 != LED_SIGN_OUT_OF_BOARD_COARDINATES){
+    LedSignResult res2 = addSubBoard(5,0,0,256,128);
+    if(res2 != LED_SIGN_SUCCESS){
         printf("res2 ERROR!!\n");
-    }
-    LedSignResult res3 = addSubBoard(5,34,35,28,5);
-    if(res3 != LED_SIGN_SUCCESS){
-        printf("res3 ERROR!!\n");
-    }
-    LedSignResult res4 = addSubBoard(6,35,120,20,9);
-    if(res4 != LED_SIGN_OUT_OF_BOARD_COARDINATES){
-        printf("res4 ERROR !!\n");
-    }
-    LedSignResult res5 = addSubBoard(6,61,39,2,1);
-    if(res5 != LED_SIGN_ANOTHER_DISPLAY_LOCATED_THERE){
-        printf("res5 ERROR!!\n");
-    }
-    LedSignResult res6 = addSubBoard(6,62,40,1,1);
-    if(res6 != LED_SIGN_SUCCESS){
-        printf("res6 ERROR!!\n");
+    	destroyBoard();
+
+        return 0;
     }
 
-    LedSignResult res7 = cleanSubBoard(3);
-    if(res7 != LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID){
-        printf("res7 ERROR!!\n");
+    byte imageR[4][4] = {
+    		{255,255,255,255},
+    		{255,255,255,255},
+    		{255,255,255,255},
+    		{255,255,255,255}
+    };
+
+    byte imageG[4][4] = {
+    		{255,255,255,255},
+    		{255,255,255,255},
+    		{255,255,255,255},
+    		{255,255,255,255}
+    };
+
+    byte imageB[4][4] = {
+    		{255,255,255,255},
+    		{255,255,255,255},
+    		{255,255,255,255},
+    		{255,255,255,255}
+    };
+	LedSignResult res3 = addFourByFourImgToStock(9,4,4,imageR, imageG, imageB);
+	if(res3 != LED_SIGN_SUCCESS){
+		printf("res3 ERROR!!\n");
+		destroyBoard();
+
+		return 0;
+
+	}
+	*/
+
+//    LedSignResult res4 = addPicture(2,9,0,0,false,25,95,19);
+//    if(res4 != LED_SIGN_SUCCESS){
+//        printf("res4 ERROR!!\n");
+//    	destroyBoard();
+//
+//        return 0;
+//
+//    }
+
+	/*
+    LedSignResult res5 = addPicture(3,9,252,124,false,25,95,19);
+    if(res5 != LED_SIGN_SUCCESS){
+        printf("res5 ERROR!!\n");
+    	destroyBoard();
+
+        return 0;
+
     }
-    LedSignResult res8 = cleanSubBoard(6);
-    if(res8 != LED_SIGN_SUCCESS){
-        printf("res8 ERROR!!\n");
+
+    */
+//    LedSignResult res6 = addPicture(4,9,0,124,false,25,95,19);
+//    if(res6 != LED_SIGN_SUCCESS){
+//        printf("res6 ERROR!!\n");
+//    	destroyBoard();
+//
+//        return 0;
+//
+//    }
+//    LedSignResult res7 = addPicture(5,9,252,0,false,25,95,19);
+//    if(res7 != LED_SIGN_SUCCESS){
+//        printf("res7 ERROR!!\n");
+//    	destroyBoard();
+//
+//        return 0;
+//
+//    }
+/*
+	LedSignResult res8 = DrawBoard();
+	if(res8 != LED_SIGN_SUCCESS){
+        printf("Drawing Board ERROR!!\n");
+    	destroyBoard();
+
+		return 0;
     }
-    LedSignResult res9 = cleanSubBoard(6);
-    if(res9 != LED_SIGN_SUCCESS){
-        printf("res9 ERROR!!\n");
-    }
-    LedSignResult res10 = deleteSubBoard(2);
-    if(res10 != LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID){
-        printf("res10 ERROR!!\n");
-    }
-    LedSignResult res11 = deleteSubBoard(6);
-    if(res11 != LED_SIGN_SUCCESS){
-        printf("res11 ERROR!!\n");
-    }
-    LedSignResult res12 = deleteSubBoard(6);
-    if(res12 != LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID){
-        printf("res12 ERROR!!\n");
-    }
-    LedSignResult res13 = addText(2,34,36,28,5,15,20,25,false,10,"my name is Samah");
-    if(res13 != LED_SIGN_NO_DISPLAY_CAN_CONTAIN_THAT_TEXT){
-        printf("res13 ERROR!!\n");
-    }
-    LedSignResult res14 = addText(2,34,36,28,4,15,20,25,false,10,"my name is Samah");
-    if(res14 != LED_SIGN_SUCCESS){
-        printf("res14 ERROR!!\n");
-    }
-    LedSignResult res15 = addText(7,34,35,10,3,15,20,25,false,10,"my name is Samah");
-    if(res15 != LED_SIGN_ANOTHER_OBJECT_LOCATED_THERE){
-        printf("res15 ERROR!!\n");
-    }
-    LedSignResult res16 = addText(2,34,35,1,1,15,20,25,false,10,"my name is Samah");
-    if(res16 != LED_SIGN_OBJECT_ID_ALREADY_EXIST){
-        printf("res16 ERROR!!\n");
-    }
-    LedSignResult res17 = cleanSubBoard(5);
-    if(res17 != LED_SIGN_SUCCESS){
-        printf("res17 ERROR!!\n");
-    }
-    LedSignResult res18 = addText(2,34,35,24,5,15,20,25,false,10,"my name is Samah");
-    if(res18 != LED_SIGN_SUCCESS){
-        printf("res18 ERROR!!\n");
-    }
-    LedSignResult res19 = updateText(6, 2, "my name is Lobabaa");
-    if(res19 != LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID){
-        printf("res19 ERROR!!\n");
-    }
-    LedSignResult res20 = updateText(5, 3, "my name is Lobabaa");
-    if(res20 != LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID){
-        printf("res20 ERROR!!\n");
-    }
-    LedSignResult res21 = updateText(5, 2, "my name is Lobabaa");
-    if(res21 != LED_SIGN_SUCCESS){
-        printf("res21 ERROR!!\n");
-    }
-    LedSignResult res22 = addImageToStock(5,3,2,"1,2,3;4,5,6;7,8,9;10,11,12;13,14,15;16,17,18;");
-    if(res22 != LED_SIGN_SUCCESS){
-        printf("res22 ERROR!!\n");
-    }
-    LedSignResult res23 = addPicture(9,58,35,false,25,95,19,5);
-    if(res23 != LED_SIGN_SUCCESS){
-        printf("res23 ERROR!!\n");
-    }
-    LedSignResult res24 = addPicture(11,59,35,false,25,95,19,5);
-    if(res24 != LED_SIGN_ANOTHER_OBJECT_LOCATED_THERE){
-        printf("res24 ERROR!!\n");
-    }
-    LedSignResult res25 = updatePicture(5,11,55,25,100,5);
-    if(res25 != LED_SIGN_NO_PICTURE_WITH_THE_GIVEN_ID){
-        printf("res25 ERROR!!\n");
-    }
-    LedSignResult res26 = updatePicture(5,9,55,25,100,5);
-    if(res26 != LED_SIGN_SUCCESS){
-        printf("res26 ERROR!!\n");
-    }
-    LedSignResult res27 = deleteObject(5,9);
-    if(res27 != LED_SIGN_SUCCESS){
-        printf("res27 ERROR!!\n");
-    }
-    LedSignResult res28 = deleteObject(5,2);
-    if(res28 != LED_SIGN_SUCCESS){
-        printf("res28 ERROR!!\n");
-    }
-    destroyBoard();
-    return 0;
+
+	destroyBoard();
+	*/
+
+	xil_printf("\r\n ---------- All done! ~Ofri & Samah ---------- \r\n");
+	xil_printf(" ------------------------------------------------ \r\n");
+
+	// ############################################### Ofri & Samah CODE END ###############################################
+
+
+
+
+	// ################################################## XILINX CODE START ##################################################
+
+	while (1) {
+		if (TcpFastTmrFlag) {
+			tcp_fasttmr();
+			TcpFastTmrFlag = 0;
+		}
+		if (TcpSlowTmrFlag) {
+			tcp_slowtmr();
+			TcpSlowTmrFlag = 0;
+		}
+
+		xemacif_input(netif);
+		transfer_data();
+	}
+	xil_printf("Exit\r\n"); // Never reached
+	cleanup_platform();
+
+	return 0;
 }
+
+// ################################################## XILINX CODE END ##################################################
+
+

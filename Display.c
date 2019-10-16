@@ -1,27 +1,29 @@
 // Created by Anabusy on 8/29/2019.
 #include "Display.h"
-#include "list.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "TextObject.h"
-#include "PicObject.h"
+#include "xil_io.h"
 #include "Image.h"
+#include "list.h"
+#include "PicObject.h"
+#include "TextObject.h"
 
 // ******************* Global variables *******************
-#define N 32
-int *copy_cntl = (int *) 0x43C00000;
-
-unsigned char* port1 = (unsigned char *) 0x40000000;
-unsigned char* port2 = (unsigned char *) 0x42000000;
-unsigned char* port3 = (unsigned char *) 0x44000000;
-unsigned char* port4 = (unsigned char *) 0x46000000;
 
 typedef struct display_t *Display;
 typedef struct board_t *Board;
 typedef struct buffer_t *Buffer;
 
 Board mainBoard;
+
+int *copy_cntl = (int *) 0x43C00000;
+
+unsigned char* port1 = (unsigned char *) 0x40000000;
+unsigned char* port2 = (unsigned char *) 0x42000000;
+unsigned char* port3 = (unsigned char *) 0x44000000;
+unsigned char* port4 = (unsigned char *) 0x46000000;
 
 // *************************** Data structures ********************************
 
@@ -86,7 +88,7 @@ void destroyDisplay(Display disp){
 
 Direction convertDirStrToEnumDir(char* data);
 Direction** parseDirections(char* directionsStr, int* ports, int numPorts);
-RGB** convertPicStrToRGBArray(int width, int height, char* data);
+RGB* convertPicStrToRGBArray(int width, int height, char* data);
 
 // ************************** Message parsing methods implementation *******************************
 
@@ -110,7 +112,7 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
     }
     for(int i=0; i<numPorts; i++){
         for(int j=0; j<ports[i]; j++){
-            arr[i][j] = RIGHT;
+        	*(*(arr+i)+j) = RIGHT;
         }
     }
     if(strlen(directionsStr) == 0) {
@@ -147,7 +149,7 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
         }
         ptr = strtok(NULL, ",;");
         if(count%3 == 2) {         // then we can change direction
-            arr[row][column] = dir;
+        	*(*(arr+row)+column) = dir;
         }
         count++;
     }
@@ -155,17 +157,14 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
     return arr;
 }
 
-RGB** convertPicStrToRGBArray(int width, int height, char* data){
-    RGB** arr = malloc(sizeof(*arr)*height);
-    for(int i=0; i<height; i++){
-        arr[i] = malloc(sizeof(**arr)*width);
-    }
+RGB* convertPicStrToRGBArray(int width, int height, char* data){
+    RGB* arr = malloc(sizeof(*arr)*height*width);
     char* tmp = malloc(strlen(data)+1);
     strcpy(tmp,data);
     char *ptr = strtok(tmp, ",;");
     int count = 0;
     byte r=0, g=0, b=0;
-    int i=0, j=0;
+    int i=0;
     while (ptr != NULL){
         byte x = atoi(ptr);
         if(count%3 == 0){
@@ -178,37 +177,38 @@ RGB** convertPicStrToRGBArray(int width, int height, char* data){
             b = x;
 //            printf("b == '%d'\n", b);
             RGB newRGB = createRGB(r, g, b);
-            arr[i/3][j/3] = newRGB;
+            arr[i/3] = newRGB;
         } else {
             return NULL;
         }
         ptr = strtok(NULL, ",;");
-        j++;
-        if(j==3*width){
-            i++;
-            if(i==3*height){
-                break;
-            }
-            j=0;
+        i++;
+        if(i==3*height*width){
+        	break;
         }
+
         count++;
     }
     free(tmp);
     return arr;
+
+    for(int q=0; q<width*height; q++){
+    	xil_printf("rgb arr : %d \n", arr[q]);
+    }
 }
 
 // ************************** private function *******************************
 
+
 bool is_legal_location(int x, int y, int lenX, int lenY){
     bool y_is_legal = false;
+    if(y<0 || y+lenY-1 >= (mainBoard->numPorts)*N){
+        return false;
+    }
     for(int i=0; i<mainBoard->numPorts; i++){
         if(y>=i*N && y<(i+1)*N){
-            if(y+lenY > 0 && y+lenY > (mainBoard->numPorts)*N){
-                return false;
-            }
             y_is_legal = true;
-            if(!(x>=0 && x<(mainBoard->MatsPerLine[i])*N
-                 && x+lenX>0 && x+lenX<(mainBoard->MatsPerLine[i])*N)){
+            if(!(x>=0 && x<(mainBoard->MatsPerLine[i])*N && x+lenX>0 && x+lenX-1<(mainBoard->MatsPerLine[i])*N)){
                 return false;
             }
         }
@@ -218,6 +218,7 @@ bool is_legal_location(int x, int y, int lenX, int lenY){
     }
     return true;
 }
+
 
 bool inside_in(int x1, int y1, int lenX1, int lenY1, int x2, int y2, int lenX2, int lenY2) {
     if((x2>=x1 && x2<x1+lenX1 &&  y2>=y1 && y2<y1+lenY1 ) ||
@@ -272,7 +273,9 @@ void deleteAllSubBoards(){
 
 LedSignResult initBoard(int numPorts, int* ports, char* directions)
 {
-    mainBoard = malloc(sizeof(*mainBoard));
+	*(copy_cntl+2) = 0X0000007F;  // set full brightness
+
+    mainBoard = (Board)malloc(sizeof(*mainBoard));
     if(!mainBoard){
         return LED_SIGN_OUT_OF_MEMORY;
     }
@@ -322,6 +325,7 @@ LedSignResult addSubBoard(int dispID, int x, int y, int lenX, int lenY){ //indec
         return LED_SIGN_OUT_OF_MEMORY;
     }
     if(!is_legal_location(x,y,lenX,lenY)){
+    	xil_printf("oh noooo \n");
         destroyDisplay(new_disp);
         return LED_SIGN_OUT_OF_BOARD_COARDINATES;
     }
@@ -379,7 +383,7 @@ LedSignResult deleteSubBoard(int dispID){
     }
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
-
+/*
 LedSignResult addText(int textID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int size, char* data){
     if(lenX <=0 || lenY <=0 ){
         return LED_SIGN_ILLEGAL_ARGUMENTS;
@@ -425,6 +429,7 @@ LedSignResult addText(int textID, int x, int y, int lenX, int lenY, byte r, byte
     listInsert(disp->objects, textObject, Text);
     return LED_SIGN_SUCCESS;
 }
+*/
 
 Image find_image(int imgId){
     for(Element e = listGetFirst(mainBoard->imagesStock); e != listGetLast(mainBoard->imagesStock); e = listGetNext(mainBoard->imagesStock)){
@@ -435,52 +440,101 @@ Image find_image(int imgId){
     return NULL;
 }
 
-LedSignResult addImageToStock(int imageID, int height, int width, char* rgbData){
-    if(width<=0|| height<=0){
-        return LED_SIGN_ILLEGAL_ARGUMENTS;
-    }
-    // we should check that the imageID doesn't exist in the stock yet
 
-    RGB** rgbArr =  convertPicStrToRGBArray(width,height,rgbData);
-    Image newImg = createImage(imageID,width,height, rgbArr);
-    if(!newImg){
-        return LED_SIGN_OUT_OF_MEMORY;
-    }
-    listInsert(mainBoard->imagesStock,newImg,UNDEF_TYPE);
-    return LED_SIGN_SUCCESS;
-}
+// I should test it : replace the addFourByFo..  by this function..
+LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, byte** gData, byte** bData){
 
-LedSignResult addImageToStockRGBArrays(int imageID, int height, int width, byte** rData, byte** gData, byte** bData){
-    if(width<=0|| height<=0){
+	if(width<=0|| height<=0){
         return LED_SIGN_ILLEGAL_ARGUMENTS;
     }
 
     // we should check that the imageID doesn't exist in the stock yet
+    byte* rArr = malloc(sizeof(*rArr)*height*width);
+    byte* gArr = malloc(sizeof(*gArr)*height*width);
+    byte* bArr = malloc(sizeof(*bArr)*height*width);
 
-    RGB** rgbArr = malloc(sizeof(*rgbArr)*height);
-    for(int i=0; i<height; i++){
-        rgbArr[i] = malloc(sizeof(**rgbArr)*width);
-    }
+    byte* ptrR = rArr, *ptrG = gArr, *ptrB = bArr;
+
+
     for (int i = 0; i < height ; ++i) {
         for (int j = 0; j < width ; ++j) {
-            RGB newRGB = createRGB(rData[i][j], gData[i][j], bData[i][j]);
-            rgbArr[i][j] = newRGB;
+        	*ptrR = *(*(rData+i)+j);
+        	*ptrG = *(*(gData+i)+j);
+        	*ptrB = *(*(bData+i)+j);
+        	ptrR++; ptrG++; ptrB++;
         }
     }
-    Image newImg = createImage(imageID, width, height, rgbArr);
+    Image newImg = createImage(imageID, width, height, rArr, gArr, bArr);
     if(!newImg){
         return LED_SIGN_OUT_OF_MEMORY;
     }
+
     listInsert(mainBoard->imagesStock,newImg,UNDEF_TYPE);
     return LED_SIGN_SUCCESS;
 }
 
-LedSignResult addPicture(int pictureID, int x, int y, bool newColor, byte r, byte g, byte b, int imgId){
+
+LedSignResult addFourByFourImgToStock(int imageID, int height, int width, byte rData[4][4], byte gData[4][4], byte bData[4][4]){
+    byte* rArr = malloc(sizeof(*rArr)*height*width);
+    byte* gArr = malloc(sizeof(*gArr)*height*width);
+    byte* bArr = malloc(sizeof(*bArr)*height*width);
+
+    byte* ptrR = rArr, *ptrG = gArr, *ptrB = bArr;
+
+    for (int i = 0; i < height ; ++i) {
+        for (int j = 0; j < width ; ++j) {
+        	*ptrR = rData[i][j];
+        	*ptrG = gData[i][j];
+        	*ptrB = bData[i][j];
+        	ptrR++; ptrG++; ptrB++;
+        }
+    }
+
+    Image newImg = createImage(imageID, width, height, rArr, gArr, bArr);
+
+
+//    byte* qr1 = getImageR(newImg);
+//    byte* qg1 = getImageG(newImg);
+//    byte* qb1 = getImageB(newImg);
+//
+//    for (int k=0; k < height*width; ++k) {
+//		xil_printf("Rr :: %x \n", qr1[k]);
+//		xil_printf("Gg :: %x \n", qg1[k]);
+//		xil_printf("Bb :: %x \n", qb1[k]);
+//	 }
+
+    if(!newImg){
+        return LED_SIGN_OUT_OF_MEMORY;
+    }
+
+    listInsert(mainBoard->imagesStock,newImg,UNDEF_TYPE);
+
+
+    // 	AFTER ADDING IMAGE TO STOCK, THE RGB VALUES CHANGES, DON"T KNOW WHY !
+
+//    byte* qr = getImageR(newImg);
+//    byte* qg = getImageG(newImg);
+//    byte* qb = getImageB(newImg);
+//
+//    for (int k=0; k < height*width; ++k) {
+//		xil_printf("Rr :: %x \n", qr[k]);
+//		xil_printf("Gg :: %x \n", qg[k]);
+//		xil_printf("Bb :: %x \n", qb[k]);
+//	 }
+
+
+    return LED_SIGN_SUCCESS;
+}
+
+
+LedSignResult addPicture(int pictureID, int imgId, int x, int y, bool newColor, byte r, byte g, byte b){
     RGB rgb = NULL;
     Image img = find_image(imgId);
     if(!img){
         return LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK;
     }
+
+
     int lenX=getImageWidth(img), lenY=getImageHeight(img);
     if(newColor){
         rgb = createRGB(r,g,b);
@@ -598,6 +652,11 @@ LedSignResult deleteObject(int dispID, int objID){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
+// Does not work
+void set_Full_Brightness(){
+	*(copy_cntl+2) = 0X0000007F;
+}
+
 void swapBuffer(){
     *(copy_cntl+0) = 0Xffffffff;
     *(copy_cntl+0) = 0;
@@ -640,27 +699,56 @@ void rotate_90_counter_clockwise(int board_rgb[128][256], int matrix_line, int m
     }
 }
 
-void print_board(int board[128][256]){
-    for(int i=0; i<(mainBoard->numPorts)*N; i++){
-        for(int j=0; j<mainBoard->MatsPerLine[i]*N; j++) {
-            if(i/N<1){
-                Xil_Out32(port1 + 4*i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));       // multiplied by 4 cuz port1 is of type char*
-            } else if(i/N<2 && i/N>=1){
-                Xil_Out32(port2 + 4*i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
-            } else if(i/N<3 && i/N>=2){
-                Xil_Out32(port3 + 4*i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
-            } else {
-                Xil_Out32(port4 + 4*i*N*mainBoard->MatsPerLine[i/N] + j ,*((int*)board));
-            }
+
+void print_board(int** board){
+
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+//        	xil_printf("oo\n");
+        	if(board[i][j] != 0){
+        		xil_printf("non zero port1 %d , %d \n", i, j);
+        	}
+            Xil_Out32((u32) (port1 + i*1024 + j*4) ,board[i][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+//        	xil_printf("oo\n");
+        	if(board[N+i][j] != 0){
+        		xil_printf("non zero port2 %d , %d \n", N+i, j);
+        	}
+            Xil_Out32((u32) (port2 + i*1024 + j*4) ,board[N+i][j]); // multiplied by 4 cuz port1 is of type char*
+        }
+    }
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+//        	xil_printf("oo\n");
+        	if(board[2*N+i][j] != 0){
+        		xil_printf("non zero port3 %d , %d \n", 2*N+i, j);
+        	}
+            Xil_Out32((u32) (port3 + i*1024 + j*4) ,board[2*N+i][j]); // multiplied by 4 cuz port1 is of type char*
+        }
+    }
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+//        	xil_printf("oo\n");
+        	if(board[3*N+i][j] != 0){
+        		xil_printf("non zero port4 %d , %d \n", 3*N+i, j);
+        	}
+            Xil_Out32((u32) (port4 + i*1024 + j*4) ,board[3*N+i][j]); // multiplied by 4 cuz port1 is of type char*
+        }
+    }
+
+    xil_printf("finishef printing\n");
+
 }
 
-void rotate_board_matrices(int board[128][256])
+void rotate_board_matrices(int** board)
 {
         for(int i=0; i<mainBoard->numPorts; i++){
             for(int j=0; j<mainBoard->MatsPerLine[i]; j++){
-                switch(mainBoard->matrixDirections[i][j]){
+
+                switch(*(*(mainBoard->matrixDirections+i)+j)){
                     case RIGHT:
                         break;
                     case DOWN:
@@ -680,7 +768,17 @@ void rotate_board_matrices(int board[128][256])
 };
 
 LedSignResult DrawBoard() {
-    int board_rgb[128][256];        // we should initialize it & replace the numbers with adequate malloc and right lengths
+
+    int** board_rgb = malloc(sizeof(int*)*4*N);
+    for(int i=0; i<4*N; i++){
+    	board_rgb[i] = malloc(sizeof(int)*8*N);
+    }
+    for (int i = 0; i < 4*N; ++i) {
+        for (int j = 0; j < 8*N ; ++j) {
+        	*(*(board_rgb+i)+j) = 0;
+        }
+    }
+
     for (Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards); itr_disp = listGetNext(mainBoard->subBoards)) {
         for (Element itr_obj = listGetFirst(itr_disp->objects); itr_obj != listGetLast(itr_disp->objects); itr_obj = listGetNext(itr_disp->objects)) {
             if (listGetIteratorType(itr_disp->objects) == Text) {
@@ -693,16 +791,36 @@ LedSignResult DrawBoard() {
                 Image imgPtr = getPicImg(pic_obj);
                 int lenX = getImageWidth(imgPtr);
                 int lenY = getImageHeight(imgPtr);
-                RGB** rgbArr = getImageRGB(imgPtr);
-                for (int i = y, k=0; i < y+lenY; ++i,++k) {
-                    for (int j = x, m=0; j < x+lenX; ++j, ++m) {
-                        byte* ptr = (byte*)(&(board_rgb[i][j]));
+
+
+                byte* r = getImageR(imgPtr);
+                byte* g = getImageG(imgPtr);
+                byte* b = getImageB(imgPtr);
+
+//                for (int k=0; k < lenX*lenY; ++k) {
+//            		xil_printf("Rr :: %x \n", rr[k]);
+//            		xil_printf("Gg :: %x \n", gg[k]);
+//            		xil_printf("Bb :: %x \n", bb[k]);
+//            	 }
+
+				int k = 0;
+                for (int i = y; i < y+lenY; ++i) {
+                    for (int j = x; j < x+lenX; ++j) {
+                        byte* ptr = (byte*)(*(board_rgb+i)+j);
                         ptr++;
-                        *ptr = getR(rgbArr[k][m]);
+                        *ptr = b[k];
+//                        xil_printf("b : %d\n ", *ptr);
+
                         ptr++;
-                        *ptr = getG(rgbArr[k][m]);
+                        *ptr = g[k];
+//                        xil_printf("g : %d\n ", *ptr);
+
                         ptr++;
-                        *ptr = getB(rgbArr[k][m]);
+                        *ptr = r[k];
+//                        xil_printf("r : %d\n ", *ptr);
+
+                        k++;
+//                        xil_printf("oaoa : %d\n ", board_rgb[i][j]);
                     }
                 }
             }
@@ -710,8 +828,20 @@ LedSignResult DrawBoard() {
 
         }
     }
+	xil_printf("******* HERE1 ******* \n");
+
+	for(int i=0; i<128; i++){
+		for(int j=0; j<256; j++){
+			if(*(board_rgb[i]+j) != 0){
+				xil_printf("a %d, %d \n", i, j);
+			}
+		}
+	}
+
+	xil_printf("******* HERE2 ******* \n");
+
     rotate_board_matrices(board_rgb);
-    print_board(board_rgb);
+	print_board(board_rgb);
     swapBuffer();
     return LED_SIGN_SUCCESS;
 }
