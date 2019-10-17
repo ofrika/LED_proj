@@ -112,7 +112,7 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
     }
     for(int i=0; i<numPorts; i++){
         for(int j=0; j<ports[i]; j++){
-        	*(*(arr+i)+j) = RIGHT;
+            *(*(arr+i)+j) = RIGHT;
         }
     }
     if(strlen(directionsStr) == 0) {
@@ -149,7 +149,7 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
         }
         ptr = strtok(NULL, ",;");
         if(count%3 == 2) {         // then we can change direction
-        	*(*(arr+row)+column) = dir;
+            *(*(arr+row)+column) = dir;
         }
         count++;
     }
@@ -184,7 +184,7 @@ RGB* convertPicStrToRGBArray(int width, int height, char* data){
         ptr = strtok(NULL, ",;");
         i++;
         if(i==3*height*width){
-        	break;
+            break;
         }
 
         count++;
@@ -193,7 +193,7 @@ RGB* convertPicStrToRGBArray(int width, int height, char* data){
     return arr;
 
     for(int q=0; q<width*height; q++){
-    	xil_printf("rgb arr : %d \n", arr[q]);
+        xil_printf("rgb arr : %d \n", arr[q]);
     }
 }
 
@@ -273,7 +273,7 @@ void deleteAllSubBoards(){
 
 LedSignResult initBoard(int numPorts, int* ports, char* directions)
 {
-	*(copy_cntl+2) = 0X0000007F;  // set full brightness
+    *(copy_cntl+2) = 0X0000007F;  // set full brightness
 
     mainBoard = (Board)malloc(sizeof(*mainBoard));
     if(!mainBoard){
@@ -325,7 +325,7 @@ LedSignResult addSubBoard(int dispID, int x, int y, int lenX, int lenY){ //indec
         return LED_SIGN_OUT_OF_MEMORY;
     }
     if(!is_legal_location(x,y,lenX,lenY)){
-    	xil_printf("oh noooo \n");
+        xil_printf("oh noooo \n");
         destroyDisplay(new_disp);
         return LED_SIGN_OUT_OF_BOARD_COARDINATES;
     }
@@ -383,8 +383,8 @@ LedSignResult deleteSubBoard(int dispID){
     }
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
-/*
-LedSignResult addText(int textID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int size, char* data){
+
+LedSignResult addText(int dispID, int textID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int size, char* data){
     if(lenX <=0 || lenY <=0 ){
         return LED_SIGN_ILLEGAL_ARGUMENTS;
     }
@@ -392,10 +392,18 @@ LedSignResult addText(int textID, int x, int y, int lenX, int lenY, byte r, byte
     if(!textObject){
         return LED_SIGN_OUT_OF_MEMORY;
     }
-    Display disp = find_containing_Display(x,y,lenX,lenY);
+    Display disp = NULL;
+    for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)) {
+        if (itr_disp->id == dispID) {
+            disp = itr_disp;
+            if(!(x>=itr_disp->x && x+lenX<=(itr_disp->x)+(itr_disp->lenX) && y>=itr_disp->y && y+lenY<=(itr_disp->y)+(itr_disp->lenY))){
+                return LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_TEXT;
+            }
+        }
+    }
     if(!disp){
         destroyTextObject(textObject);
-        return LED_SIGN_NO_DISPLAY_CAN_CONTAIN_THAT_TEXT;
+        return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
     }
     for(Element e = listGetFirst(disp->objects); e != listGetLast(disp->objects); e = listGetNext(disp->objects)){
         if(listGetIteratorType(disp->objects) == Text){
@@ -429,7 +437,6 @@ LedSignResult addText(int textID, int x, int y, int lenX, int lenY, byte r, byte
     listInsert(disp->objects, textObject, Text);
     return LED_SIGN_SUCCESS;
 }
-*/
 
 Image find_image(int imgId){
     for(Element e = listGetFirst(mainBoard->imagesStock); e != listGetLast(mainBoard->imagesStock); e = listGetNext(mainBoard->imagesStock)){
@@ -444,7 +451,7 @@ Image find_image(int imgId){
 // I should test it : replace the addFourByFo..  by this function..
 LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, byte** gData, byte** bData){
 
-	if(width<=0|| height<=0){
+    if(width<=0|| height<=0){
         return LED_SIGN_ILLEGAL_ARGUMENTS;
     }
 
@@ -458,10 +465,10 @@ LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, 
 
     for (int i = 0; i < height ; ++i) {
         for (int j = 0; j < width ; ++j) {
-        	*ptrR = *(*(rData+i)+j);
-        	*ptrG = *(*(gData+i)+j);
-        	*ptrB = *(*(bData+i)+j);
-        	ptrR++; ptrG++; ptrB++;
+            *ptrR = *(*(rData+i)+j);
+            *ptrG = *(*(gData+i)+j);
+            *ptrB = *(*(bData+i)+j);
+            ptrR++; ptrG++; ptrB++;
         }
     }
     Image newImg = createImage(imageID, width, height, rArr, gArr, bArr);
@@ -483,10 +490,10 @@ LedSignResult addFourByFourImgToStock(int imageID, int height, int width, byte r
 
     for (int i = 0; i < height ; ++i) {
         for (int j = 0; j < width ; ++j) {
-        	*ptrR = rData[i][j];
-        	*ptrG = gData[i][j];
-        	*ptrB = bData[i][j];
-        	ptrR++; ptrG++; ptrB++;
+            *ptrR = rData[i][j];
+            *ptrG = gData[i][j];
+            *ptrB = bData[i][j];
+            ptrR++; ptrG++; ptrB++;
         }
     }
 
@@ -527,7 +534,7 @@ LedSignResult addFourByFourImgToStock(int imageID, int height, int width, byte r
 }
 
 
-LedSignResult addPicture(int pictureID, int imgId, int x, int y, bool newColor, byte r, byte g, byte b){
+LedSignResult addPicture(int dispID, int pictureID, int imgId, int x, int y, bool newColor, byte r, byte g, byte b){
     RGB rgb = NULL;
     Image img = find_image(imgId);
     if(!img){
@@ -544,11 +551,20 @@ LedSignResult addPicture(int pictureID, int imgId, int x, int y, bool newColor, 
         destroyRGB(rgb);
         return LED_SIGN_OUT_OF_MEMORY;
     }
-    Display disp = find_containing_Display(x,y,lenX,lenY);
+    Display disp = NULL;
+    for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)) {
+        if (itr_disp->id == dispID) {
+            disp = itr_disp;
+            if(!(x>=itr_disp->x && x+lenX<=(itr_disp->x)+(itr_disp->lenX) && y>=itr_disp->y && y+lenY<=(itr_disp->y)+(itr_disp->lenY))){
+                return LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_PICTURE;
+            }
+        }
+    }
     if(!disp){
         destroyPicObject(picObject);
-        return LED_SIGN_NO_DISPLAY_CAN_CONTAIN_THAT_PICTURE;
+        return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
     }
+
     for(Element e = listGetFirst(disp->objects); e != listGetLast(disp->objects); e = listGetNext(disp->objects)){
         if(listGetIteratorType(disp->objects) == Text){
             if(pictureID == getTextID((TextObject)e)){
@@ -654,7 +670,7 @@ LedSignResult deleteObject(int dispID, int objID){
 
 // Does not work
 void set_Full_Brightness(){
-	*(copy_cntl+2) = 0X0000007F;
+    *(copy_cntl+2) = 0X0000007F;
 }
 
 void swapBuffer(){
@@ -705,36 +721,36 @@ void print_board(int** board){
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
 //        	xil_printf("oo\n");
-        	if(board[i][j] != 0){
-        		xil_printf("non zero port1 %d , %d \n", i, j);
-        	}
+            if(board[i][j] != 0){
+                xil_printf("non zero port1 %d , %d \n", i, j);
+            }
             Xil_Out32((u32) (port1 + i*1024 + j*4) ,board[i][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
 //        	xil_printf("oo\n");
-        	if(board[N+i][j] != 0){
-        		xil_printf("non zero port2 %d , %d \n", N+i, j);
-        	}
+            if(board[N+i][j] != 0){
+                xil_printf("non zero port2 %d , %d \n", N+i, j);
+            }
             Xil_Out32((u32) (port2 + i*1024 + j*4) ,board[N+i][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
 //        	xil_printf("oo\n");
-        	if(board[2*N+i][j] != 0){
-        		xil_printf("non zero port3 %d , %d \n", 2*N+i, j);
-        	}
+            if(board[2*N+i][j] != 0){
+                xil_printf("non zero port3 %d , %d \n", 2*N+i, j);
+            }
             Xil_Out32((u32) (port3 + i*1024 + j*4) ,board[2*N+i][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
 //        	xil_printf("oo\n");
-        	if(board[3*N+i][j] != 0){
-        		xil_printf("non zero port4 %d , %d \n", 3*N+i, j);
-        	}
+            if(board[3*N+i][j] != 0){
+                xil_printf("non zero port4 %d , %d \n", 3*N+i, j);
+            }
             Xil_Out32((u32) (port4 + i*1024 + j*4) ,board[3*N+i][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
@@ -745,37 +761,37 @@ void print_board(int** board){
 
 void rotate_board_matrices(int** board)
 {
-        for(int i=0; i<mainBoard->numPorts; i++){
-            for(int j=0; j<mainBoard->MatsPerLine[i]; j++){
+    for(int i=0; i<mainBoard->numPorts; i++){
+        for(int j=0; j<mainBoard->MatsPerLine[i]; j++){
 
-                switch(*(*(mainBoard->matrixDirections+i)+j)){
-                    case RIGHT:
-                        break;
-                    case DOWN:
-                        rotate_90_clockwise(board,i,j);
-                        break;
-                    case LEFT:
-                        rotate_180(board,i,j);
-                        break;
-                    case UP:
-                        rotate_90_counter_clockwise(board,i,j);
-                        break;
-                    default:
-                        break;
-                };
-            }
+            switch(*(*(mainBoard->matrixDirections+i)+j)){
+                case RIGHT:
+                    break;
+                case DOWN:
+                    rotate_90_clockwise(board,i,j);
+                    break;
+                case LEFT:
+                    rotate_180(board,i,j);
+                    break;
+                case UP:
+                    rotate_90_counter_clockwise(board,i,j);
+                    break;
+                default:
+                    break;
+            };
         }
+    }
 };
 
 LedSignResult DrawBoard() {
 
     int** board_rgb = malloc(sizeof(int*)*4*N);
     for(int i=0; i<4*N; i++){
-    	board_rgb[i] = malloc(sizeof(int)*8*N);
+        board_rgb[i] = malloc(sizeof(int)*8*N);
     }
     for (int i = 0; i < 4*N; ++i) {
         for (int j = 0; j < 8*N ; ++j) {
-        	*(*(board_rgb+i)+j) = 0;
+            *(*(board_rgb+i)+j) = 0;
         }
     }
 
@@ -803,7 +819,7 @@ LedSignResult DrawBoard() {
 //            		xil_printf("Bb :: %x \n", bb[k]);
 //            	 }
 
-				int k = 0;
+                int k = 0;
                 for (int i = y; i < y+lenY; ++i) {
                     for (int j = x; j < x+lenX; ++j) {
                         byte* ptr = (byte*)(*(board_rgb+i)+j);
@@ -828,20 +844,20 @@ LedSignResult DrawBoard() {
 
         }
     }
-	xil_printf("******* HERE1 ******* \n");
+    xil_printf("******* HERE1 ******* \n");
 
-	for(int i=0; i<128; i++){
-		for(int j=0; j<256; j++){
-			if(*(board_rgb[i]+j) != 0){
-				xil_printf("a %d, %d \n", i, j);
-			}
-		}
-	}
+    for(int i=0; i<128; i++){
+        for(int j=0; j<256; j++){
+            if(*(board_rgb[i]+j) != 0){
+                xil_printf("a %d, %d \n", i, j);
+            }
+        }
+    }
 
-	xil_printf("******* HERE2 ******* \n");
+    xil_printf("******* HERE2 ******* \n");
 
     rotate_board_matrices(board_rgb);
-	print_board(board_rgb);
+    print_board(board_rgb);
     swapBuffer();
     return LED_SIGN_SUCCESS;
 }

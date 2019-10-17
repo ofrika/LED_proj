@@ -119,10 +119,6 @@ Element listGetLast(List list){
     return NULL;
 }
 
-Element listGetLastType(List list) {
-    return UNDEF_TYPE;
-}
-
 Element listGetNext(List list) {
     if (!list || list->size == 0) {
         return NULL;

@@ -18,8 +18,8 @@ enum ledSignResult_t {
     LED_SIGN_ERROR_WHILE_PARSING_DIRECTIONS,
     LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK,
     LED_SIGN_OUT_OF_BOARD_COARDINATES,
-    LED_SIGN_NO_DISPLAY_CAN_CONTAIN_THAT_TEXT,
-    LED_SIGN_NO_DISPLAY_CAN_CONTAIN_THAT_PICTURE,
+    LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_TEXT,
+    LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_PICTURE,
     LED_SIGN_DISPLAY_ID_ALREADY_EXIST,
     LED_SIGN_OBJECT_ID_ALREADY_EXIST,
     LED_SIGN_ANOTHER_DISPLAY_LOCATED_THERE,
@@ -49,7 +49,7 @@ LedSignResult cleanSubBoard(int subBoardID);
 LedSignResult deleteSubBoard(int subBoardID);
 
 // Adds Text to the adequate Display. return -1 if the location is Illegal
-LedSignResult addText(int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, int scrollable, int size, char* data);
+LedSignResult addText(int dispID, int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int size, char* data);
 
 // Adds new image to the stock so the user can use "addPicture" operation
 LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, byte** gData, byte** bData);
@@ -57,7 +57,7 @@ LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, 
 LedSignResult addFourByFourImgToStock(int imageID, int height, int width, byte rData[4][4], byte gData[4][4], byte bData[4][4]);
 
 // Adds picture to the adequate Display. return -1 if the location is Illegal
-LedSignResult addPicture(int pictureID, int imgId, int x, int y, bool newColor, byte r, byte g, byte b);
+LedSignResult addPicture(int dispID, int pictureID, int imgId, int x, int y, bool newColor, byte r, byte g, byte b);
 
 // update the text in the given display and writes a new data
 LedSignResult updateText(int dispID, int textID, char* data);

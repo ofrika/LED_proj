@@ -13,9 +13,7 @@ typedef enum type_e{
 typedef enum ListResult_t {
     LIST_SUCCESS,
     LIST_NULL_ARGUMENT,
-    LIST_ITEM_DOES_NOT_EXIST,
-    LIST_ITEM_ALREADY_EXISTS,
-    LIST_ANOTHER_ITEM_ALREADY_LOCATED_THERE
+    LIST_ITEM_DOES_NOT_EXIST
 } ListResult;
 
 typedef void* Element;
@@ -35,8 +33,6 @@ Element listGetFirst(List);
 Type listGetIteratorType(List list);
 
 Element listGetLast(List);
-
-Element listGetLastType(List list);
 
 Element listGetNext(List);
 
