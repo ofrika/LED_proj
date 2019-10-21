@@ -9,6 +9,10 @@
 #include "list.h"
 #include "PicObject.h"
 #include "TextObject.h"
+#include "textToRgb.c"
+#include "imgToRgb.c"
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
 
 // ******************* Global variables *******************
 
@@ -534,15 +538,15 @@ LedSignResult addFourByFourImgToStock(int imageID, int height, int width, byte r
 }
 
 
-LedSignResult addPicture(int dispID, int pictureID, int imgId, int x, int y, bool newColor, byte r, byte g, byte b){
+LedSignResult addPicture(int dispID, int pictureID, int imgId, int x, int y, int lenX, int lenY, bool newColor, byte r, byte g, byte b){
     RGB rgb = NULL;
     Image img = find_image(imgId);
     if(!img){
         return LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK;
     }
-
-
-    int lenX=getImageWidth(img), lenY=getImageHeight(img);
+    if(getImageHeight(img)>lenY || getImageWidth(img)>lenX){
+        return LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL;
+    }
     if(newColor){
         rgb = createRGB(r,g,b);
     }
@@ -799,15 +803,34 @@ LedSignResult DrawBoard() {
         for (Element itr_obj = listGetFirst(itr_disp->objects); itr_obj != listGetLast(itr_disp->objects); itr_obj = listGetNext(itr_disp->objects)) {
             if (listGetIteratorType(itr_disp->objects) == Text) {
                 TextObject text_obj = (TextObject)itr_obj;
-                // we should continue here..
+                int x = getTextX(text_obj);
+                int y = getTextY(text_obj);
+                int lenX = getTextLenX(text_obj);
+                int lenY = getTextLenY(text_obj);
+                byte* rgb_data = convert_text_to_rgb(strlen(getTextData(text_obj)),lenX,lenY);
+                int k = 0;
+                for (int i = y; i < y+lenY; ++i) {
+                    for (int j = x+lenX-1; j >=x ; j--) {
+                        byte* ptr = (byte*)(*(board_rgb+i)+j);
+                        ptr++;
+                        *ptr = *(rgb_data+k+2);
+                        ptr++;
+                        *ptr = *(rgb_data+k+1);
+                        ptr++;
+                        *ptr = *(rgb_data+k);
+                        k+=3;
+                    }
+                }
+                free(rgb_data);
             } else {
                 PicObject pic_obj = (PicObject)itr_obj;
                 int x = getPicX(pic_obj);
                 int y = getPicY(pic_obj);
                 Image imgPtr = getPicImg(pic_obj);
-                int lenX = getImageWidth(imgPtr);
-                int lenY = getImageHeight(imgPtr);
-
+                int imgLenX = getImageWidth(imgPtr);
+                int imgLenY = getImageHeight(imgPtr);
+                int lenX = getPicLenX(pic_obj);
+                int lenY = getPicLenY(pic_obj);
 
                 byte* r = getImageR(imgPtr);
                 byte* g = getImageG(imgPtr);
@@ -818,30 +841,27 @@ LedSignResult DrawBoard() {
 //            		xil_printf("Gg :: %x \n", gg[k]);
 //            		xil_printf("Bb :: %x \n", bb[k]);
 //            	 }
+                int factor = MIN((int)lenX/imgLenX, (int)lenY/imgLenY);
+                byte* rgb_data = enlargeImage(factor,r,g,b,lenY,lenX);
 
                 int k = 0;
                 for (int i = y; i < y+lenY; ++i) {
-                    for (int j = x; j < x+lenX; ++j) {
+                    for (int j = x+lenX-1; j >=x ; j--) {
                         byte* ptr = (byte*)(*(board_rgb+i)+j);
                         ptr++;
-                        *ptr = b[k];
-//                        xil_printf("b : %d\n ", *ptr);
-
+                        *ptr = *(rgb_data+k+2);
+//                      xil_printf("b : %d\n ", *ptr);
                         ptr++;
-                        *ptr = g[k];
-//                        xil_printf("g : %d\n ", *ptr);
-
+                        *ptr = *(rgb_data+k+1);
+//                      xil_printf("g : %d\n ", *ptr);
                         ptr++;
-                        *ptr = r[k];
-//                        xil_printf("r : %d\n ", *ptr);
-
-                        k++;
-//                        xil_printf("oaoa : %d\n ", board_rgb[i][j]);
+                        *ptr = *(rgb_data+k);
+//                      xil_printf("r : %d\n ", *ptr);
+                        k+=3;
                     }
                 }
+                free(rgb_data);
             }
-
-
         }
     }
     xil_printf("******* HERE1 ******* \n");

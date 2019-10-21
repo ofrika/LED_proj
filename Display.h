@@ -27,7 +27,8 @@ enum ledSignResult_t {
     LED_SIGN_OBJECT_WITH_THE_GIVEN_ID,
     LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID,
     LED_SIGN_NO_PICTURE_WITH_THE_GIVEN_ID,
-    LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID
+    LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID,
+    LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL
 };
 
 
@@ -57,7 +58,7 @@ LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, 
 LedSignResult addFourByFourImgToStock(int imageID, int height, int width, byte rData[4][4], byte gData[4][4], byte bData[4][4]);
 
 // Adds picture to the adequate Display. return -1 if the location is Illegal
-LedSignResult addPicture(int dispID, int pictureID, int imgId, int x, int y, bool newColor, byte r, byte g, byte b);
+LedSignResult addPicture(int dispID, int pictureID, int imgId, int x, int y, int lenX, int lenY, bool newColor, byte r, byte g, byte b);
 
 // update the text in the given display and writes a new data
 LedSignResult updateText(int dispID, int textID, char* data);

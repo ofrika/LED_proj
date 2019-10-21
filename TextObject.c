@@ -3,7 +3,6 @@
 //
 
 #include "TextObject.h"
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -89,6 +88,13 @@ int getTextLenY(TextObject textObject){
         return -1;
     }
     return textObject->lenY;
+}
+
+char* getTextData(TextObject textObject){
+    if(!textObject){
+        return NULL;
+    }
+    return textObject->data;
 }
 
 int updateTextData(TextObject textObject, char* newData){
