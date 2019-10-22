@@ -3,13 +3,12 @@
 #define DISPLAY_H
 
 #include <stdbool.h>
-#include "PicObject.h"
-#include "RGB.h"
+
+typedef unsigned char byte;
 
 typedef enum ledSignResult_t LedSignResult;
 typedef enum Direction_t{UP, DOWN, LEFT, RIGHT, UNDEFINED_DIR} Direction;
 
-#define N 32
 
 enum ledSignResult_t {
     LED_SIGN_SUCCESS,

@@ -1,3 +1,6 @@
+#ifndef SRC_STB_IMAGE_WRITE_H_
+#define SRC_STB_IMAGE_WRITE_H_
+
 /* stb_image_write - v1.13 - public domain - http://nothings.org/stb/stb_image_write.h
    writes out PNG/BMP/TGA/JPEG/HDR images to C stdio - Sean Barrett 2010-2015
                                      no warranty implied; use at your own risk
@@ -211,7 +214,7 @@ STBIWDEF void stbi_flip_vertically_on_write(int flip_boolean);
 #endif // STBI_WRITE_NO_STDIO
 
 #include <stdarg.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -1616,3 +1619,5 @@ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------
 */
+
+#endif

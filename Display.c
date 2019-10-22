@@ -9,8 +9,11 @@
 #include "list.h"
 #include "PicObject.h"
 #include "TextObject.h"
-#include "textToRgb.c"
-#include "imgToRgb.c"
+#include "textToRgb.h"
+#include "imgToRgb.h"
+#include "RGB.h"
+
+#define N 32
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
@@ -460,9 +463,9 @@ LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, 
     }
 
     // we should check that the imageID doesn't exist in the stock yet
-    byte* rArr = malloc(sizeof(*rArr)*height*width);
-    byte* gArr = malloc(sizeof(*gArr)*height*width);
-    byte* bArr = malloc(sizeof(*bArr)*height*width);
+    byte* rArr = malloc(sizeof(byte)*height*width);
+    byte* gArr = malloc(sizeof(byte)*height*width);
+    byte* bArr = malloc(sizeof(byte)*height*width);
 
     byte* ptrR = rArr, *ptrG = gArr, *ptrB = bArr;
 
@@ -470,11 +473,21 @@ LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, 
     for (int i = 0; i < height ; ++i) {
         for (int j = 0; j < width ; ++j) {
             *ptrR = *(*(rData+i)+j);
+            xil_printf("R :: %d\n", rData[i][j]);
             *ptrG = *(*(gData+i)+j);
+            xil_printf("G :: %d\n", gData[i][j]);
             *ptrB = *(*(bData+i)+j);
+            xil_printf("B :: %d\n", bData[i][j]);
             ptrR++; ptrG++; ptrB++;
         }
     }
+
+//    for (int i = 0; i < height ; ++i) {
+//        for (int j = 0; j < width ; ++j) {
+//        	xil_printf("R: %x  G: %x  B: %x \n", *(rArr+i*width+j), *(gArr+i*width+j), *(bArr+i*width+j));
+//        }
+//    }
+
     Image newImg = createImage(imageID, width, height, rArr, gArr, bArr);
     if(!newImg){
         return LED_SIGN_OUT_OF_MEMORY;
@@ -725,41 +738,41 @@ void print_board(int** board){
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
 //        	xil_printf("oo\n");
-            if(board[i][j] != 0){
-                xil_printf("non zero port1 %d , %d \n", i, j);
-            }
-            Xil_Out32((u32) (port1 + i*1024 + j*4) ,board[i][j]); // multiplied by 4 cuz port1 is of type char*
+//            if(board[i][j] != 0){
+//                xil_printf("non zero port1 %d , %d \n", i, j);
+//            }
+            Xil_Out32((u32) (port1 + i*1024 + j*4) ,*(*(board+i)+j)); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
 //        	xil_printf("oo\n");
-            if(board[N+i][j] != 0){
-                xil_printf("non zero port2 %d , %d \n", N+i, j);
-            }
-            Xil_Out32((u32) (port2 + i*1024 + j*4) ,board[N+i][j]); // multiplied by 4 cuz port1 is of type char*
+//            if(board[N+i][j] != 0){
+//                xil_printf("non zero port2 %d , %d \n", N+i, j);
+//            }
+            Xil_Out32((u32) (port2 + i*1024 + j*4) ,*(*(board+N+i)+j)); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
 //        	xil_printf("oo\n");
-            if(board[2*N+i][j] != 0){
-                xil_printf("non zero port3 %d , %d \n", 2*N+i, j);
-            }
-            Xil_Out32((u32) (port3 + i*1024 + j*4) ,board[2*N+i][j]); // multiplied by 4 cuz port1 is of type char*
+//            if(board[2*N+i][j] != 0){
+//                xil_printf("non zero port3 %d , %d \n", 2*N+i, j);
+//            }
+            Xil_Out32((u32) (port3 + i*1024 + j*4) ,*(*(board+2*N+i)+j)); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
 //        	xil_printf("oo\n");
-            if(board[3*N+i][j] != 0){
-                xil_printf("non zero port4 %d , %d \n", 3*N+i, j);
-            }
-            Xil_Out32((u32) (port4 + i*1024 + j*4) ,board[3*N+i][j]); // multiplied by 4 cuz port1 is of type char*
+//            if(board[3*N+i][j] != 0){
+//                xil_printf("non zero port4 %d , %d \n", 3*N+i, j);
+//            }
+            Xil_Out32((u32) (port4 + i*1024 + j*4) ,*(*(board+3*N+i)+j)); // multiplied by 4 cuz port1 is of type char*
         }
     }
 
-    xil_printf("finishef printing\n");
+    xil_printf("finished printing\n");
 
 }
 
@@ -841,12 +854,12 @@ LedSignResult DrawBoard() {
 //            		xil_printf("Gg :: %x \n", gg[k]);
 //            		xil_printf("Bb :: %x \n", bb[k]);
 //            	 }
-                int factor = MIN((int)lenX/imgLenX, (int)lenY/imgLenY);
-                byte* rgb_data = enlargeImage(factor,r,g,b,lenY,lenX);
+
+                byte* rgb_data = enlargeImage(imgLenX, imgLenY, lenX, lenY, r,g,b);
 
                 int k = 0;
                 for (int i = y; i < y+lenY; ++i) {
-                    for (int j = x+lenX-1; j >=x ; j--) {
+                    for (int j = 0; j < x+lenX ; j++) {
                         byte* ptr = (byte*)(*(board_rgb+i)+j);
                         ptr++;
                         *ptr = *(rgb_data+k+2);
@@ -866,18 +879,11 @@ LedSignResult DrawBoard() {
     }
     xil_printf("******* HERE1 ******* \n");
 
-    for(int i=0; i<128; i++){
-        for(int j=0; j<256; j++){
-            if(*(board_rgb[i]+j) != 0){
-                xil_printf("a %d, %d \n", i, j);
-            }
-        }
-    }
+    //rotate_board_matrices(board_rgb);
+    print_board(board_rgb);
+    swapBuffer();
 
     xil_printf("******* HERE2 ******* \n");
 
-    rotate_board_matrices(board_rgb);
-    print_board(board_rgb);
-    swapBuffer();
     return LED_SIGN_SUCCESS;
 }

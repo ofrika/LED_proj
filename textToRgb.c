@@ -3,8 +3,9 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <ctype.h>
+#include "textToRgb.h"
 
-typedef unsigned char byte;
+#include "cmunrm.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STBI_WRITE_NO_STDIO
@@ -13,7 +14,6 @@ typedef unsigned char byte;
 #define STB_TRUETYPE_IMPLEMENTATION 
 #include "stb_truetype.h" /* http://nothings.org/stb/stb_truetype.h */
 
-#include "cmunrm.h"
 
 byte* rgbData(const char* filename, int w, int h) {
     FILE* f = fopen(filename, "rb");

@@ -44,6 +44,7 @@
 #include "logoB0.h"
 #include "logoG0.h"
 
+
 #define LWIP_IPV6 0
 #if LWIP_IPV6==1
 #include "lwip/ip6_addr.h"
@@ -135,8 +136,9 @@ static void assign_default_ip(ip_addr_t *ip, ip_addr_t *mask, ip_addr_t *gw)
 
 unsigned char* port44 = (unsigned char *) 0x46000000;
 
+#define N 32
 
-/*
+
 void One_Mat_RGB(unsigned char* port,int matrix_shift)
 {
 	unsigned char pixel[4];
@@ -149,12 +151,18 @@ void One_Mat_RGB(unsigned char* port,int matrix_shift)
 			pixel[2] = 150;	// g
 			pixel[1] = 150;	// b
 
+			if(i==0 && j==0 && matrix_shift ==7){
+				pixel[3] = 255;	// r
+				pixel[2] = 0;	// g
+				pixel[1] = 0;	// b
+			}
+
 			Xil_Out32((u32) (port + j*1024 + (i+N*matrix_shift)*4) ,*((int*)pixel));
 		}
 	}
 	xil_printf("matrix shift %d end\r\n",matrix_shift);
 }
-
+/*
 
 void Test_Running_Pixel()
 {
@@ -193,33 +201,33 @@ void Test_Running_Pixel()
 
 */
 
-//void Draw_Picture()
-//{
-//	int i;
-//	xil_printf("Draw picture start\r\n");
-//	/*for (i = 7; i>=0 ; i--){one_matrgb(port1,i);}
-//	 	xil_printf(" painting port 1 done\r\n");
-//		for (i = 7; i>=0 ; i--){one_matrgb(port2,i);}
-//		 xil_printf(" painting port 2 done\r\n");
-//		 for (i = 7; i>=0;  i--){one_matrgb(port3,i);}
-//		 xil_printf(" painting port 3 done\r\n");
-//*/
-//	for (i = 7; i>=6 ; i--)
+void Draw_Picture()
+{
+	int i;
+	xil_printf("Draw picture start\r\n");
+	/*for (i = 7; i>=0 ; i--){one_matrgb(port1,i);}
+	 	xil_printf(" painting port 1 done\r\n");
+		for (i = 7; i>=0 ; i--){one_matrgb(port2,i);}
+		 xil_printf(" painting port 2 done\r\n");
+		 for (i = 7; i>=0;  i--){one_matrgb(port3,i);}
+		 xil_printf(" painting port 3 done\r\n");
+*/
+	for (i = 7; i>=6 ; i--)
+	{
+		One_Mat_RGB(port44,i);
+	}
+
+//	for (i = 0; i<=100; i++)
 //	{
-//		One_Mat_RGB(port44,i);
+//		xil_printf(" painting port 4 done\r\n");
+//		Xil_Out32((u32) (port4 + (8191-i)*4) ,*((int*)pixel));
+//		swapBuffer();
+//		sleep(1);
 //	}
-//
-////	for (i = 0; i<=100; i++)
-////	{
-////		xil_printf(" painting port 4 done\r\n");
-////		Xil_Out32((u32) (port4 + (8191-i)*4) ,*((int*)pixel));
-////		swapBuffer();
-////		sleep(1);
-////	}
-//
-//	swapBuffer();
-//	xil_printf(" buffer swap triggered\r\n");
-//}
+
+	swapBuffer();
+	xil_printf(" buffer swap triggered\r\n");
+}
 
 // ############################################### OFRI & SAMAH CODE END ###############################################
 
@@ -330,7 +338,9 @@ int main(void)
 	xil_printf("Receiving input from user loop has ended.");
 */
 
-/*
+	//Draw_Picture();
+
+
     int arr[] = {8,8,8,8};
     LedSignResult res1 = initBoard(4,arr,"");
     if(res1 != LED_SIGN_SUCCESS){
@@ -354,19 +364,20 @@ int main(void)
     };
 
     byte imageG[4][4] = {
-    		{255,255,255,255},
-    		{255,255,255,255},
-    		{255,255,255,255},
-    		{255,255,255,255}
+    		{0,0,0,0},
+    		{0,0,0,0},
+    		{0,0,0,0},
+    		{0,0,0,0}
     };
 
     byte imageB[4][4] = {
-    		{255,255,255,255},
-    		{255,255,255,255},
-    		{255,255,255,255},
-    		{255,255,255,255}
+    		{0,0,0,0},
+    		{0,0,0,0},
+    		{0,0,0,0},
+    		{0,0,0,0}
     };
-	LedSignResult res3 = addFourByFourImgToStock(9,4,4,imageR, imageG, imageB);
+
+	LedSignResult res3 = addImageToStock(9,4,4,imageR, imageG, imageB);
 	if(res3 != LED_SIGN_SUCCESS){
 		printf("res3 ERROR!!\n");
 		destroyBoard();
@@ -374,19 +385,8 @@ int main(void)
 		return 0;
 
 	}
-	*/
 
-//    LedSignResult res4 = addPicture(2,9,0,0,false,25,95,19);
-//    if(res4 != LED_SIGN_SUCCESS){
-//        printf("res4 ERROR!!\n");
-//    	destroyBoard();
-//
-//        return 0;
-//
-//    }
-
-	/*
-    LedSignResult res5 = addPicture(3,9,252,124,false,25,95,19);
+    LedSignResult res5 = addPicture(5,3,9,252,124,4,4,false,25,95,19);
     if(res5 != LED_SIGN_SUCCESS){
         printf("res5 ERROR!!\n");
     	destroyBoard();
@@ -395,7 +395,7 @@ int main(void)
 
     }
 
-    */
+
 //    LedSignResult res6 = addPicture(4,9,0,124,false,25,95,19);
 //    if(res6 != LED_SIGN_SUCCESS){
 //        printf("res6 ERROR!!\n");
@@ -412,7 +412,7 @@ int main(void)
 //        return 0;
 //
 //    }
-/*
+
 	LedSignResult res8 = DrawBoard();
 	if(res8 != LED_SIGN_SUCCESS){
         printf("Drawing Board ERROR!!\n");
@@ -422,7 +422,7 @@ int main(void)
     }
 
 	destroyBoard();
-	*/
+
 
 	xil_printf("\r\n ---------- All done! ~Ofri & Samah ---------- \r\n");
 	xil_printf(" ------------------------------------------------ \r\n");

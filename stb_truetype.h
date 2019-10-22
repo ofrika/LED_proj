@@ -1,3 +1,8 @@
+#ifndef SRC_STB_TRUETYPE_H_
+#define SRC_STB_TRUETYPE_H_
+
+#include <math.h>
+
 // stb_truetype.h - v1.21 - public domain
 // authored from 2009-2016 by Sean Barrett / RAD Game Tools
 //
@@ -262,7 +267,7 @@
 //
 #if 0
 #define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
-#include "stb_truetype.h"
+//#include "stb_truetype.h"
 
 unsigned char ttf_buffer[1<<20];
 unsigned char temp_bitmap[512*512];
@@ -4880,3 +4885,5 @@ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ------------------------------------------------------------------------------
 */
+
+#endif

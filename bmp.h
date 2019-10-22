@@ -1,3 +1,6 @@
+#ifndef SRC_BMP_H_
+#define SRC_BMP_H_
+
 /**
  * bmp.h part of resize.c
  *
@@ -80,3 +83,5 @@ typedef struct
     BYTE  rgbtRed;
 } __attribute__((__packed__))
 RGBTRIPLE;
+
+#endif
