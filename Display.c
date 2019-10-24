@@ -206,6 +206,64 @@ RGB* convertPicStrToRGBArray(int width, int height, char* data){
 
 // ************************** private function *******************************
 
+byte* enlargeImage(int orgLenX, int orgLenY, int finalLenX, int finalLenY, byte rdata[], byte gdata[], byte bdata[]){
+    int triSize = 3 * finalLenX * finalLenY;
+    byte* finalData = malloc(sizeof(byte)*triSize); // allocate 3 bytes per pixel
+
+    for (int i = 0; i < triSize; ++i) {
+        finalData[i] = 0;
+    }
+
+    double d_x = (double)finalLenX/orgLenX;
+    byte* intermData =  malloc(sizeof(byte)*3*orgLenY*finalLenX);
+
+    // iterate over infile's scanlines
+    for (int i = 0; i < orgLenY; i++)
+    {
+        // iterate over pixels in scanline
+        for (int j = 0; j < orgLenX; j++)
+        {
+            for (int k = j*d_x; k < d_x*(j+1); k++)
+            {
+                intermData[(int)k*3+3*i*finalLenX] = *(rdata+i*orgLenX+j);
+                intermData[(int)k*3+3*i*finalLenX+1] = *(gdata+i*orgLenX+j);
+                intermData[(int)k*3+3*i*finalLenX+2] = *(bdata+i*orgLenX+j);
+            }
+        }
+        // now I have read the entire line
+    }
+
+    double d_y = (double)finalLenY/orgLenY;
+
+    for (int j = 0; j < finalLenX; j++){
+        for (int i = 0; i < orgLenY; i++){
+            for (int k = i*d_y; k < d_y*(i+1); k++)
+            {
+                *(finalData+3*(int)(i+k)*finalLenX+3*j) = *(intermData+3*i*finalLenX+3*j);
+                *(finalData+3*(int)(i+k)*finalLenX+3*j+1) = *(intermData+3*i*finalLenX+3*j+1);
+                *(finalData+3*(int)(i+k)*finalLenX+3*j+2) = *(intermData+3*i*finalLenX+3*j+2);
+            }
+        }
+    }
+
+    free(intermData);
+    return finalData;
+}
+
+// this is how i used the up function, delete after testing the function itself
+/*
+int main() {
+    byte r[4] = {1,2,4,5};
+    byte g[4] = {0,0,0,0};
+    byte b[4] = {0,0,0,0};
+    byte* res = enlargeImage(2,2,5,7,r,g,b);
+    for (int i = 0; i < 3*7*5 ; i+=3) {
+        printf("%d %d %d\n", res[i], res[i+1], res[i+2]);
+    }
+    return 0;
+}
+*/
+
 
 bool is_legal_location(int x, int y, int lenX, int lenY){
     bool y_is_legal = false;
@@ -456,6 +514,7 @@ Image find_image(int imgId){
 
 
 // I should test it : replace the addFourByFo..  by this function..
+// I think I should change the decleration for byte*[] or byte[][]..
 LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, byte** gData, byte** bData){
 
     if(width<=0|| height<=0){
@@ -484,7 +543,7 @@ LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, 
 
 //    for (int i = 0; i < height ; ++i) {
 //        for (int j = 0; j < width ; ++j) {
-//        	xil_printf("R: %x  G: %x  B: %x \n", *(rArr+i*width+j), *(gArr+i*width+j), *(bArr+i*width+j));
+//        	xil_printf("R: %d  G: %d  B: %d \n", *(rArr+i*width+j), *(gArr+i*width+j), *(bArr+i*width+j));
 //        }
 //    }
 
@@ -695,7 +754,7 @@ void swapBuffer(){
     *(copy_cntl+0) = 0;
 }
 
-void rotate_90_clockwise(int board_rgb[128][256], int matrix_line, int matrix_column){
+void rotate_90_clockwise(int board_rgb[4*N][8*N], int matrix_line, int matrix_column){
     int tmp[N][N];
     for (int i = N-1; i >= 0; i--) {
         for (int j = N-1; j >= 0; j--) {
@@ -708,7 +767,7 @@ void rotate_90_clockwise(int board_rgb[128][256], int matrix_line, int matrix_co
         }
     }
 }
-void rotate_180(int board_rgb[128][256], int matrix_line, int matrix_column){
+void rotate_180(int board_rgb[4*N][8*N], int matrix_line, int matrix_column){
     for (int i = 0; i < N/2 ; ++i) {
         for (int j = N-1; j >= 0; j--) {
             int tmp = board_rgb[matrix_line*N + j][matrix_column*N + i];
@@ -718,7 +777,7 @@ void rotate_180(int board_rgb[128][256], int matrix_line, int matrix_column){
     }
 }
 
-void rotate_90_counter_clockwise(int board_rgb[128][256], int matrix_line, int matrix_column){
+void rotate_90_counter_clockwise(int board_rgb[4*N][8*N], int matrix_line, int matrix_column){
     int tmp[N][N];
     for (int i = 0; i < N; i++) {
         for (int j = N-1; j >= 0; j--) {
@@ -733,42 +792,26 @@ void rotate_90_counter_clockwise(int board_rgb[128][256], int matrix_line, int m
 }
 
 
-void print_board(int** board){
+void print_board(int board_rgb[4*N][8*N]){
 
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
-//        	xil_printf("oo\n");
-//            if(board[i][j] != 0){
-//                xil_printf("non zero port1 %d , %d \n", i, j);
-//            }
-            Xil_Out32((u32) (port1 + i*1024 + j*4) ,*(*(board+i)+j)); // multiplied by 4 cuz port1 is of type char*
+            Xil_Out32((u32) (port1 + i*1024 + j*4) ,board[i][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
-//        	xil_printf("oo\n");
-//            if(board[N+i][j] != 0){
-//                xil_printf("non zero port2 %d , %d \n", N+i, j);
-//            }
-            Xil_Out32((u32) (port2 + i*1024 + j*4) ,*(*(board+N+i)+j)); // multiplied by 4 cuz port1 is of type char*
+            Xil_Out32((u32) (port2 + i*1024 + j*4) ,board[i+N][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
-//        	xil_printf("oo\n");
-//            if(board[2*N+i][j] != 0){
-//                xil_printf("non zero port3 %d , %d \n", 2*N+i, j);
-//            }
-            Xil_Out32((u32) (port3 + i*1024 + j*4) ,*(*(board+2*N+i)+j)); // multiplied by 4 cuz port1 is of type char*
+            Xil_Out32((u32) (port3 + i*1024 + j*4) ,board[i+2*N][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
-//        	xil_printf("oo\n");
-//            if(board[3*N+i][j] != 0){
-//                xil_printf("non zero port4 %d , %d \n", 3*N+i, j);
-//            }
-            Xil_Out32((u32) (port4 + i*1024 + j*4) ,*(*(board+3*N+i)+j)); // multiplied by 4 cuz port1 is of type char*
+            Xil_Out32((u32) (port4 + i*1024 + j*4) ,board[i+3*N][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
 
@@ -776,7 +819,7 @@ void print_board(int** board){
 
 }
 
-void rotate_board_matrices(int** board)
+void rotate_board_matrices(int board_rgb[4*N][8*N])
 {
     for(int i=0; i<mainBoard->numPorts; i++){
         for(int j=0; j<mainBoard->MatsPerLine[i]; j++){
@@ -802,13 +845,10 @@ void rotate_board_matrices(int** board)
 
 LedSignResult DrawBoard() {
 
-    int** board_rgb = malloc(sizeof(int*)*4*N);
-    for(int i=0; i<4*N; i++){
-        board_rgb[i] = malloc(sizeof(int)*8*N);
-    }
+    int board_rgb[4*N][8*N];
     for (int i = 0; i < 4*N; ++i) {
         for (int j = 0; j < 8*N ; ++j) {
-            *(*(board_rgb+i)+j) = 0;
+            board[i][j];
         }
     }
 
@@ -824,7 +864,8 @@ LedSignResult DrawBoard() {
                 int k = 0;
                 for (int i = y; i < y+lenY; ++i) {
                     for (int j = x+lenX-1; j >=x ; j--) {
-                        byte* ptr = (byte*)(*(board_rgb+i)+j);
+						//don't forget to change the j accordingly  j++ / j--
+                        byte* ptr = (byte*)(&(board_rgb[i][j]);
                         ptr++;
                         *ptr = *(rgb_data+k+2);
                         ptr++;
@@ -860,7 +901,7 @@ LedSignResult DrawBoard() {
                 int k = 0;
                 for (int i = y; i < y+lenY; ++i) {
                     for (int j = 0; j < x+lenX ; j++) {
-                        byte* ptr = (byte*)(*(board_rgb+i)+j);
+                        byte* ptr = (byte*)(&(board_rgb[i][j]);
                         ptr++;
                         *ptr = *(rgb_data+k+2);
 //                      xil_printf("b : %d\n ", *ptr);
