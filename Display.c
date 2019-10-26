@@ -542,7 +542,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
             printf(" ");
         }
         co1++;
-        if(co1%(2*w) == 0){
+        if(co1%finalLenX == 0){
             printf("\n");
         }
     }
@@ -553,8 +553,8 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
 /* This is how i used the up func 
 
 int main() {
-    int data[N] = {8,1,14,18};
-    text2rgb(data,N);
+    int data[4] = {8,1,14,18};
+    text2rgb(data,4,40,12);
     return 0;
 }
 */
