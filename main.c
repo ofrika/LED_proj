@@ -342,84 +342,74 @@ int main(void)
 
 
     int arr[] = {8,8,8,8};
+    // direction is in the format: "Row,Column,D" , while D={L/U/D/R}, and directions are seperated by semicolon; indexes from 0
+    // for example: "3,6,L;3,7,D;"
     LedSignResult res1 = initBoard(4,arr,"");
     if(res1 != LED_SIGN_SUCCESS){
-        printf("res1 ERROR!!\n");
+        xil_printf("res1 ERROR!!\n");
     	destroyBoard();
         return 0;
     }
+
     LedSignResult res2 = addSubBoard(5,0,0,256,128);
     if(res2 != LED_SIGN_SUCCESS){
-        printf("res2 ERROR!!\n");
+    	xil_printf("res2 ERROR!!\n");
     	destroyBoard();
-
         return 0;
     }
 
-    byte imageR[4][4] = {
-    		{255,255,255,255},
-    		{255,255,255,255},
-    		{255,255,255,255},
-    		{255,255,255,255}
-    };
 
-    byte imageG[4][4] = {
-    		{0,0,0,0},
-    		{0,0,0,0},
-    		{0,0,0,0},
-    		{0,0,0,0}
-    };
-
-    byte imageB[4][4] = {
-    		{0,0,0,0},
-    		{0,0,0,0},
-    		{0,0,0,0},
-    		{0,0,0,0}
-    };
+    byte imageR[16] = {255,0,255,0,255,0,255,0,255,0,255,0,255,0,255,0};
+    byte imageG[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    byte imageB[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 	LedSignResult res3 = addImageToStock(9,4,4,imageR, imageG, imageB);
 	if(res3 != LED_SIGN_SUCCESS){
-		printf("res3 ERROR!!\n");
+		xil_printf("res3 ERROR!!\n");
 		destroyBoard();
-
 		return 0;
-
+	} else {
+		xil_printf("Adding Image To Stock Succeed \n \n");
 	}
 
-    LedSignResult res5 = addPicture(5,3,9,252,124,4,4,false,25,95,19);
+    LedSignResult res5 = addPicture(5,3,9,240,120,8,8,false,25,95,19);
     if(res5 != LED_SIGN_SUCCESS){
-        printf("res5 ERROR!!\n");
+    	xil_printf("res5 ERROR %d !!\n",res5);
     	destroyBoard();
-
         return 0;
+    } else {
+		xil_printf("Adding Pic Succeed\n \n");
+	}
 
-    }
+    int text1[4] = {13,10,18,1};
+    LedSignResult res6 = addText(5,4,190,100,56,16,255,0,0,false,text1,4);
+    if(res6 != LED_SIGN_SUCCESS){
+    	xil_printf("res6 ERROR %d !!\n",res6);
+    	destroyBoard();
+        return 0;
+    } else {
+		xil_printf("Adding Text Succeed\n \n");
+	}
 
-
-//    LedSignResult res6 = addPicture(4,9,0,124,false,25,95,19);
-//    if(res6 != LED_SIGN_SUCCESS){
-//        printf("res6 ERROR!!\n");
-//    	destroyBoard();
-//
-//        return 0;
-//
-//    }
-//    LedSignResult res7 = addPicture(5,9,252,0,false,25,95,19);
+//    int text2[4] = {4,14,8,14};
+//    LedSignResult res7 = addText(5,5,200,110,31,8,0,255,0,false,text2,4);
 //    if(res7 != LED_SIGN_SUCCESS){
-//        printf("res7 ERROR!!\n");
+//    	xil_printf("res7 ERROR %d !!\n",res7);
 //    	destroyBoard();
-//
 //        return 0;
-//
-//    }
+//    } else {
+//		xil_printf("Adding Text Succeed\n \n");
+//	}
+
 
 	LedSignResult res8 = DrawBoard();
 	if(res8 != LED_SIGN_SUCCESS){
-        printf("Drawing Board ERROR!!\n");
+		xil_printf("Drawing Board ERROR!!\n");
     	destroyBoard();
-
 		return 0;
-    }
+    } else {
+		xil_printf("Draw Board Succeed\n \n");
+	}
 
 	destroyBoard();
 

@@ -49,18 +49,16 @@ LedSignResult cleanSubBoard(int subBoardID);
 LedSignResult deleteSubBoard(int subBoardID);
 
 // Adds Text to the adequate Display. return -1 if the location is Illegal
-LedSignResult addText(int dispID, int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int size, char* data);
+LedSignResult addText(int dispID, int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int* data, int data_len);
 
 // Adds new image to the stock so the user can use "addPicture" operation
-LedSignResult addImageToStock(int imageID, int height, int width, byte** rData, byte** gData, byte** bData);
-
-LedSignResult addFourByFourImgToStock(int imageID, int height, int width, byte rData[4][4], byte gData[4][4], byte bData[4][4]);
+LedSignResult addImageToStock(int imageID, int height, int width, byte* rData, byte* gData, byte* bData);
 
 // Adds picture to the adequate Display. return -1 if the location is Illegal
 LedSignResult addPicture(int dispID, int pictureID, int imgId, int x, int y, int lenX, int lenY, bool newColor, byte r, byte g, byte b);
 
 // update the text in the given display and writes a new data
-LedSignResult updateText(int dispID, int textID, char* data);
+LedSignResult updateText(int dispID, int textID, int* data, int data_len);
 
 // update the picture in the given display and draw a new data
 LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, int newImgId);

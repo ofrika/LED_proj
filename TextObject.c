@@ -14,12 +14,12 @@ struct textObject_t{
     int lenY;
     RGB color;
     bool scrollable;
-    int size;
-    char* data;
+    int data_len;
+    int* data;
 };
 
 
-TextObject createTextObject(int id, int x, int y, int lenX, int lenY, RGB color, bool scrollable, int size, char* data){
+TextObject createTextObject(int id, int x, int y, int lenX, int lenY, RGB color, bool scrollable, int* data, int data_len){
     TextObject newText = malloc(sizeof(*newText));
     if(!newText){
         return NULL;
@@ -31,18 +31,20 @@ TextObject createTextObject(int id, int x, int y, int lenX, int lenY, RGB color,
     newText->lenY = lenY;
     newText->color = copyRGB(color);
     newText->scrollable = scrollable;
-    newText->size = size;
-    newText->data = malloc(sizeof(char)*(strlen(data)+1));
+    newText->data_len = data_len;
+    newText->data = malloc(sizeof(int)*data_len);
     if(!newText->data){
         free(newText);
         return NULL;
     }
-    strcpy(newText->data, data);
+    for(int i=0; i<data_len; i++){
+    	newText->data[i] = data[i];
+    }
     return newText;
 }
 
 TextObject copyTextObject(TextObject textObject){
-    TextObject newText = createTextObject(textObject->id, textObject->x, textObject->y, textObject->lenX, textObject->lenY, textObject->color, textObject->scrollable, textObject->size, textObject->data);
+    TextObject newText = createTextObject(textObject->id, textObject->x, textObject->y, textObject->lenX, textObject->lenY, textObject->color, textObject->scrollable, textObject->data, textObject->data_len);
     if(!newText){
         return NULL;
     }
@@ -90,22 +92,38 @@ int getTextLenY(TextObject textObject){
     return textObject->lenY;
 }
 
-char* getTextData(TextObject textObject){
+RGB getTextColor(TextObject textObject){
+    if(!textObject){
+        return NULL;
+    }
+    return textObject->color;
+}
+
+int* getTextData(TextObject textObject){
     if(!textObject){
         return NULL;
     }
     return textObject->data;
 }
+int getTextLen(TextObject textObject){
+    if(!textObject){
+        return -1;
+    }
+    return textObject->data_len;
+}
 
-int updateTextData(TextObject textObject, char* newData){
+int updateTextData(TextObject textObject, int* new_data, int new_data_size){
     if(!textObject){
         return -1;
     }
     free(textObject->data);
-    textObject->data = malloc(sizeof(char)*(strlen(newData)+1));
+    textObject->data = malloc(sizeof(int)*new_data_size);
     if(!textObject->data){
         return -1;
     }
-    strcpy(textObject->data, newData);
+    textObject->data_len = new_data_size;
+    for(int i=0; i<new_data_size; i++){
+    	textObject->data[i] = new_data[i];
+    }
     return 0;
 }
