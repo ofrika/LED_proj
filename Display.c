@@ -11,6 +11,7 @@
 #include "TextObject.h"
 #include "RGB.h"
 #include "Chars.h"
+#include <sleep.h>
 
 #define N 32
 
@@ -30,6 +31,8 @@ unsigned char* port1 = (unsigned char *) 0x40000000;
 unsigned char* port2 = (unsigned char *) 0x42000000;
 unsigned char* port3 = (unsigned char *) 0x44000000;
 unsigned char* port4 = (unsigned char *) 0x46000000;
+
+int board_rgb[4*N][8*N];
 
 // *************************** Data structures ********************************
 
@@ -253,26 +256,13 @@ byte* enlargeImage(int orgLenX, int orgLenY, int finalLenX, int finalLenY, byte 
     return finalData;
 }
 
-// this is how i used the up function, delete after testing the function itself
-/*
-int main() {
-    byte r[4] = {1,2,4,5};
-    byte g[4] = {0,0,0,0};
-    byte b[4] = {0,0,0,0};
-    byte* res = enlargeImage(2,2,5,7,r,g,b);
-    for (int i = 0; i < 3*7*5 ; i+=3) {
-        printf("%d %d %d\n", res[i], res[i+1], res[i+2]);
-    }
-    return 0;
-}
-*/
-
-
 byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
 
     // the input is an array of int, each cell contains the sequence number of the Hebrew Char
     int* ch_w = malloc(sizeof(int)*n);
-
+    if(!ch_w){
+        printf("error allocating memory..\n");
+    }
     int w = 0;
     for (int i = 0; i < n ; ++i) {
         if (data[i] == 1 || data[i] == 2 || data[i] == 4 || data[i] == 5 || data[i] == 8 || data[i] == 12 || data[i] == 15 || data[i] == 18 || data[i] == 22 || data[i] == 23 || data[i] == 26 || data[i] == 27){
@@ -516,52 +506,10 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
     }
 
     free(ch_w);
-/*
-// The concating result, The whole Text in the "rgb_arr"
-
-    int co = 0;
-    for (int i = 0; i < E*w; ++i) {
-        if(rgb_arr[i] == 1){
-            printf("1");
-        } else {
-            printf(" ");
-        }
-        co++;
-        if(co%w == 0){
-            printf("\n");
-        }
-    }
-*/
-
     byte* res = enlargeImage(w,E,finalLenX,finalLenY,rgb_arr,rgb_arr,rgb_arr);
-
-/*
-// After enlarging
-
-    int co1 = 0;
-    for (int i = 0; i < 3*finalLenX*finalLenY; i+=3) {
-        if(res[i] == 1){
-            printf("1");
-        } else {
-            printf(" ");
-        }
-        co1++;
-        if(co1%finalLenX == 0){
-            printf("\n");
-        }
-    }
-*/
+    free(rgb_arr);
     return res;
 }
-
-/* This is how i used the up func
-
-int main() {
-    int data[4] = {8,1,14,18};
-    text2rgb(data,4,40,12);
-    return 0;
-}
-*/
 
 bool is_legal_location(int x, int y, int lenX, int lenY){
     bool y_is_legal = false;
@@ -636,7 +584,7 @@ void deleteAllSubBoards(){
 
 LedSignResult initBoard(int numPorts, int* ports, char* directions)
 {
-    *(copy_cntl+2) = 0X0000007F;  // set full brightness
+	set_Full_Brightness();
 
     mainBoard = (Board)malloc(sizeof(*mainBoard));
     if(!mainBoard){
@@ -683,7 +631,6 @@ LedSignResult addSubBoard(int dispID, int x, int y, int lenX, int lenY){ //indec
         return LED_SIGN_OUT_OF_MEMORY;
     }
     if(!is_legal_location(x,y,lenX,lenY)){
-        xil_printf("oh noooo \n");
         destroyDisplay(new_disp);
         return LED_SIGN_OUT_OF_BOARD_COARDINATES;
     }
@@ -808,7 +755,6 @@ Image find_image(int imgId){
 
 
 LedSignResult addImageToStock(int imageID, int height, int width, byte* rData, byte* gData, byte* bData){
-
 
     if(width<=0|| height<=0){
         return LED_SIGN_ILLEGAL_ARGUMENTS;
@@ -970,7 +916,6 @@ LedSignResult deleteObject(int dispID, int objID){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-// Does not work
 void set_Full_Brightness(){
     *(copy_cntl+2) = 0X0000007F;
 }
@@ -1018,7 +963,7 @@ void rotate_90_counter_clockwise(int board_rgb[4*N][8*N], int matrix_line, int m
 }
 
 
-void print_board(int board_rgb[4*N][8*N]){
+void print_board(){
 
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
@@ -1045,7 +990,7 @@ void print_board(int board_rgb[4*N][8*N]){
 
 }
 
-void rotate_board_matrices(int board_rgb[4*N][8*N])
+void rotate_board_matrices()
 {
     for(int i=0; i<mainBoard->numPorts; i++){
         for(int j=0; j<mainBoard->MatsPerLine[i]; j++){
@@ -1070,11 +1015,47 @@ void rotate_board_matrices(int board_rgb[4*N][8*N])
     }
 };
 
+
+void scroll_func(byte* rgb_arr, int x, int lenX, int lenY){
+
+	// mirror the rgb array
+	for(int i=0; i<lenY; i++){
+		for(int j=0; j<lenX/2; j++){
+			for(int m=0; m<3; m++){
+				byte tmp = *(rgb_arr+3*i*lenX+3*j+m);
+				*(rgb_arr+3*i*lenX+3*j+m) = *(rgb_arr+3*i*lenX+3*(lenX-j-1)+m);
+				*(rgb_arr+3*i*lenX+3*(lenX-j-1)+m) = tmp;
+			}
+		}
+	}
+
+	for(int k=lenX; k>0; k--){
+		for(int j=x+lenX-1; j-k+1 >= x; j--){
+			for(int i=0; i<lenY; i++){
+
+				unsigned char bg_pixel[4];
+				bg_pixel[3] = *(rgb_arr+3*i*lenX+3*(j-x));	// r
+				bg_pixel[2] = *(rgb_arr+3*i*lenX+3*(j-x)+1);	// g
+				bg_pixel[1] = *(rgb_arr+3*i*lenX+3*(j-x)+2);	// b
+				bg_pixel[0] = 0;	// b
+
+	            Xil_Out32((u32) (port4 + i*1024 + (j-k+1)*4) ,*((int*)bg_pixel)); // multiplied by 4 cuz port1 is of type char*
+			}
+		}
+		swapBuffer();
+		sleep(1);
+	}
+}
+
 LedSignResult DrawBoard() {
 	xil_printf("Hey Draw Board ! \n");
 
-    int board_rgb[4*N][8*N];
-
+	for(int i=0; i<4*N; i++){
+		for(int j=0; j<8*N; j++){
+			board_rgb[i][j]=0;
+		}
+	}
+	print_board();
 	xil_printf("number of sub boards %d  \n",listSize(mainBoard->subBoards));
 
     for (Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards); itr_disp = listGetNext(mainBoard->subBoards)) {
@@ -1100,18 +1081,24 @@ LedSignResult DrawBoard() {
            					rgb_data[i+2] *=getB(color);
                 }
 
+//            	if(isTextScrollable(text_obj)){
+//            		scroll_func(rgb_data,x,lenX, lenY);
+//            	}
+
                 int k=0;
                 for (int i = y; i < y+lenY; ++i) {
                     for (int j = x+lenX-1; j >=x ; j--) {
-						//don't forget to change the j accordingly  j++ / j--
-                        byte* ptr = (byte*)(&(board_rgb[i][j]));
-                        ptr++;
-                        *ptr = *(rgb_data+k+2);
-                        ptr++;
-                        *ptr = *(rgb_data+k+1);
-                        ptr++;
-                        *ptr = *(rgb_data+k);
-                        k+=3;
+                    	if(isTextScrollable(text_obj) == false){
+							byte* ptr = (byte*)(&(board_rgb[i][j]));
+							ptr++;
+							*ptr = *(rgb_data+k+2);
+							ptr++;
+							*ptr = *(rgb_data+k+1);
+							ptr++;
+							*ptr = *(rgb_data+k);
+							k+=3;
+                    	}
+
                     }
                 }
                 free(rgb_data);
@@ -1145,15 +1132,33 @@ LedSignResult DrawBoard() {
                     }
                 }
                 free(rgb_data);
+
             }
         }
     }
 
-    rotate_board_matrices(board_rgb);
-    print_board(board_rgb);
+    rotate_board_matrices();
+    print_board();
     swapBuffer();
 
     xil_printf("******* HERE2 ******* \n");
 
     return LED_SIGN_SUCCESS;
 }
+
+void putPixelPort4(int row, int col, byte r, byte g, byte b){
+
+	unsigned char bg_pixel[4];
+	bg_pixel[3] = r;	// r
+	bg_pixel[2] = g;	// g
+	bg_pixel[1] = b;	// b
+	bg_pixel[0] = 0;	// b
+
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+        	Xil_Out32((u32) (port4 + row*1024 + col*4) ,*((int*)bg_pixel));
+        }
+    }
+
+}
+

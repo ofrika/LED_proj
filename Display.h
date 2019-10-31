@@ -66,8 +66,8 @@ LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, i
 // Frees allocated memory for obj and deletes from list
 LedSignResult deleteObject(int dispID, int objID);
 
-// swap the pointers of two buffers
-void swapBuffer();
+//// swap the pointers of two buffers
+//void swapBuffer();
 
 // gets the current status of the system
 void getStatus();
@@ -75,8 +75,10 @@ void getStatus();
 // Draws new screen on LED screen
 LedSignResult DrawBoard();
 
-
 // ******************* Test functions *******************
+
+void putPixelPort4(int row, int col, byte r, byte g, byte b);
+
 
 // Draw one pixel on board
 void testOnePixel(int x, int y, byte r, byte g, byte b);

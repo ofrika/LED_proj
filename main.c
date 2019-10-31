@@ -163,23 +163,17 @@ void One_Mat_RGB(unsigned char* port,int matrix_shift)
 	xil_printf("matrix shift %d end\r\n",matrix_shift);
 }
 /*
-
 void Test_Running_Pixel()
 {
 	Draw_Picture();
-
 	unsigned char running_pixel[4];
-
 	running_pixel[3] = 255;	// r
 	running_pixel[2] = 0;	// g
 	running_pixel[1] = 0;	// b
-
 	unsigned char bg_pixel[4];
-
 	bg_pixel[3] = 0;	// r
 	bg_pixel[2] = 150;	// g
 	bg_pixel[1] = 150;	// b
-
 	int i,j, prevI=31, prevJ=31;
 	for (j = 31; j>=0; j--)
 	{
@@ -196,9 +190,7 @@ void Test_Running_Pixel()
 		}
 		prevI = 31;
 	}
-
 }
-
 */
 
 void Draw_Picture()
@@ -230,6 +222,7 @@ void Draw_Picture()
 }
 
 // ############################################### OFRI & SAMAH CODE END ###############################################
+
 
 
 
@@ -313,9 +306,10 @@ int main(void)
 
 	start_application();
 
+
+/*
 	xil_printf("\r\n ------- Starting ~Ofri & Samah ------- \r\n");
 
-	/*
 	xil_printf("Entering loop to read input from user\r\n");
 	char buff[1024];
 	int isDone=0;
@@ -334,13 +328,10 @@ int main(void)
 		}
 		sleep(1);
 	} while(isDone == 0);
-
 	xil_printf("Receiving input from user loop has ended.");
 */
 
-	//Draw_Picture();
-
-
+/*
     int arr[] = {8,8,8,8};
     // direction is in the format: "Row,Column,D" , while D={L/U/D/R}, and directions are seperated by semicolon; indexes from 0
     // for example: "3,6,L;3,7,D;"
@@ -360,8 +351,8 @@ int main(void)
 
 
     byte imageR[16] = {255,0,255,0,255,0,255,0,255,0,255,0,255,0,255,0};
-    byte imageG[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-    byte imageB[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    byte imageG[16] = {0,255,0,255,0,255,0,255,0,255,0,255,0,255,0,255};
+    byte imageB[16] = {255,0,255,0,255,0,255,0,255,0,255,0,255,0,255,0};
 
 	LedSignResult res3 = addImageToStock(9,4,4,imageR, imageG, imageB);
 	if(res3 != LED_SIGN_SUCCESS){
@@ -372,17 +363,17 @@ int main(void)
 		xil_printf("Adding Image To Stock Succeed \n \n");
 	}
 
-    LedSignResult res5 = addPicture(5,3,9,240,120,8,8,false,25,95,19);
-    if(res5 != LED_SIGN_SUCCESS){
-    	xil_printf("res5 ERROR %d !!\n",res5);
-    	destroyBoard();
-        return 0;
-    } else {
-		xil_printf("Adding Pic Succeed\n \n");
-	}
+//    LedSignResult res5 = addPicture(5,3,9,240,120,8,8,false,25,95,19);
+//    if(res5 != LED_SIGN_SUCCESS){
+//    	xil_printf("res5 ERROR %d !!\n",res5);
+//    	destroyBoard();
+//        return 0;
+//    } else {
+//		xil_printf("Adding Pic Succeed\n \n");
+//	}
 
-    int text1[4] = {13,10,18,1};
-    LedSignResult res6 = addText(5,4,190,100,56,16,255,0,0,false,text1,4);
+    int text1[4] = {8,1,14,18};
+    LedSignResult res6 = addText(5,4,190,100,62,16,255,0,0,false,text1,4);
     if(res6 != LED_SIGN_SUCCESS){
     	xil_printf("res6 ERROR %d !!\n",res6);
     	destroyBoard();
@@ -390,17 +381,6 @@ int main(void)
     } else {
 		xil_printf("Adding Text Succeed\n \n");
 	}
-
-//    int text2[4] = {4,14,8,14};
-//    LedSignResult res7 = addText(5,5,200,110,31,8,0,255,0,false,text2,4);
-//    if(res7 != LED_SIGN_SUCCESS){
-//    	xil_printf("res7 ERROR %d !!\n",res7);
-//    	destroyBoard();
-//        return 0;
-//    } else {
-//		xil_printf("Adding Text Succeed\n \n");
-//	}
-
 
 	LedSignResult res8 = DrawBoard();
 	if(res8 != LED_SIGN_SUCCESS){
@@ -420,9 +400,11 @@ int main(void)
 	// ############################################### Ofri & Samah CODE END ###############################################
 
 
-
+*/
 
 	// ################################################## XILINX CODE START ##################################################
+
+
 
 	while (1) {
 		if (TcpFastTmrFlag) {
@@ -437,6 +419,7 @@ int main(void)
 		xemacif_input(netif);
 		transfer_data();
 	}
+
 	xil_printf("Exit\r\n"); // Never reached
 	cleanup_platform();
 
@@ -444,5 +427,4 @@ int main(void)
 }
 
 // ################################################## XILINX CODE END ##################################################
-
 
