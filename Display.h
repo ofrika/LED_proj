@@ -49,44 +49,33 @@ LedSignResult cleanSubBoard(int subBoardID);
 LedSignResult deleteSubBoard(int subBoardID);
 
 // Adds Text to the adequate Display. return -1 if the location is Illegal
-LedSignResult addText(int dispID, int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int* data, int data_len);
+LedSignResult createTextArea(int dispID, int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable);
 
 // Adds new image to the stock so the user can use "addPicture" operation
 LedSignResult addImageToStock(int imageID, int height, int width, byte* rData, byte* gData, byte* bData);
 
-// Adds picture to the adequate Display. return -1 if the location is Illegal
-LedSignResult addPicture(int dispID, int pictureID, int imgId, int x, int y, int lenX, int lenY, bool newColor, byte r, byte g, byte b);
+// Adds picture to the adequate Display
+LedSignResult createPictureArea(int dispID, int pictureID, int x, int y, int lenX, int lenY, bool newColor, byte r, byte g, byte b);
 
-// update the text in the given display and writes a new data
+// updates the text in the given display and writes a new data
 LedSignResult updateText(int dispID, int textID, int* data, int data_len);
 
+// updates the text color 
+LedSignResult updateTextColor(int dispID, int textID, byte r, byte g, byte b);
+
 // update the picture in the given display and draw a new data
-LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, int newImgId);
+LedSignResult updatePicture(int dispID, int pictureID, int newImgId);
+
+// updates the picture color 
+LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b);
 
 // Frees allocated memory for obj and deletes from list
-LedSignResult deleteObject(int dispID, int objID);
-
-//// swap the pointers of two buffers
-//void swapBuffer();
+LedSignResult deleteArea(int dispID, int areaID);
 
 // gets the current status of the system
 void getStatus();
 
 // Draws new screen on LED screen
 LedSignResult DrawBoard();
-
-// ******************* Test functions *******************
-
-void putPixelPort4(int row, int col, byte r, byte g, byte b);
-
-
-// Draw one pixel on board
-void testOnePixel(int x, int y, byte r, byte g, byte b);
-// Draw running pixel on board
-void testRunningPixel(int x, int y, byte r, byte g, byte b);
-// Draw picture frame all over board
-void testPictureFrame(byte r, byte g, byte b);
-// Draw text in display
-void testText(int x, int y, char* text, byte r, byte g, byte b);
 
 #endif
