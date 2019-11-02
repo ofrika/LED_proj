@@ -150,6 +150,36 @@ static void tcp_client_close(struct tcp_pcb *pcb)
 	}
 }
 
+err_t recv_callback(void *arg, struct tcp_pcb *tpcb,
+                               struct pbuf *p, err_t err)
+{
+	/* do not read the packet if we are not in ESTABLISHED state */
+	if (!p) {
+		tcp_close(tpcb);
+		tcp_recv(tpcb, NULL);
+		return ERR_OK;
+	}
+
+	/* indicate that the packet has been received */
+	tcp_recved(tpcb, p->len);
+
+	// HERE we should call parseMessage with the string: p->payload ## or maybe before tcp_recvd()
+	// and then to echo back the resuly LedSignResult to the Server.
+	// when destroyBoard() is called, we should write "exit" to disconncet the connection
+
+	/* echo back the payload */
+	/* in this case, we assume that the payload is < TCP_SND_BUF */
+	if (tcp_sndbuf(tpcb) > p->len) {
+		err = tcp_write(tpcb, p->payload, p->len, 1);
+	} else
+		print("no space in tcp_sndbuf\n\r");
+
+	/* free the received pbuf */
+	pbuf_free(p);
+
+	return ERR_OK;
+}
+
 /** Error callback, tcp session aborted */
 static void tcp_client_err(void *arg, err_t err)
 {
@@ -197,7 +227,6 @@ static err_t tcp_send_perf_traffic(void)
 		client.i_report.total_bytes += TCP_SEND_BUFSIZE;
 	}
 
-	tcp_recv(c_pcb,parseMessage);
 
 	if (client.end_time || client.i_report.report_interval_time) {
 		u64_t now = get_time_ms();
@@ -266,6 +295,7 @@ static err_t tcp_client_connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 	tcp_arg(c_pcb, NULL);
 	tcp_sent(c_pcb, tcp_client_sent);
 	tcp_err(c_pcb, tcp_client_err);
+	tcp_recv(c_pcb, recv_callback);
 
 	/* initiate data transfer */
 	return ERR_OK;
@@ -316,15 +346,14 @@ void start_application(void)
 	}
 	client.client_id = 1;
 
-	/* initialize data buffer being sent with same as used in iperf */
-//	for (i = 0; i < TCP_SEND_BUFSIZE; i++)
-//		send_buf[i] = (i % 10) + '0';
-	send_buf[0]='O';
-	send_buf[1]='Z';
+	send_buf[0]='H';
+	send_buf[1]='i';
 	send_buf[2]='-';
-	send_buf[3]='P';
-	send_buf[4]='i';
-	send_buf[5]='n';
-	send_buf[6]='g';
+	send_buf[3]='S';
+	send_buf[4]='e';
+	send_buf[5]='r';
+	send_buf[6]='v';
+	send_buf[7]='e';
+	send_buf[8]='r';
 	return;
 }
