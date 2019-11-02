@@ -690,11 +690,11 @@ LedSignResult deleteSubBoard(int dispID){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult addText(int dispID, int textID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable, int* data, int data_len){
+LedSignResult createTextArea(int dispID, int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable){
     if(lenX <=0 || lenY <=0 ){
         return LED_SIGN_ILLEGAL_ARGUMENTS;
     }
-    TextObject textObject = createTextObject(textID,x,y,lenX,lenY,createRGB(r,g,b),scrollable,data,data_len);
+    TextObject textObject = createTextObject(textID,x,y,lenX,lenY,createRGB(r,g,b),scrollable,NULL,-1);
     if(!textObject){
         return LED_SIGN_OUT_OF_MEMORY;
     }
@@ -780,21 +780,13 @@ LedSignResult addImageToStock(int imageID, int height, int width, byte* rData, b
     return LED_SIGN_SUCCESS;
 }
 
-
-LedSignResult addPicture(int dispID, int pictureID, int imgId, int x, int y, int lenX, int lenY, bool newColor, byte r, byte g, byte b){
+LedSignResult createPictureArea(int dispID, int pictureID, int x, int y, int lenX, int lenY, bool newColor, byte r, byte g, byte b){
 
     RGB rgb = NULL;
-    Image img = find_image(imgId);
-    if(!img){
-        return LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK;
-    }
-    if(getImageHeight(img)>lenY || getImageWidth(img)>lenX){
-        return LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL;
-    }
     if(newColor){
         rgb = createRGB(r,g,b);
     }
-    PicObject picObject = createPicObject(pictureID,x,y,lenX,lenY,rgb,img);
+    PicObject picObject = createPicObject(pictureID,x,y,lenX,lenY,rgb,NULL);
     if(!picObject){
         destroyRGB(rgb);
         return LED_SIGN_OUT_OF_MEMORY;
@@ -866,21 +858,48 @@ LedSignResult updateText(int dispID, int textID, int* new_data, int data_len){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, int newImgId){
+LedSignResult updateTextColor(int dispID, int textID, byte r, byte g, byte b){
+	
+	for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
+        if(itr_disp->id == dispID){
+            for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
+                Type type = listGetIteratorType(itr_disp->objects);
+                if(type == Text){
+                    if(textID == getTextID((TextObject)e)){
+                        updateTextColor((TextObject)e, createRGB(r,g,b));
+                        return LED_SIGN_SUCCESS;
+                        
+                    }
+                }
+            }
+            return LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID;
+        }
+    }
+    return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
+}
+
+LedSignResult updatePicture(int dispID, int pictureID, int newImgId){
+	
     Image newImg = find_image(newImgId);
     if(!newImg){
         return LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK;
     }
+	
     for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
                 Type type = listGetIteratorType(itr_disp->objects);
                 if(type == Picture){
                     if(pictureID == getPicID((PicObject)e)){
-                        if(updatePicImage((PicObject)e, createRGB(r,g,b),newImg) != -1){
-                            return LED_SIGN_SUCCESS;
-                        }
-                        return LED_SIGN_OUT_OF_MEMORY;
+						
+						int lenX = getPicLenX((PicObject)e);
+						int lenY = getPicLenY((PicObject)e);
+						
+						if(getImageHeight(newImg)>lenY || getImageWidth(newImg)>lenX){
+							return LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL;
+						}	
+                        updatePicImage((PicObject)e, newImg);
+                        return LED_SIGN_SUCCESS;
                     }
                 }
 
@@ -891,19 +910,44 @@ LedSignResult updatePicture(int dispID, int pictureID, byte r, byte g, byte b, i
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult deleteObject(int dispID, int objID){
+LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b){
+	
+    Image newImg = find_image(newImgId);
+    if(!newImg){
+        return LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK;
+    }
     for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
                 Type type = listGetIteratorType(itr_disp->objects);
                 if(type == Picture){
-                    if(objID == getPicID((PicObject)e)){
+                    if(pictureID == getPicID((PicObject)e)){
+                        updatePicColor((PicObject)e, createRGB(r,g,b));
+                        return LED_SIGN_SUCCESS;
+                    }
+                }
+
+            }
+            return LED_SIGN_NO_PICTURE_WITH_THE_GIVEN_ID;
+        }
+    }
+    return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
+	
+}
+
+LedSignResult deleteArea(int dispID, int areaID){
+    for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
+        if(itr_disp->id == dispID){
+            for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
+                Type type = listGetIteratorType(itr_disp->objects);
+                if(type == Picture){
+                    if(areaID == getPicID((PicObject)e)){
                         listRemove(itr_disp->objects,e);
                         destroyPicObject((PicObject)e);
                         return LED_SIGN_SUCCESS;
                     }
                 } else {
-                    if(objID == getTextID((TextObject)e)){
+                    if(areaID == getTextID((TextObject)e)){
                         listRemove(itr_disp->objects,e);
                         destroyTextObject((TextObject)e);
                         return LED_SIGN_SUCCESS;
@@ -925,7 +969,7 @@ void swapBuffer(){
     *(copy_cntl+0) = 0;
 }
 
-void rotate_90_clockwise(int board_rgb[4*N][8*N], int matrix_line, int matrix_column){
+void rotate_90_clockwise(int matrix_line, int matrix_column){
     int tmp[N][N];
     for (int i = N-1; i >= 0; i--) {
         for (int j = N-1; j >= 0; j--) {
@@ -938,7 +982,7 @@ void rotate_90_clockwise(int board_rgb[4*N][8*N], int matrix_line, int matrix_co
         }
     }
 }
-void rotate_180(int board_rgb[4*N][8*N], int matrix_line, int matrix_column){
+void rotate_180(int matrix_line, int matrix_column){
     for (int i = 0; i < N/2 ; ++i) {
         for (int j = N-1; j >= 0; j--) {
             int tmp = board_rgb[matrix_line*N + j][matrix_column*N + i];
@@ -948,7 +992,7 @@ void rotate_180(int board_rgb[4*N][8*N], int matrix_line, int matrix_column){
     }
 }
 
-void rotate_90_counter_clockwise(int board_rgb[4*N][8*N], int matrix_line, int matrix_column){
+void rotate_90_counter_clockwise(int matrix_line, int matrix_column){
     int tmp[N][N];
     for (int i = 0; i < N; i++) {
         for (int j = N-1; j >= 0; j--) {
@@ -985,7 +1029,7 @@ void print_board(){
             Xil_Out32((u32) (port4 + i*1024 + j*4) ,board_rgb[i+3*N][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
-
+	swapBuffer();
     xil_printf("finished printing\n");
 
 }
@@ -999,14 +1043,14 @@ void rotate_board_matrices()
                 case RIGHT:
                     break;
                 case DOWN:
-                    rotate_90_clockwise(board_rgb,i,j);
+                    rotate_90_clockwise(i,j);
                     break;
                 case LEFT:
                 	xil_printf("got left\n");
-                    rotate_180(board_rgb,i,j);
+                    rotate_180(i,j);
                     break;
                 case UP:
-                    rotate_90_counter_clockwise(board_rgb,i,j);
+                    rotate_90_counter_clockwise(i,j);
                     break;
                 default:
                     break;
@@ -1037,7 +1081,7 @@ void scroll_func(byte* rgb_arr, int x, int lenX, int lenY){
 				bg_pixel[3] = *(rgb_arr+3*i*lenX+3*(j-x));	// r
 				bg_pixel[2] = *(rgb_arr+3*i*lenX+3*(j-x)+1);	// g
 				bg_pixel[1] = *(rgb_arr+3*i*lenX+3*(j-x)+2);	// b
-				bg_pixel[0] = 0;	// b
+				bg_pixel[0] = 0;	// none
 
 	            Xil_Out32((u32) (port4 + i*1024 + (j-k+1)*4) ,*((int*)bg_pixel)); // multiplied by 4 cuz port1 is of type char*
 			}
@@ -1139,9 +1183,8 @@ LedSignResult DrawBoard() {
 
     rotate_board_matrices();
     print_board();
-    swapBuffer();
 
-    xil_printf("******* HERE2 ******* \n");
+    xil_printf("******* withdrawl from DrawBoard.. ******* \n");
 
     return LED_SIGN_SUCCESS;
 }

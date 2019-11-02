@@ -32,14 +32,17 @@ TextObject createTextObject(int id, int x, int y, int lenX, int lenY, RGB color,
     newText->color = copyRGB(color);
     newText->scrollable = scrollable;
     newText->data_len = data_len;
-    newText->data = malloc(sizeof(int)*data_len);
-    if(!newText->data){
-        free(newText);
-        return NULL;
-    }
-    for(int i=0; i<data_len; i++){
-    	newText->data[i] = data[i];
-    }
+	if(data_len>-1){
+		newText->data = malloc(sizeof(int)*data_len);
+		if(!newText->data){
+			free(newText);
+			return NULL;
+		}
+		for(int i=0; i<data_len; i++){
+			newText->data[i] = data[i];
+		}		
+	}
+
     return newText;
 }
 
@@ -116,7 +119,9 @@ int updateTextData(TextObject textObject, int* new_data, int new_data_size){
     if(!textObject){
         return -1;
     }
-    free(textObject->data);
+	if(textObject->data_len > -1){
+		    free(textObject->data);
+	}
     textObject->data = malloc(sizeof(int)*new_data_size);
     if(!textObject->data){
         return -1;
@@ -125,5 +130,16 @@ int updateTextData(TextObject textObject, int* new_data, int new_data_size){
     for(int i=0; i<new_data_size; i++){
     	textObject->data[i] = new_data[i];
     }
+    return 0;
+}
+
+int updateTextColor(TextObject textObject, RGB newColor){
+	if(!textObject){
+        return -1;
+    }
+	if(textObject->color){
+		destroyRGB(textObject->color);
+	}
+    textObject->color = newColor;
     return 0;
 }

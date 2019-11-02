@@ -97,12 +97,19 @@ Image getPicImg(PicObject picObject){
     return picObject->imgPtr;
 }
 
-int updatePicImage(PicObject picObject, RGB newColor, Image newImgPtr){
+int updatePicImage(PicObject picObject, Image newImgPtr){
+    if(!picObject){
+        return -1;
+    }
+    picObject->imgPtr = newImgPtr;
+    return 0;
+}
+
+int updatePicColor(PicObject picObject, RGB newColor){
     if(!picObject || !newColor){
         return -1;
     }
     destroyRGB(picObject->color);
     picObject->color = newColor;
-    picObject->imgPtr = newImgPtr;
-    return 0;
+    return 0;	
 }
