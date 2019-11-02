@@ -15,6 +15,7 @@ int getPicY(PicObject picObject);
 int getPicLenX(PicObject picObject);
 int getPicLenY(PicObject picObject);
 Image getPicImg(PicObject picObject);
+RGB getPicColor(PicObject picObject);
 int updatePicImage(PicObject picObject, Image newImgPtr);
 int updatePicColor(PicObject picObject, RGB newColor);
 

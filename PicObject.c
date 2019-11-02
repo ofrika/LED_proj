@@ -105,6 +105,13 @@ int updatePicImage(PicObject picObject, Image newImgPtr){
     return 0;
 }
 
+RGB getPicColor(PicObject picObject){
+	if(!picObject){
+        return NULL;
+    }
+	return picObject->color;
+}
+
 int updatePicColor(PicObject picObject, RGB newColor){
     if(!picObject || !newColor){
         return -1;

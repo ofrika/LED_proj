@@ -1091,6 +1091,16 @@ void scroll_func(byte* rgb_arr, int x, int lenX, int lenY){
 	}
 }
 
+void update_RGB_arr_color(int lenX, int lenY, byte* rgb_data, RGB color){
+	for(int i=0; i<3*lenX*lenY; i+=3){
+		if(*(rgb_data+i) != 0 || *(rgb_data+i+1) != 0 || *(rgb_data+i+2) != 0)){
+			*(rgb_data+i) = getR(color);
+			*(rgb_data+i+1) = getG(color);
+			*(rgb_data+i+2) = getB(color);
+		}
+	}					
+}
+
 LedSignResult DrawBoard() {
 	xil_printf("Hey Draw Board ! \n");
 
@@ -1155,23 +1165,28 @@ LedSignResult DrawBoard() {
                 int imgLenY = getImageHeight(imgPtr);
                 int lenX = getPicLenX(pic_obj);
                 int lenY = getPicLenY(pic_obj);
-
+				
                 byte* r = getImageR(imgPtr);
                 byte* g = getImageG(imgPtr);
                 byte* b = getImageB(imgPtr);
 
                 byte* rgb_data = enlargeImage(imgLenX, imgLenY, lenX, lenY, r,g,b);
-
+				RGB pic_color = getPicColor(pic_obj);
+				
+				if(pic_color){
+					update_RGB_arr_color(lenX, lenY, rgb_data, pic_color);						
+				}
+				
                 int k = 0;
                 for (int i = y; i < y+lenY; ++i) {
                     for (int j = x+lenX-1; j >=x ; j--) {
                         byte* ptr = (byte*)(&(board_rgb[i][j]));
                         ptr++;
-                        *ptr = *(rgb_data+k+2);
+                        *ptr = *(rgb_data+k+2);	// b
                         ptr++;
-                        *ptr = *(rgb_data+k+1);
+                        *ptr = *(rgb_data+k+1);	// g
                         ptr++;
-                        *ptr = *(rgb_data+k);
+                        *ptr = *(rgb_data+k);	// r
                         k+=3;
                     }
                 }
