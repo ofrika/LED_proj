@@ -53,6 +53,11 @@ LedSignResult deleteSubBoard(int subBoardID);
 // Frees allocated memory for obj and deletes from list
 LedSignResult deleteArea(int subBoardID, int areaID);
 
+// Flip entire board
+LedSignResult FlipRight();
+LedSignResult FlipDown();
+
+
 // Gets the current status of the system
 void getStatus();
 
