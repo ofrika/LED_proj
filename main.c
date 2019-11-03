@@ -43,7 +43,7 @@
 #include "logoR0.h"
 #include "logoB0.h"
 #include "logoG0.h"
-
+#include <time.h>
 
 #define LWIP_IPV6 0
 #if LWIP_IPV6==1
@@ -373,13 +373,22 @@ int main(void)
 //	}
 
     int text1[4] = {8,1,14,18};
-    LedSignResult res6 = addText(5,4,190,100,62,16,255,0,0,false,text1,4);
+    LedSignResult res6 = createTextArea(5,4,190,100,62,16,0,0,255,true);
     if(res6 != LED_SIGN_SUCCESS){
     	xil_printf("res6 ERROR %d !!\n",res6);
     	destroyBoard();
         return 0;
     } else {
 		xil_printf("Adding Text Succeed\n \n");
+	}
+
+    LedSignResult res7 = updateText(5,4, text1, 4,FALSE);
+    if(res7 != LED_SIGN_SUCCESS){
+    	xil_printf("res7 ERROR %d !!\n",res7);
+    	destroyBoard();
+        return 0;
+    } else {
+		xil_printf("updating Text Succeed\n \n");
 	}
 
 	LedSignResult res8 = DrawBoard();
@@ -418,6 +427,7 @@ int main(void)
 
 		xemacif_input(netif);
 		transfer_data();
+
 	}
 
 	xil_printf("Exit\r\n"); // Never reached

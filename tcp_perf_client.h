@@ -92,7 +92,7 @@ struct perf_stats {
 #define TCP_CONN_PORT 5001
 
 /* time in seconds to transmit packets */
-#define TCP_TIME_INTERVAL 20 //was 300
+#define TCP_TIME_INTERVAL 300
 
 #if LWIP_IPV6==1
 /* Server to connect with */

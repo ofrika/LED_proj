@@ -17,7 +17,8 @@ int getTextLenY(TextObject textObject);
 RGB getTextColor(TextObject textObject);
 int* getTextData(TextObject textObject);
 int getTextLen(TextObject textObject);
+bool isTextScrollable(TextObject textObject);
 int updateTextData(TextObject textObject, int* new_data, int new_data_size);
-int updateTextColor(TextObject textObject, RGB newColor);
+int updateTextRGB(TextObject textObject, RGB newColor);
 
 #endif

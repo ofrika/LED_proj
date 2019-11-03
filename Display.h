@@ -53,17 +53,16 @@ LedSignResult deleteSubBoard(int subBoardID);
 // Frees allocated memory for obj and deletes from list
 LedSignResult deleteArea(int subBoardID, int areaID);
 
-// Flip entire board
-LedSignResult FlipRight();
-LedSignResult FlipDown();
-
-
 // Gets the current status of the system
 void getStatus();
 
 // Draws new screen on LED screen
 LedSignResult DrawBoard();
 
+// Flip entire board
+LedSignResult FlipRight();
+
+LedSignResult FlipDown();
 
 // ************** Function declerations - text object handling *******************
 
@@ -74,7 +73,7 @@ LedSignResult createTextArea(int subBoardID, int TextID, int x, int y, int lenX,
 // Updates the text in the given sub-board and writes a new data
 LedSignResult updateText(int subBoardID, int textID, int* data, int data_len, bool draw);
 
-// Updates the text color 
+// Updates the text color
 LedSignResult updateTextColor(int subBoardID, int textID, byte r, byte g, byte b, bool draw);
 
 
@@ -90,8 +89,8 @@ LedSignResult addImageToDB(int imageID, int height, int width, byte* rData, byte
 // Updates the picture in the given sub-board and draw a new data
 LedSignResult updatePicture(int subBoardID, int pictureID, int index, bool draw);
 
-// Updates the picture color 
-LedSignResult updatePictureColor(int subBoardID, int pictureID, byte orig_r, byte orig_g, byte orig_b, byte new_r, byte new_g, byte new_b, bool draw);
+// Updates the picture color
+LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b, bool draw);
 
 
 #endif

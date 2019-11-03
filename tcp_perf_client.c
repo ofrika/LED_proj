@@ -150,9 +150,12 @@ static void tcp_client_close(struct tcp_pcb *pcb)
 	}
 }
 
+
+
 err_t recv_callback(void *arg, struct tcp_pcb *tpcb,
                                struct pbuf *p, err_t err)
 {
+	xil_printf("recv function was called \n");
 	/* do not read the packet if we are not in ESTABLISHED state */
 	if (!p) {
 		tcp_close(tpcb);
@@ -160,8 +163,18 @@ err_t recv_callback(void *arg, struct tcp_pcb *tpcb,
 		return ERR_OK;
 	}
 
+	if(strncmp("exit",p->payload, 4) == 0){
+		tcp_conn_report(0, TCP_DONE_CLIENT);
+		xil_printf("TCP test passed Successfully\n\r");
+		tcp_client_close(tpcb);
+		c_pcb = NULL;
+		return ERR_OK;
+	}
+
 	/* indicate that the packet has been received */
 	tcp_recved(tpcb, p->len);
+
+
 
 	// HERE we should call parseMessage with the string: p->payload ## or maybe before tcp_recvd()
 	// and then to echo back the resuly LedSignResult to the Server.
@@ -195,6 +208,8 @@ static void tcp_client_err(void *arg, err_t err)
 
 static err_t tcp_send_perf_traffic(void)
 {
+	xil_printf("send function was called \n");
+
 	err_t err;
 	u8_t apiflags = TCP_WRITE_FLAG_COPY | TCP_WRITE_FLAG_MORE;
 
@@ -226,6 +241,7 @@ static err_t tcp_send_perf_traffic(void)
 		client.total_bytes += TCP_SEND_BUFSIZE;
 		client.i_report.total_bytes += TCP_SEND_BUFSIZE;
 	}
+
 
 
 	if (client.end_time || client.i_report.report_interval_time) {
@@ -270,6 +286,7 @@ static err_t tcp_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
 /** TCP connected callback (active connection), send data now */
 static err_t tcp_client_connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
+	xil_printf("connected function was called \n");
 	if (err != ERR_OK) {
 		tcp_client_close(tpcb);
 		xil_printf("Connection error\n\r");
@@ -305,7 +322,7 @@ void transfer_data(void)
 {
 	if (client.client_id)
 	{
-		xil_printf("client_id=%d\r\n",client.client_id);
+//		xil_printf("client_id=%d\r\n",client.client_id);
 		tcp_send_perf_traffic();
 	}
 
@@ -345,6 +362,7 @@ void start_application(void)
 		return;
 	}
 	client.client_id = 1;
+	tcp_recv(c_pcb, recv_callback);
 
 	send_buf[0]='H';
 	send_buf[1]='i';
@@ -355,5 +373,6 @@ void start_application(void)
 	send_buf[6]='v';
 	send_buf[7]='e';
 	send_buf[8]='r';
+	transfer_data();
 	return;
 }

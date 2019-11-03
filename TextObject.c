@@ -40,7 +40,7 @@ TextObject createTextObject(int id, int x, int y, int lenX, int lenY, RGB color,
 		}
 		for(int i=0; i<data_len; i++){
 			newText->data[i] = data[i];
-		}		
+		}
 	}
 
     return newText;
@@ -115,6 +115,13 @@ int getTextLen(TextObject textObject){
     return textObject->data_len;
 }
 
+bool isTextScrollable(TextObject textObject){
+	if(!textObject){
+		return false;
+	}
+	return textObject->scrollable;
+}
+
 int updateTextData(TextObject textObject, int* new_data, int new_data_size){
     if(!textObject){
         return -1;
@@ -133,7 +140,7 @@ int updateTextData(TextObject textObject, int* new_data, int new_data_size){
     return 0;
 }
 
-int updateTextColor(TextObject textObject, RGB newColor){
+int updateTextRGB(TextObject textObject, RGB newColor){
 	if(!textObject){
         return -1;
     }

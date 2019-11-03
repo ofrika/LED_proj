@@ -93,6 +93,10 @@ void destroyDisplay(Display disp){
     free(disp);
 }
 
+void set_Full_Brightness(){
+    *(copy_cntl+2) = 0X0000007F;
+}
+
 // ************************** Message parsing methods declarations *******************************
 
 Direction convertDirStrToEnumDir(char* data);
@@ -256,6 +260,7 @@ byte* enlargeImage(int orgLenX, int orgLenY, int finalLenX, int finalLenY, byte 
     return finalData;
 }
 
+// I should update this function so it could to parser an english string..
 byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
 
     // the input is an array of int, each cell contains the sequence number of the Hebrew Char
@@ -266,18 +271,18 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
     int w = 0;
     for (int i = 0; i < n ; ++i) {
         if (data[i] == 1 || data[i] == 2 || data[i] == 4 || data[i] == 5 || data[i] == 8 || data[i] == 12 || data[i] == 15 || data[i] == 18 || data[i] == 22 || data[i] == 23 || data[i] == 26 || data[i] == 27){
-            w+=E;
-            ch_w[i] = E;
+            w+=EIGHT;
+            ch_w[i] = EIGHT;
         } else if(data[i] == 3 || data[i] == 9 || data[i] == 11 || data[i] == 13 || data[i] == 14 || data[i] == 19 || data[i] == 20 || data[i] == 21 || data[i] == 25){
-            w+=S;
-            ch_w[i] = S;
+            w+=SEVEN;
+            ch_w[i] = SEVEN;
         } else if(data[i] == 6 || data[i] == 7 || data[i] == 10 || data[i] == 16 || data[i] == 17 || data[i] == 24){
-            w+=F;
-            ch_w[i] = F;
+            w+=FIVE;
+            ch_w[i] = FIVE;
         }
     }
 
-    byte *rgb_arr = malloc(sizeof(byte)*E*w);
+    byte *rgb_arr = malloc(sizeof(byte)*EIGHT*w);
     if(!rgb_arr){
         printf("error allocating memory..\n");
     }
@@ -286,7 +291,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
     for (int k = 0; k < n ; ++k) {
         switch(data[k]){
             case 1:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Alef[i][j];
                     }
@@ -294,7 +299,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 2:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Bet[i][j];
                     }
@@ -302,7 +307,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 3:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Gimel[i][j];
                     }
@@ -310,7 +315,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 4:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Dalet[i][j];
                     }
@@ -318,7 +323,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 5:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = He[i][j];
                     }
@@ -326,7 +331,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 6:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Vav[i][j];
                     }
@@ -334,7 +339,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 7:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Zain[i][j];
                     }
@@ -342,7 +347,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 8:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Het[i][j];
                     }
@@ -350,7 +355,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 9:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Tet[i][j];
                     }
@@ -358,7 +363,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 10:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Yod[i][j];
                     }
@@ -366,7 +371,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 11:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Khaf[i][j];
                     }
@@ -374,7 +379,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 12:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Khaf_s[i][j];
                     }
@@ -382,7 +387,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 13:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Lamed[i][j];
                     }
@@ -390,7 +395,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 14:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Mem[i][j];
                     }
@@ -398,7 +403,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 15:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Mem_s[i][j];
                     }
@@ -406,7 +411,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 16:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Non[i][j];
                     }
@@ -414,7 +419,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 17:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Non_s[i][j];
                     }
@@ -422,7 +427,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 18:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Samekh[i][j];
                     }
@@ -430,7 +435,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 19:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Aien[i][j];
                     }
@@ -438,7 +443,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 20:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Fe[i][j];
                     }
@@ -446,7 +451,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 21:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Fe_s[i][j];
                     }
@@ -454,7 +459,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 22:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Tsade[i][j];
                     }
@@ -462,7 +467,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 23:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Tsade_s[i][j];
                     }
@@ -470,7 +475,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 24:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Kof[i][j];
                     }
@@ -478,7 +483,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 25:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Resh[i][j];
                     }
@@ -486,7 +491,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 26:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Shen[i][j];
                     }
@@ -494,7 +499,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
                 offset+=ch_w[k];
                 break;
             case 27:
-                for(int i=0; i < E; i++){
+                for(int i=0; i < EIGHT; i++){
                     for (int j = 0; j < ch_w[k]; ++j) {
                         *(rgb_arr+i*w+j+offset) = Tav[i][j];
                     }
@@ -506,7 +511,7 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
     }
 
     free(ch_w);
-    byte* res = enlargeImage(w,E,finalLenX,finalLenY,rgb_arr,rgb_arr,rgb_arr);
+    byte* res = enlargeImage(w,EIGHT,finalLenX,finalLenY,rgb_arr,rgb_arr,rgb_arr);
     free(rgb_arr);
     return res;
 }
@@ -690,7 +695,7 @@ LedSignResult deleteSubBoard(int dispID){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult createTextArea(int dispID, int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable){
+LedSignResult createTextArea(int dispID, int textID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable){
     if(lenX <=0 || lenY <=0 ){
         return LED_SIGN_ILLEGAL_ARGUMENTS;
     }
@@ -780,15 +785,10 @@ LedSignResult addImageToStock(int imageID, int height, int width, byte* rData, b
     return LED_SIGN_SUCCESS;
 }
 
-LedSignResult createPictureArea(int dispID, int pictureID, int x, int y, int lenX, int lenY, bool newColor, byte r, byte g, byte b){
+LedSignResult createPictureArea(int dispID, int pictureID, int x, int y, int lenX, int lenY){
 
-    RGB rgb = NULL;
-    if(newColor){
-        rgb = createRGB(r,g,b);
-    }
-    PicObject picObject = createPicObject(pictureID,x,y,lenX,lenY,rgb,NULL);
+    PicObject picObject = createPicObject(pictureID,x,y,lenX,lenY,NULL,NULL);
     if(!picObject){
-        destroyRGB(rgb);
         return LED_SIGN_OUT_OF_MEMORY;
     }
     Display disp = NULL;
@@ -838,7 +838,7 @@ LedSignResult createPictureArea(int dispID, int pictureID, int x, int y, int len
     return LED_SIGN_SUCCESS;
 }
 
-LedSignResult updateText(int dispID, int textID, int* new_data, int data_len){
+LedSignResult updateText(int dispID, int textID, int* new_data, int data_len,  bool draw){
     for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
@@ -846,6 +846,9 @@ LedSignResult updateText(int dispID, int textID, int* new_data, int data_len){
                 if(type == Text){
                     if(textID == getTextID((TextObject)e)){
                         if(updateTextData((TextObject)e, new_data,data_len) != -1){
+                        	if(draw){
+								DrawBoard();
+							}
                             return LED_SIGN_SUCCESS;
                         }
                         return LED_SIGN_OUT_OF_MEMORY;
@@ -855,20 +858,26 @@ LedSignResult updateText(int dispID, int textID, int* new_data, int data_len){
             return LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID;
         }
     }
+    if(draw){
+    	DrawBoard();
+    }
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult updateTextColor(int dispID, int textID, byte r, byte g, byte b){
-	
+LedSignResult updateTextColor(int dispID, int textID, byte r, byte g, byte b, bool draw){
+
 	for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
                 Type type = listGetIteratorType(itr_disp->objects);
                 if(type == Text){
                     if(textID == getTextID((TextObject)e)){
-                        updateTextColor((TextObject)e, createRGB(r,g,b));
+                        updateTextRGB((TextObject)e, createRGB(r,g,b));
+                        if(draw){
+							DrawBoard();
+						}
                         return LED_SIGN_SUCCESS;
-                        
+
                     }
                 }
             }
@@ -878,27 +887,30 @@ LedSignResult updateTextColor(int dispID, int textID, byte r, byte g, byte b){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult updatePicture(int dispID, int pictureID, int newImgId){
-	
+LedSignResult updatePicture(int dispID, int pictureID, int newImgId, bool draw){
+
     Image newImg = find_image(newImgId);
     if(!newImg){
         return LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK;
     }
-	
+
     for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
                 Type type = listGetIteratorType(itr_disp->objects);
                 if(type == Picture){
                     if(pictureID == getPicID((PicObject)e)){
-						
+
 						int lenX = getPicLenX((PicObject)e);
 						int lenY = getPicLenY((PicObject)e);
-						
+
 						if(getImageHeight(newImg)>lenY || getImageWidth(newImg)>lenX){
 							return LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL;
-						}	
+						}
                         updatePicImage((PicObject)e, newImg);
+                        if(draw){
+							DrawBoard();
+						}
                         return LED_SIGN_SUCCESS;
                     }
                 }
@@ -910,12 +922,9 @@ LedSignResult updatePicture(int dispID, int pictureID, int newImgId){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b){
-	
-    Image newImg = find_image(newImgId);
-    if(!newImg){
-        return LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK;
-    }
+LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b, bool draw){
+
+
     for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
@@ -932,7 +941,7 @@ LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte
         }
     }
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
-	
+
 }
 
 LedSignResult deleteArea(int dispID, int areaID){
@@ -960,9 +969,6 @@ LedSignResult deleteArea(int dispID, int areaID){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-void set_Full_Brightness(){
-    *(copy_cntl+2) = 0X0000007F;
-}
 
 void swapBuffer(){
     *(copy_cntl+0) = 0Xffffffff;
@@ -1029,8 +1035,8 @@ void print_board(){
             Xil_Out32((u32) (port4 + i*1024 + j*4) ,board_rgb[i+3*N][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
-	swapBuffer();
     xil_printf("finished printing\n");
+	swapBuffer();
 
 }
 
@@ -1087,18 +1093,19 @@ void scroll_func(byte* rgb_arr, int x, int lenX, int lenY){
 			}
 		}
 		swapBuffer();
-		sleep(1);
+		//sleep(0);
+		for(int m=0;m<1000000;m++){}
 	}
 }
 
 void update_RGB_arr_color(int lenX, int lenY, byte* rgb_data, RGB color){
 	for(int i=0; i<3*lenX*lenY; i+=3){
-		if(*(rgb_data+i) != 0 || *(rgb_data+i+1) != 0 || *(rgb_data+i+2) != 0)){
+		if(*(rgb_data+i) != 0 || *(rgb_data+i+1) != 0 || *(rgb_data+i+2) != 0){
 			*(rgb_data+i) = getR(color);
 			*(rgb_data+i+1) = getG(color);
 			*(rgb_data+i+2) = getB(color);
 		}
-	}					
+	}
 }
 
 LedSignResult DrawBoard() {
@@ -1135,9 +1142,9 @@ LedSignResult DrawBoard() {
            					rgb_data[i+2] *=getB(color);
                 }
 
-//            	if(isTextScrollable(text_obj)){
-//            		scroll_func(rgb_data,x,lenX, lenY);
-//            	}
+            	if(isTextScrollable(text_obj)){
+            		scroll_func(rgb_data,x,lenX, lenY);
+            	}
 
                 int k=0;
                 for (int i = y; i < y+lenY; ++i) {
@@ -1165,18 +1172,18 @@ LedSignResult DrawBoard() {
                 int imgLenY = getImageHeight(imgPtr);
                 int lenX = getPicLenX(pic_obj);
                 int lenY = getPicLenY(pic_obj);
-				
+
                 byte* r = getImageR(imgPtr);
                 byte* g = getImageG(imgPtr);
                 byte* b = getImageB(imgPtr);
 
                 byte* rgb_data = enlargeImage(imgLenX, imgLenY, lenX, lenY, r,g,b);
 				RGB pic_color = getPicColor(pic_obj);
-				
+
 				if(pic_color){
-					update_RGB_arr_color(lenX, lenY, rgb_data, pic_color);						
+					update_RGB_arr_color(lenX, lenY, rgb_data, pic_color);
 				}
-				
+
                 int k = 0;
                 for (int i = y; i < y+lenY; ++i) {
                     for (int j = x+lenX-1; j >=x ; j--) {
@@ -1204,19 +1211,66 @@ LedSignResult DrawBoard() {
     return LED_SIGN_SUCCESS;
 }
 
-void putPixelPort4(int row, int col, byte r, byte g, byte b){
-
-	unsigned char bg_pixel[4];
-	bg_pixel[3] = r;	// r
-	bg_pixel[2] = g;	// g
-	bg_pixel[1] = b;	// b
-	bg_pixel[0] = 0;	// b
+void print_flipped_right_board(){
 
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
-        	Xil_Out32((u32) (port4 + row*1024 + col*4) ,*((int*)bg_pixel));
+            Xil_Out32((u32) (port1 + i*1024 + j*4) ,board_rgb[i][8*N-j-1]); // multiplied by 4 cuz port1 is of type char*
         }
     }
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+            Xil_Out32((u32) (port2 + i*1024 + j*4) ,board_rgb[i+N][8*N-j-1]); // multiplied by 4 cuz port1 is of type char*
+        }
+    }
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+            Xil_Out32((u32) (port3 + i*1024 + j*4) ,board_rgb[i+2*N][8*N-j-1]); // multiplied by 4 cuz port1 is of type char*
+        }
+    }
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+            Xil_Out32((u32) (port4 + i*1024 + j*4) ,board_rgb[i+3*N][8*N-j-1]); // multiplied by 4 cuz port1 is of type char*
+        }
+    }
+    xil_printf("finished printing\n");
+	swapBuffer();
 
 }
 
+// the user should call draw board
+LedSignResult FlipRight(){
+	print_flipped_right_board();
+    return LED_SIGN_SUCCESS;
+}
+
+void print_flipped_left_board(){
+
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+            Xil_Out32((u32) (port4 + i*1024 + j*4) ,board_rgb[4*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+        }
+    }
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+            Xil_Out32((u32) (port3 + i*1024 + j*4) ,board_rgb[3*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+        }
+    }
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+            Xil_Out32((u32) (port2 + i*1024 + j*4) ,board_rgb[2*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+        }
+    }
+    for(int i=31; i>=0; i--) {
+        for (int j = 255; j >= 0; j--) {
+            Xil_Out32((u32) (port1 + i*1024 + j*4) ,board_rgb[N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+        }
+    }
+    xil_printf("finished printing\n");
+	swapBuffer();
+
+}
+
+LedSignResult FlipDown(){
+
+}

@@ -118,5 +118,5 @@ int updatePicColor(PicObject picObject, RGB newColor){
     }
     destroyRGB(picObject->color);
     picObject->color = newColor;
-    return 0;	
+    return 0;
 }
