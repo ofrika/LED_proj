@@ -261,7 +261,7 @@ byte* enlargeImage(int orgLenX, int orgLenY, int finalLenX, int finalLenY, byte 
 }
 
 // I should update this function so it could to parser an english string..
-byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
+byte* text2rgb(int* data, int n, int* finalLenX, int finalLenY, bool scroll){
 
     // the input is an array of int, each cell contains the sequence number of the Hebrew Char
     int* ch_w = malloc(sizeof(int)*n);
@@ -511,7 +511,13 @@ byte* text2rgb(int* data, int n, int finalLenX, int finalLenY){
     }
 
     free(ch_w);
-    byte* res = enlargeImage(w,EIGHT,finalLenX,finalLenY,rgb_arr,rgb_arr,rgb_arr);
+	byte* res;
+	if(scroll){
+	    res = enlargeImage(w,EIGHT,w,finalLenY,rgb_arr,rgb_arr,rgb_arr);
+		*finalLenX = w;
+	} else {
+	    res = enlargeImage(w,EIGHT,*finalLenX,finalLenY,rgb_arr,rgb_arr,rgb_arr);
+	}
     free(rgb_arr);
     return res;
 }
@@ -1014,7 +1020,6 @@ void rotate_90_counter_clockwise(int matrix_line, int matrix_column){
 
 
 void print_board(){
-
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
             Xil_Out32((u32) (port1 + i*1024 + j*4) ,board_rgb[i][j]); // multiplied by 4 cuz port1 is of type char*
@@ -1065,39 +1070,6 @@ void rotate_board_matrices()
     }
 };
 
-
-void scroll_func(byte* rgb_arr, int x, int lenX, int lenY){
-
-	// mirror the rgb array
-	for(int i=0; i<lenY; i++){
-		for(int j=0; j<lenX/2; j++){
-			for(int m=0; m<3; m++){
-				byte tmp = *(rgb_arr+3*i*lenX+3*j+m);
-				*(rgb_arr+3*i*lenX+3*j+m) = *(rgb_arr+3*i*lenX+3*(lenX-j-1)+m);
-				*(rgb_arr+3*i*lenX+3*(lenX-j-1)+m) = tmp;
-			}
-		}
-	}
-
-	for(int k=lenX; k>0; k--){
-		for(int j=x+lenX-1; j-k+1 >= x; j--){
-			for(int i=0; i<lenY; i++){
-
-				unsigned char bg_pixel[4];
-				bg_pixel[3] = *(rgb_arr+3*i*lenX+3*(j-x));	// r
-				bg_pixel[2] = *(rgb_arr+3*i*lenX+3*(j-x)+1);	// g
-				bg_pixel[1] = *(rgb_arr+3*i*lenX+3*(j-x)+2);	// b
-				bg_pixel[0] = 0;	// none
-
-	            Xil_Out32((u32) (port4 + i*1024 + (j-k+1)*4) ,*((int*)bg_pixel)); // multiplied by 4 cuz port1 is of type char*
-			}
-		}
-		swapBuffer();
-		//sleep(0);
-		for(int m=0;m<1000000;m++){}
-	}
-}
-
 void update_RGB_arr_color(int lenX, int lenY, byte* rgb_data, RGB color){
 	for(int i=0; i<3*lenX*lenY; i+=3){
 		if(*(rgb_data+i) != 0 || *(rgb_data+i+1) != 0 || *(rgb_data+i+2) != 0){
@@ -1121,19 +1093,15 @@ LedSignResult DrawBoard() {
 
     for (Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards); itr_disp = listGetNext(mainBoard->subBoards)) {
         for (Element itr_obj = listGetFirst(itr_disp->objects); itr_obj != listGetLast(itr_disp->objects); itr_obj = listGetNext(itr_disp->objects)) {
-
-            if (listGetIteratorType(itr_disp->objects) == Text) {
+            if (listGetIteratorType(itr_disp->objects) == Text && isTextScrollable((TextObject)itr_obj) == false) {
                 TextObject text_obj = (TextObject)itr_obj;
                 int x = getTextX(text_obj);
                 int y = getTextY(text_obj);
                 int lenX = getTextLenX(text_obj);
                 int lenY = getTextLenY(text_obj);
-
                 int len = getTextLen(text_obj);
                 int* t = getTextData(text_obj);
-
-                byte* rgb_data = text2rgb(t,len,lenX,lenY);
-
+                byte* rgb_data = text2rgb(t,len,&lenX,lenY,false);
                 RGB color = getTextColor(text_obj);
 
                 for(int i=0; i<3*lenX*lenY; i+=3){
@@ -1141,10 +1109,6 @@ LedSignResult DrawBoard() {
            					rgb_data[i+1] *=getG(color);
            					rgb_data[i+2] *=getB(color);
                 }
-
-            	if(isTextScrollable(text_obj)){
-            		scroll_func(rgb_data,x,lenX, lenY);
-            	}
 
                 int k=0;
                 for (int i = y; i < y+lenY; ++i) {
@@ -1163,7 +1127,7 @@ LedSignResult DrawBoard() {
                     }
                 }
                 free(rgb_data);
-            } else {
+            } else if (listGetIteratorType(itr_disp->objects) == Picture) {
                 PicObject pic_obj = (PicObject)itr_obj;
                 int x = getPicX(pic_obj);
                 int y = getPicY(pic_obj);
@@ -1205,11 +1169,113 @@ LedSignResult DrawBoard() {
 
     rotate_board_matrices();
     print_board();
-
     xil_printf("******* withdrawl from DrawBoard.. ******* \n");
-
     return LED_SIGN_SUCCESS;
 }
+
+void mirror_rgb_arr(byte* rgb_arr, int txtLen, int lenY){
+
+    for(int i=0; i<lenY; i++){
+        for(int j=0; j<txtLen/2; j++){
+            for(int m=0; m<3; m++){
+                byte tmp = *(rgb_arr+3*i*txtLen+3*j+m);
+                *(rgb_arr+3*i*txtLen+3*j+m) = *(rgb_arr+3*i*txtLen+3*(txtLen-j-1)+m);
+                *(rgb_arr+3*i*txtLen+3*(txtLen-j-1)+m) = tmp;
+            }
+        }
+    }
+}
+
+void print_intervals(int x, int y, byte* rgb_arr, int s_pos, int e_pos, int txt_from, int txt_to, int txtLen, int lenY){
+    for(int j1 = txt_from, j2 = s_pos; j1<txt_to && j2<e_pos; j1++,j2++) {
+        for (int i = 0; i < lenY; i++) {
+
+            unsigned char bg_pixel[4];
+            bg_pixel[3] = *(rgb_arr + 3 * i * txtLen + 3 * j1);        // r
+            bg_pixel[2] = *(rgb_arr + 3 * i * txtLen + 3 * j1 + 1);        // g
+            bg_pixel[1] = *(rgb_arr + 3 * i * txtLen + 3 * j1 + 2);        // b
+            bg_pixel[0] = 0;                                // none
+
+            if (y + i >= 0 && y + i < 32) {
+                Xil_Out32((u32)(port1 + ((y + i) % N) * 1024 + j2 * 4),
+                          *((int *) bg_pixel)); // multiplied by 4 cuz port1 is of type char*
+            } else if (y + i >= 32 && y + i < 64) {
+                Xil_Out32((u32)(port2 + ((y + i) % N) * 1024 + j2 * 4),
+                          *((int *) bg_pixel)); // multiplied by 4 cuz port1 is of type char*
+            } else if (y + i >= 64 && y + i < 96) {
+                Xil_Out32((u32)(port3 + ((y + i) % N) * 1024 + j2 * 4),
+                          *((int *) bg_pixel)); // multiplied by 4 cuz port1 is of type char*
+            } else {
+                Xil_Out32((u32)(port4 + ((y + i) % N) * 1024 + j2 * 4),
+                          *((int *) bg_pixel)); // multiplied by 4 cuz port1 is of type char*
+            }
+        }
+		for(int m=0;m<100000;m++){}
+
+    }
+}
+
+//godel halon = lenX
+void scroll_window(byte* rgb_arr, int k, int x, int y, int lenX, int lenY, int txtLen){
+
+    mirror_rgb_arr(rgb_arr,txtLen,lenY);
+
+    k = k%(txtLen+lenX);
+
+    int s_pos,e_pos,txt_from,txt_to;
+    if(k<=lenX){
+        s_pos = x;
+        e_pos = x+k;
+        txt_from = txtLen-k;
+        txt_to = txtLen;
+    } else if(k > lenX && k<= txtLen){
+        s_pos = x;
+        e_pos = x+lenX;
+        txt_from = txtLen-k;
+        txt_to = txtLen-k+lenX;
+    } else {
+        s_pos = k-txtLen;
+        e_pos = x+lenX;
+        txt_from = 0;
+        txt_to = txtLen-k+lenX;
+    }
+
+    print_intervals(x,y,rgb_arr,s_pos,e_pos,txt_from,txt_to,txtLen,lenY);
+
+}
+
+void scroll_whole_board(int k){
+	xil_printf("Hey Scroll Board ! \n");
+
+    for (Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards); itr_disp = listGetNext(mainBoard->subBoards)) {
+        for (Element itr_obj = listGetFirst(itr_disp->objects); itr_obj != listGetLast(itr_disp->objects); itr_obj = listGetNext(itr_disp->objects)) {
+			if (listGetIteratorType(itr_disp->objects) == Text && isTextScrollable((TextObject)itr_obj)) {
+                TextObject text_obj = (TextObject)itr_obj;
+                int x = getTextX(text_obj);
+                int y = getTextY(text_obj);
+                int lenX = getTextLenX(text_obj);
+                int lenY = getTextLenY(text_obj);
+
+
+                int len = getTextLen(text_obj);
+                int* t = getTextData(text_obj);
+
+                byte* rgb_data = text2rgb(t,len,&lenX,lenY,true);
+
+                RGB color = getTextColor(text_obj);
+                for(int i=0; i<3*lenX*lenY; i+=3){
+					rgb_data[i] *=getR(color);
+					rgb_data[i+1] *=getG(color);
+					rgb_data[i+2] *=getB(color);
+                }
+				scroll_window(rgb_data, k, x, y, getTextLenX(text_obj), lenY, lenX);
+                free(rgb_data);
+            }
+		}
+	}
+	swapBuffer();
+}
+
 
 void print_flipped_right_board(){
 
@@ -1244,7 +1310,7 @@ LedSignResult FlipRight(){
     return LED_SIGN_SUCCESS;
 }
 
-void print_flipped_left_board(){
+void print_flipped_down_board(){
 
     for(int i=31; i>=0; i--) {
         for (int j = 255; j >= 0; j--) {
@@ -1268,9 +1334,9 @@ void print_flipped_left_board(){
     }
     xil_printf("finished printing\n");
 	swapBuffer();
-
 }
 
 LedSignResult FlipDown(){
-
+	print_flipped_down_board();
+	return LED_SIGN_SUCCESS;
 }

@@ -43,7 +43,7 @@
 #include "logoR0.h"
 #include "logoB0.h"
 #include "logoG0.h"
-#include <time.h>
+#include "xtime_l.h"
 
 #define LWIP_IPV6 0
 #if LWIP_IPV6==1
@@ -331,7 +331,7 @@ int main(void)
 	xil_printf("Receiving input from user loop has ended.");
 */
 
-/*
+
     int arr[] = {8,8,8,8};
     // direction is in the format: "Row,Column,D" , while D={L/U/D/R}, and directions are seperated by semicolon; indexes from 0
     // for example: "3,6,L;3,7,D;"
@@ -349,6 +349,7 @@ int main(void)
         return 0;
     }
 
+    /*
 
     byte imageR[16] = {255,0,255,0,255,0,255,0,255,0,255,0,255,0,255,0};
     byte imageG[16] = {0,255,0,255,0,255,0,255,0,255,0,255,0,255,0,255};
@@ -362,27 +363,30 @@ int main(void)
 	} else {
 		xil_printf("Adding Image To Stock Succeed \n \n");
 	}
-
-//    LedSignResult res5 = addPicture(5,3,9,240,120,8,8,false,25,95,19);
-//    if(res5 != LED_SIGN_SUCCESS){
-//    	xil_printf("res5 ERROR %d !!\n",res5);
-//    	destroyBoard();
-//        return 0;
-//    } else {
-//		xil_printf("Adding Pic Succeed\n \n");
-//	}
+*/
 
     int text1[4] = {8,1,14,18};
-    LedSignResult res6 = createTextArea(5,4,190,100,62,16,0,0,255,true);
+
+
+    LedSignResult res6 = createTextArea(5,4,190,100,25,8,0,0,255,true);
     if(res6 != LED_SIGN_SUCCESS){
     	xil_printf("res6 ERROR %d !!\n",res6);
     	destroyBoard();
         return 0;
     } else {
-		xil_printf("Adding Text Succeed\n \n");
+		xil_printf("Creating Text Succeed\n \n");
 	}
 
-    LedSignResult res7 = updateText(5,4, text1, 4,FALSE);
+    LedSignResult res9 = createTextArea(5,8,190,110,15,8,0,0,255,true);
+    if(res9 != LED_SIGN_SUCCESS){
+    	xil_printf("res9 ERROR %d !!\n",res9);
+    	destroyBoard();
+        return 0;
+    } else {
+		xil_printf("Creating Text Succeed\n \n");
+	}
+
+    LedSignResult res7 = updateText(5,4, text1, 4,false);
     if(res7 != LED_SIGN_SUCCESS){
     	xil_printf("res7 ERROR %d !!\n",res7);
     	destroyBoard();
@@ -391,17 +395,49 @@ int main(void)
 		xil_printf("updating Text Succeed\n \n");
 	}
 
-	LedSignResult res8 = DrawBoard();
-	if(res8 != LED_SIGN_SUCCESS){
-		xil_printf("Drawing Board ERROR!!\n");
+    LedSignResult res10 = updateText(5,8, text1, 4,false);
+    if(res10 != LED_SIGN_SUCCESS){
+    	xil_printf("res10 ERROR %d !!\n",res10);
     	destroyBoard();
-		return 0;
+        return 0;
     } else {
-		xil_printf("Draw Board Succeed\n \n");
+		xil_printf("updating Text Succeed\n \n");
+	}
+
+//	LedSignResult res8 = DrawBoard();
+//	if(res8 != LED_SIGN_SUCCESS){
+//		xil_printf("Drawing Board ERROR!!\n");
+//    	destroyBoard();
+//		return 0;
+//    } else {
+//		xil_printf("Draw Board Succeed\n \n");
+//	}
+
+
+
+	XTime start, end;
+	double cpu_time_used;
+	XTime_GetTime(&start);
+	int i = 1;
+	while (i<100)
+	{
+		// If no new msg
+		scroll_whole_board(i);
+		// else - do scrolling
+		XTime_GetTime(&end);
+		cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+		xil_printf("cpu time = %lf\n", cpu_time_used);
+		if (cpu_time_used > 0.5)
+		{
+			xil_printf("It's time to scroll!!\n");
+			// Call scrolling function
+			XTime_GetTime(&start);
+
+		}
+		i++;
 	}
 
 	destroyBoard();
-
 
 	xil_printf("\r\n ---------- All done! ~Ofri & Samah ---------- \r\n");
 	xil_printf(" ------------------------------------------------ \r\n");
@@ -409,7 +445,7 @@ int main(void)
 	// ############################################### Ofri & Samah CODE END ###############################################
 
 
-*/
+
 
 	// ################################################## XILINX CODE START ##################################################
 
