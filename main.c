@@ -365,10 +365,11 @@ int main(void)
 	}
 */
 
-    int text1[4] = {8,1,14,18};
+    int text1[11] = {15,10,1,2,5,15,10,11,6,25,2};
+    int text2[4] = {8,1,14,18};
 
 
-    LedSignResult res6 = createTextArea(5,4,190,100,25,8,0,0,255,true);
+    LedSignResult res6 = createTextArea(5,4,190,100,45,16,0,0,255,true);
     if(res6 != LED_SIGN_SUCCESS){
     	xil_printf("res6 ERROR %d !!\n",res6);
     	destroyBoard();
@@ -377,7 +378,7 @@ int main(void)
 		xil_printf("Creating Text Succeed\n \n");
 	}
 
-    LedSignResult res9 = createTextArea(5,8,190,110,15,8,0,0,255,true);
+    LedSignResult res9 = createTextArea(5,8,190,117,15,8,0,0,255,true);
     if(res9 != LED_SIGN_SUCCESS){
     	xil_printf("res9 ERROR %d !!\n",res9);
     	destroyBoard();
@@ -386,7 +387,7 @@ int main(void)
 		xil_printf("Creating Text Succeed\n \n");
 	}
 
-    LedSignResult res7 = updateText(5,4, text1, 4,false);
+    LedSignResult res7 = updateText(5,4, text1, 11,false);
     if(res7 != LED_SIGN_SUCCESS){
     	xil_printf("res7 ERROR %d !!\n",res7);
     	destroyBoard();
@@ -395,7 +396,20 @@ int main(void)
 		xil_printf("updating Text Succeed\n \n");
 	}
 
-    LedSignResult res10 = updateText(5,8, text1, 4,false);
+
+    LedSignResult res15 = updateTextColor(5,4, 255,0,0,false);
+    if(res15 != LED_SIGN_SUCCESS){
+    	xil_printf("res15 ERROR %d !!\n",res15);
+    	destroyBoard();
+        return 0;
+    } else {
+		xil_printf("updating Text Succeed\n \n");
+	}
+
+
+
+
+    LedSignResult res10 = updateText(5,8, text2, 4,false);
     if(res10 != LED_SIGN_SUCCESS){
     	xil_printf("res10 ERROR %d !!\n",res10);
     	destroyBoard();
@@ -414,6 +428,7 @@ int main(void)
 //	}
 
 
+    /*
 
 	XTime start, end;
 	double cpu_time_used;
@@ -437,6 +452,15 @@ int main(void)
 		i++;
 	}
 
+*/
+
+
+	int i = 1;
+	while (i<300)
+	{
+		scroll_whole_board(i);
+		i++;
+	}
 	destroyBoard();
 
 	xil_printf("\r\n ---------- All done! ~Ofri & Samah ---------- \r\n");
