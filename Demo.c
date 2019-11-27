@@ -51,7 +51,7 @@ Draw_board();
 // Write: Get_status()
 
 // Shows inserting a smiley face to the picture area
-// Insert_picture (2,1,5);
+// Write: Insert_picture (2,1,5);
 
 
 
