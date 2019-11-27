@@ -1,3 +1,5 @@
+// ------------ This is initialization setup ------------
+
 Init(default)
 // For welcome message
 Add_sub_board(1,0,0,255,31)
@@ -28,5 +30,33 @@ Insert_picture (2,3,2);
 Insert_text(2,1,{58,29,63,49,96,64,57,69,67,43},10);
 Insert_text(2,2,{83,49},2);
 Insert_picture (3,3,3);
+Draw_board();
+
+
+// ------------ This is the demo itself: type these in command window ------------
+
+// Shows identifying invalid commands
+// fhreerkhg
+
+// Shows clearing sub-board
+// Write: Clear_sub_board(2)
+
+// Shows the board still exists but there are no areas inside
+// Write: Get_status()
+
+// Shows live adding of a new picture
+// Write: Add_picture_area(2,25,0,64,50,50,1,255,255,255);
+
+// Shows the board exists and there is a new picture area inside with ID=25
+// Write: Get_status()
+
+// Shows inserting a smiley face to the picture area
+// Insert_picture (2,1,5);
+
+
+
+
+
+
 
 
