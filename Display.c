@@ -158,12 +158,6 @@ Direction** parseDirections(char* directionsStr, int* ports, int numPorts){
         count++;
     }
     free(tmp);
-
-//    for(int i=0; i<numPorts; i++){
-//        for(int j=0; j<ports[i]; j++){
-//            xil_printf("i= %d, j= %d : %d\n", i,j,*(*(arr+i)+j));
-//        }
-//    }
     return arr;
 }
 
@@ -179,13 +173,10 @@ RGB* convertPicStrToRGBArray(int width, int height, char* data){
         byte x = atoi(ptr);
         if(count%3 == 0){
             r = x;
-//            printf("r == '%d'\n", r);
         } else if(count%3 == 1){
             g = x;
-//            printf("g == '%d'\n", g);
         } else if(count%3 == 2){
             b = x;
-//            printf("b == '%d'\n", b);
             RGB newRGB = createRGB(r, g, b);
             arr[i/3] = newRGB;
         } else {
@@ -202,9 +193,6 @@ RGB* convertPicStrToRGBArray(int width, int height, char* data){
     free(tmp);
     return arr;
 
-//    for(int q=0; q<width*height; q++){
-//        xil_printf("rgb arr : %d \n", arr[q]);
-//    }
 }
 
 // ************************** private function *******************************
@@ -253,267 +241,7 @@ byte* enlargeImage(int orgLenX, int orgLenY, int finalLenX, int finalLenY, byte 
     return finalData;
 }
 
-// I should update this function so it could to parser an english string..
-byte* text2rgb(int* data, int n, int* finalLenX, int finalLenY, bool scroll){
 
-    // the input is an array of int, each cell contains the sequence number of the Hebrew Char
-    int* ch_w = malloc(sizeof(int)*n);
-    if(!ch_w){
-        printf("error allocating memory..\n");
-    }
-    int w = 0;
-    for (int i = 0; i < n ; ++i) {
-        if (data[i] == 1 || data[i] == 2 || data[i] == 4 || data[i] == 5 || data[i] == 8 || data[i] == 12 || data[i] == 15 || data[i] == 18 || data[i] == 22 || data[i] == 23 || data[i] == 26 || data[i] == 27){
-            w+=EIGHT;
-            ch_w[i] = EIGHT;
-        } else if(data[i] == 3 || data[i] == 9 || data[i] == 11 || data[i] == 13 || data[i] == 14 || data[i] == 19 || data[i] == 20 || data[i] == 21 || data[i] == 25){
-            w+=SEVEN;
-            ch_w[i] = SEVEN;
-        } else if(data[i] == 6 || data[i] == 7 || data[i] == 10 || data[i] == 16 || data[i] == 17 || data[i] == 24){
-            w+=FIVE;
-            ch_w[i] = FIVE;
-        }
-    }
-
-    byte *rgb_arr = malloc(sizeof(byte)*EIGHT*w);
-    if(!rgb_arr){
-        printf("error allocating memory..\n");
-    }
-
-    int offset = 0;
-    for (int k = 0; k < n ; ++k) {
-        switch(data[k]){
-            case 1:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Alef[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 2:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Bet[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 3:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Gimel[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 4:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Dalet[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 5:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = He[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 6:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Vav[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 7:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Zain[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 8:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Het[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 9:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Tet[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 10:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Yod[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 11:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Khaf[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 12:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Khaf_s[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 13:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Lamed[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 14:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Mem[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 15:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Mem_s[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 16:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Non[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 17:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Non_s[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 18:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Samekh[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 19:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Aien[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 20:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Fe[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 21:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Fe_s[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 22:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Tsade[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 23:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Tsade_s[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 24:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Kof[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 25:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Resh[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 26:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Shen[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-            case 27:
-                for(int i=0; i < EIGHT; i++){
-                    for (int j = 0; j < ch_w[k]; ++j) {
-                        *(rgb_arr+i*w+j+offset) = Tav[i][j];
-                    }
-                }
-                offset+=ch_w[k];
-                break;
-        }
-
-    }
-
-    free(ch_w);
-	byte* res;
-	if(scroll){
-	    res = enlargeImage(w,EIGHT,w,finalLenY,rgb_arr,rgb_arr,rgb_arr);
-		*finalLenX = w;
-	} else {
-	    res = enlargeImage(w,EIGHT,*finalLenX,finalLenY,rgb_arr,rgb_arr,rgb_arr);
-	}
-    free(rgb_arr);
-    return res;
-}
 
 bool is_legal_location(int x, int y, int lenX, int lenY){
     bool y_is_legal = false;
@@ -1225,7 +953,7 @@ void print_intervals(int x, int y, byte* rgb_arr, int s_pos, int e_pos, int txt_
 }
 
 //godel halon = lenX
-void scroll_window(byte* rgb_arr, int k, int x, int y, int lenX, int lenY, int txtLen){
+void scroll_window_hebrew(byte* rgb_arr, int k, int x, int y, int lenX, int lenY, int txtLen){
 
     mirror_rgb_arr(rgb_arr,txtLen,lenY);
 
@@ -1255,6 +983,36 @@ void scroll_window(byte* rgb_arr, int k, int x, int y, int lenX, int lenY, int t
 
 }
 
+//godel halon = lenX
+void scroll_window_english(byte* rgb_arr, int k, int x, int y, int lenX, int lenY, int txtLen){
+
+    mirror_rgb_arr(rgb_arr,txtLen,lenY);
+
+    k = k%(txtLen+lenX);
+
+    int s_pos,e_pos,txt_from,txt_to;
+    if(k<=lenX){
+    	int m = ((lenX-txtLen)>0 && k>txtLen) ? lenX-txtLen : 0;
+        s_pos = x+lenX-k;
+		e_pos = x+m+lenX;	
+		txt_from = 0;
+        txt_to = k;
+    } else if(k > lenX && k<= txtLen){
+        s_pos = x;
+        e_pos = x+lenX;
+		txt_from = k;
+        txt_to = k+lenX;	
+    } else {
+		s_pos = x;
+        e_pos = x+lenX-(k-txtLen);
+		txt_from = txtLen-(txtLen-k+lenX);	
+		txt_to = txtLen;
+    }
+
+    print_intervals(x,y,rgb_arr,s_pos,e_pos,txt_from,txt_to,txtLen,lenY);
+
+}
+
 void scroll_whole_board(int k){
 
     for (Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards); itr_disp = listGetNext(mainBoard->subBoards)) {
@@ -1277,7 +1035,11 @@ void scroll_whole_board(int k){
 					rgb_data[i+1] *=getG(color);
 					rgb_data[i+2] *=getB(color);
                 }
-				scroll_window(rgb_data, k, x, y, getTextLenX(text_obj), lenY, lenX);
+				if(t[0] < 28){
+					scroll_window_hebrew(rgb_data, k, x, y, getTextLenX(text_obj), lenY, lenX);	
+				} else { 
+					scroll_window_english(rgb_data, k, x, y, getTextLenX(text_obj), lenY, lenX);					
+				}
                 free(rgb_data);
             }
 		}

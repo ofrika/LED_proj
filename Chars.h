@@ -402,14 +402,14 @@ byte I[EIGHT][FIVE] = {{0,0,0,0,0},
 					   {0,1,1,1,0},
 					   {0,0,0,0,0}};			// #44
 
-byte i[EIGHT][THREE] = {{0,0,0},
-						{0,0,0},
-						{0,1,0},
-						{0,0,0},
-						{0,1,0},
-						{0,1,0},
-						{0,1,0},
-						{0,0,0}};				// #45
+byte i_letter[EIGHT][THREE] = {{0,0,0},
+							   {0,0,0},
+							   {0,1,0},
+							   {0,0,0},
+						  	   {0,1,0},
+							   {0,1,0},
+							   {0,1,0},
+							   {0,0,0}};				// #45
 
 byte J[EIGHT][SEVEN] =   {{0,0,0,0,0,0,0},
 						  {0,0,0,1,1,1,0},
@@ -420,14 +420,14 @@ byte J[EIGHT][SEVEN] =   {{0,0,0,0,0,0,0},
 						  {0,0,1,1,0,0,0},
 						  {0,0,0,0,0,0}};		// #46
 
-byte j[EIGHT][FIVE] = {{0,0,0,0,0},
-					   {0,0,0,1,0},
-					   {0,0,0,0,0},
-				 	   {0,0,0,1,0},
-					   {0,0,0,1,0},
-					   {0,1,0,1,0},
-					   {0,1,1,1,0},
-					   {0,0,0,0,0}};			// #47
+byte j_letter[EIGHT][FIVE] = {{0,0,0,0,0},
+						      {0,0,0,1,0},
+						      {0,0,0,0,0},
+						      {0,0,0,1,0},
+						      {0,0,0,1,0},
+						      {0,1,0,1,0},
+						      {0,1,1,1,0},
+						      {0,0,0,0,0}};			// #47
 
 byte K[EIGHT][SIX] = {{0,0,0,0,0,0},
 					  {0,1,0,0,1,0},
@@ -438,14 +438,14 @@ byte K[EIGHT][SIX] = {{0,0,0,0,0,0},
 					  {0,1,0,0,1,0},
 					  {0,0,0,0,0,0}};			// #48
 
-byte k[EIGHT][FIVE] = {{0,0,0,0,0},
-					   {0,1,0,0,0},
-					   {0,1,0,0,0},
-					   {0,1,0,0,0},
-					   {0,1,0,1,0},
-					   {0,1,1,0,0},
-					   {0,1,0,1,0},
-					   {0,0,0,0,0}};			// #49
+byte k_letter[EIGHT][FIVE] = {{0,0,0,0,0},
+						      {0,1,0,0,0},
+						      {0,1,0,0,0},
+						      {0,1,0,0,0},
+						      {0,1,0,1,0},
+						      {0,1,1,0,0},
+						      {0,1,0,1,0},
+						      {0,0,0,0,0}};			// #49
 
 byte L[EIGHT][FIVE] = {{0,0,0,0,0},
 					   {0,1,0,0,0},
@@ -492,14 +492,14 @@ byte N[EIGHT][EIGHT] = {{0,0,0,0,0,0,0,0},
 					    {0,1,0,0,0,0,1,0},
 					    {0,0,0,0,0,0,0,0}};		// #54
 
-byte n[EIGHT][SIX] = {{0,0,0,0,0,0},
-					  {0,0,0,0,0,0},
-					  {0,0,0,0,0,0},
-					  {0,1,1,1,1,0},
-					  {0,1,0,0,1,0},
-					  {0,1,0,0,1,0},
-					  {0,1,0,0,1,0},
-					  {0,0,0,0,0,0}};			// #55
+byte n_letter[EIGHT][SIX] = {{0,0,0,0,0,0},
+						     {0,0,0,0,0,0},
+						     {0,0,0,0,0,0},
+						     {0,1,1,1,1,0},
+						     {0,1,0,0,1,0},
+						     {0,1,0,0,1,0},
+						     {0,1,0,0,1,0},
+						     {0,0,0,0,0,0}};			// #55
 
 byte O[EIGHT][SEVEN] = {{0,0,0,0,0,0,0},
 					    {0,0,1,1,1,0,0},
@@ -654,14 +654,14 @@ byte W[EIGHT][SEVEN] = {{0,0,0,0,0,0,0},
 					    {0,1,1,0,1,1,0},
 					    {0,0,0,0,0,0,0}};		// #72
 
-byte w[EIGHT][SEVEN] = {{0,0,0,0,0,0,0},
-					    {0,0,0,0,0,0,0},
-					    {0,0,0,0,0,0,0},
-					    {0,0,0,0,0,0,0},
-					    {0,1,0,0,0,1,0},
-					    {0,1,0,1,0,1,0},
-					    {0,1,1,0,1,1,0},
-					    {0,0,0,0,0,0,0}};		// #73
+byte w_letter[EIGHT][SEVEN] = {{0,0,0,0,0,0,0},
+							   {0,0,0,0,0,0,0},
+							   {0,0,0,0,0,0,0},
+							   {0,0,0,0,0,0,0},
+							   {0,1,0,0,0,1,0},
+							   {0,1,0,1,0,1,0},
+							   {0,1,1,0,1,1,0},
+							   {0,0,0,0,0,0,0}};		// #73
 
 byte X[EIGHT][SEVEN] = {{0,0,0,0,0,0,0},
 					    {0,1,0,0,0,1,0},
@@ -869,3 +869,830 @@ byte SPACE_arr[EIGHT][FIVE] = {{0,0,0,0,0},
 							   {0,0,0,0,0},
 							   {0,0,0,0,0},
 							   {0,0,0,0,0}};	// #96
+
+
+
+
+
+// I should update this function so it could to parser an english string..
+byte* text2rgb(int* data, int n, int* finalLenX, int finalLenY, bool scroll){
+
+    // the input is an array of int, each cell contains the sequence number of the Hebrew Char
+    int* ch_w = malloc(sizeof(int)*n);
+    if(!ch_w){
+        printf("error allocating memory..\n");
+    }
+    int w = 0;
+    for (int i = 0; i < n ; ++i) {
+        if (data[i] == 1 || data[i] == 2 || data[i] == 4 || data[i] == 5 || data[i] == 8 || data[i] == 12 || data[i] == 15 || data[i] == 18 || data[i] == 22 || data[i] == 23 || data[i] == 26 || data[i] == 27 || data[i] == 54 || data[i] == 78){
+            w+=EIGHT;
+            ch_w[i] = EIGHT;
+        } else if(data[i] == 3 || data[i] == 9 || data[i] == 11 || data[i] == 13 || data[i] == 14 || data[i] == 19 || data[i] == 20 || data[i] == 21 || data[i] == 25 || data[i] == 46 || data[i] == 52 || data[i] == 53  || data[i] == 56 || data[i] == 60 || data[i] == 64 || data[i] == 66 || data[i] == 68 || data[i] == 70 || data[i] == 71 || data[i] == 72 || data[i] == 73 || data[i] == 74 || data[i] == 76 || data[i] == 83 || data[i] == 86 ){
+            w+=SEVEN;
+            ch_w[i] = SEVEN;
+        } else if(data[i] == 28 || data[i] == 29 || data[i] == 30 || data[i] == 34 || data[i] == 40 || data[i] == 42 || data[i] == 48 || data[i] == 55 || data[i] == 57 || data[i] == 58 || data[i] == 61 || data[i] == 62 || data[i] == 67 || data[i] == 79 || data[i] == 81 || data[i] == 82 || data[i] == 84 || data[i] == 85 || data[i] == 87 || data[i] == 88 || data[i] == 89 || data[i] == 90){
+			w+=SIX;
+            ch_w[i] = SIX;			
+		} else if(data[i] == 6 || data[i] == 7 || data[i] == 10 || data[i] == 16 || data[i] == 17 || data[i] == 24 || data[i] == 31 || data[i] == 32 || data[i] == 33 || data[i] == 35 || data[i] == 36 || data[i] == 37 || data[i] == 38 || data[i] == 41 || data[i] == 43 || data[i] == 44 || data[i] == 47 || data[i] == 49 || data[i] == 50 || data[i] == 59 || data[i] == 63 || data[i] == 65 || data[i] == 69 || data[i] == 75 || data[i] == 77 || data[i] == 80 || data[i] == 95 || data[i] == 96){
+            w+=FIVE;
+            ch_w[i] = FIVE;
+        } else if (data[i] == 39 || data[i] == 51 || data[i] == 93) {
+			w+=FOUR;
+            ch_w[i] = FOUR;
+		} else if (data[i] == 45 || data[i] == 91 || data[i] == 92 || data[i] == 94){
+			w+=THREE;
+            ch_w[i] = THREE;
+		}
+    }
+
+    byte *rgb_arr = malloc(sizeof(byte)*EIGHT*w);
+    if(!rgb_arr){
+        printf("error allocating memory..\n");
+    }
+
+    int offset = 0;
+    for (int k = 0; k < n ; ++k) {
+        switch(data[k]){
+            case 1:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Alef[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 2:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Bet[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 3:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Gimel[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 4:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Dalet[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 5:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = He[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 6:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Vav[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 7:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Zain[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 8:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Het[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 9:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Tet[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 10:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Yod[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 11:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Khaf[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 12:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Khaf_s[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 13:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Lamed[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 14:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Mem[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 15:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Mem_s[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 16:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Non[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 17:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Non_s[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 18:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Samekh[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 19:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Aien[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 20:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Fe[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 21:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Fe_s[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 22:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Tsade[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 23:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Tsade_s[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 24:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Kof[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 25:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Resh[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 26:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Shen[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 27:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Tav[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;				
+			case 28:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = A[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 29:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = a[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 30:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = B[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 31:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = b[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 32:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = C[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 33:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = c[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 34:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = D[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 35:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = d[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 36:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = E[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 37:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = e[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 38:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = F[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 39:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = f[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 40:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = G[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 41:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = g[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 42:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = H[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 43:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = h[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 44:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = I[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 45:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = i_letter[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 46:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = J[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 47:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = j_letter[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 48:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = K[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 49:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = k_letter[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 50:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = L[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 51:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = l[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 52:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = M[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 53:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = m[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 54:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = N[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;		
+            case 55:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = n_letter[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 56:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = O[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 57:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = o[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 58:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = P[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 59:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = p[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 60:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Q[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 61:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = q[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 62:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = R[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 63:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = r[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 64:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = S[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 65:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = s[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 66:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = T[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 67:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = t[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 68:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = U[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 69:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = u[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 70:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = V[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 71:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = v[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 72:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = W[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 73:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = w_letter[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 74:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = X[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 75:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = x[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 76:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Y[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 77:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = y[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 78:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = Z[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 79:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = z[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 80:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = ONE_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 81:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = TWO_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;	
+			case 82:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = THREE_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 83:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = FOUR_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 84:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = FIVE_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 85:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = SIX_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 86:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = SEVEN_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 87:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = EIGHT_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 88:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = NINE_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 89:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = ZERO_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 90:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = QUES_MARK_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 91:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = EXCL_MARK_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 92:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = DOT_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 93:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = COMMA_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 94:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = TWO_DOTS_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 95:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = HYPHEN_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+            case 96:
+                for(int i=0; i < EIGHT; i++){
+                    for (int j = 0; j < ch_w[k]; ++j) {
+                        *(rgb_arr+i*w+j+offset) = SPACE_arr[i][j];
+                    }
+                }
+                offset+=ch_w[k];
+                break;
+        }
+
+    }
+
+    free(ch_w);
+	byte* res;
+	if(scroll){
+	    res = enlargeImage(w,EIGHT,w,finalLenY,rgb_arr,rgb_arr,rgb_arr);
+		*finalLenX = w;
+	} else {
+	    res = enlargeImage(w,EIGHT,*finalLenX,finalLenY,rgb_arr,rgb_arr,rgb_arr);
+	}
+    free(rgb_arr);
+    return res;
+}
