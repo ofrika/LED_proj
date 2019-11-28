@@ -6,9 +6,7 @@
 
 // ************** Data structure handling function declerations *******************
 
-
 typedef unsigned char byte;
-
 typedef enum ledSignResult_t LedSignResult;
 typedef enum Direction_t{UP, DOWN, LEFT, RIGHT, UNDEFINED_DIR} Direction;
 
@@ -56,41 +54,36 @@ LedSignResult deleteArea(int subBoardID, int areaID);
 // Gets the current status of the system
 void getStatus();
 
-// Draws new screen on LED screen
-LedSignResult DrawBoard();
-
-// Flip entire board
+// Flip entire board Right
 LedSignResult FlipRight();
 
+// Flip entire board Down
 LedSignResult FlipDown();
 
 // ************** Function declerations - text object handling *******************
-
 
 // Adds Text to the requested sub-board. Returns -1 if the location is Illegal
 LedSignResult createTextArea(int subBoardID, int TextID, int x, int y, int lenX, int lenY, byte r, byte g, byte b, bool scrollable);
 
 // Updates the text in the given sub-board and writes a new data
-LedSignResult updateText(int subBoardID, int textID, int* data, int data_len, bool draw);
+LedSignResult updateText(int subBoardID, int textID, int* data, int data_len);
 
 // Updates the text color
-LedSignResult updateTextColor(int subBoardID, int textID, byte r, byte g, byte b, bool draw);
-
+LedSignResult updateTextColor(int subBoardID, int textID, byte r, byte g, byte b);
 
 // ************** Function declerations - picture object handling *******************
-
-
-// Adds picture to the requested sub-board
-LedSignResult createPictureArea(int subBoardID, int pictureID, int x, int y, int lenX, int lenY);
 
 // Adds new image to the database so the user can use "addPicture" operation
 LedSignResult addImageToDB(int imageID, int height, int width, byte* rData, byte* gData, byte* bData);
 
+// Adds picture to the requested sub-board
+LedSignResult createPictureArea(int subBoardID, int pictureID, int x, int y, int lenX, int lenY);
+
 // Updates the picture in the given sub-board and draw a new data
-LedSignResult updatePicture(int subBoardID, int pictureID, int index, bool draw);
+LedSignResult updatePicture(int subBoardID, int pictureID, int index);
 
 // Updates the picture color
-LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b, bool draw);
+LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b);
 
 
 #endif

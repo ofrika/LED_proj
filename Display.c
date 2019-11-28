@@ -400,6 +400,7 @@ LedSignResult cleanSubBoard(int dispID){
             return LED_SIGN_SUCCESS;
         }
     }
+	DrawBoard();
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
@@ -419,6 +420,7 @@ LedSignResult deleteSubBoard(int dispID){
             return LED_SIGN_SUCCESS;
         }
     }
+	DrawBoard();
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
@@ -565,7 +567,7 @@ LedSignResult createPictureArea(int dispID, int pictureID, int x, int y, int len
     return LED_SIGN_SUCCESS;
 }
 
-LedSignResult updateText(int dispID, int textID, int* new_data, int data_len,  bool draw){
+LedSignResult updateText(int dispID, int textID, int* new_data, int data_len){
     for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
             for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
@@ -573,9 +575,7 @@ LedSignResult updateText(int dispID, int textID, int* new_data, int data_len,  b
                 if(type == Text){
                     if(textID == getTextID((TextObject)e)){
                         if(updateTextData((TextObject)e, new_data,data_len) != -1){
-                        	if(draw){
-								DrawBoard();
-							}
+							DrawBoard();
                             return LED_SIGN_SUCCESS;
                         }
                         return LED_SIGN_OUT_OF_MEMORY;
@@ -585,13 +585,10 @@ LedSignResult updateText(int dispID, int textID, int* new_data, int data_len,  b
             return LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID;
         }
     }
-    if(draw){
-    	DrawBoard();
-    }
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult updateTextColor(int dispID, int textID, byte r, byte g, byte b, bool draw){
+LedSignResult updateTextColor(int dispID, int textID, byte r, byte g, byte b){
 
 	for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
@@ -600,9 +597,7 @@ LedSignResult updateTextColor(int dispID, int textID, byte r, byte g, byte b, bo
                 if(type == Text){
                     if(textID == getTextID((TextObject)e)){
                         updateTextRGB((TextObject)e, createRGB(r,g,b));
-                        if(draw){
-							DrawBoard();
-						}
+						DrawBoard();
                         return LED_SIGN_SUCCESS;
 
                     }
@@ -614,7 +609,7 @@ LedSignResult updateTextColor(int dispID, int textID, byte r, byte g, byte b, bo
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult updatePicture(int dispID, int pictureID, int newImgId, bool draw){
+LedSignResult updatePicture(int dispID, int pictureID, int newImgId){
 
     Image newImg = find_image(newImgId);
     if(!newImg){
@@ -627,17 +622,13 @@ LedSignResult updatePicture(int dispID, int pictureID, int newImgId, bool draw){
                 Type type = listGetIteratorType(itr_disp->objects);
                 if(type == Picture){
                     if(pictureID == getPicID((PicObject)e)){
-
 						int lenX = getPicLenX((PicObject)e);
 						int lenY = getPicLenY((PicObject)e);
-
 						if(getImageHeight(newImg)>lenY || getImageWidth(newImg)>lenX){
 							return LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL;
 						}
                         updatePicImage((PicObject)e, newImg);
-                        if(draw){
-							DrawBoard();
-						}
+						DrawBoard();
                         return LED_SIGN_SUCCESS;
                     }
                 }
@@ -649,8 +640,7 @@ LedSignResult updatePicture(int dispID, int pictureID, int newImgId, bool draw){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
-LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b, bool draw){
-
+LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b){
 
     for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
         if(itr_disp->id == dispID){
@@ -659,6 +649,7 @@ LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte
                 if(type == Picture){
                     if(pictureID == getPicID((PicObject)e)){
                         updatePicColor((PicObject)e, createRGB(r,g,b));
+						DrawBoard();
                         return LED_SIGN_SUCCESS;
                     }
                 }
@@ -680,13 +671,15 @@ LedSignResult deleteArea(int dispID, int areaID){
                     if(areaID == getPicID((PicObject)e)){
                         listRemove(itr_disp->objects,e);
                         destroyPicObject((PicObject)e);
-                        return LED_SIGN_SUCCESS;
+						DrawBoard();
+						return LED_SIGN_SUCCESS;
                     }
                 } else {
                     if(areaID == getTextID((TextObject)e)){
                         listRemove(itr_disp->objects,e);
                         destroyTextObject((TextObject)e);
-                        return LED_SIGN_SUCCESS;
+						DrawBoard();
+						return LED_SIGN_SUCCESS;
                     }
                 }
             }
@@ -696,6 +689,49 @@ LedSignResult deleteArea(int dispID, int areaID){
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
+
+void getStatus(){
+	xil_printf("The Number of sub-Boards id %d.\n", listSize(mainBoard->subBoards));
+	
+	for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
+		int sub_board_id = itr_disp->id;
+		int sub_board_x = itr_disp->x;
+		int sub_board_y = itr_disp->y;
+		int sub_board_lenX = itr_disp->lenX;
+		int sub_board_lenY = itr_disp->lenY;
+		int objects_number = listSize(itr_disp->objects);
+		
+		xil_printf("The sub-Board of ID: %d starts at point (%d,%d). its lenX is %d and its lenY is %d\n",sub_board_id, sub_board_x, sub_board_y, sub_board_lenX, sub_board_lenY);
+		xil_printf("It contains %d objects.\nwhich is:\n",objects_number);
+		
+		for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
+			Type type = listGetIteratorType(itr_disp->objects);
+			int id,x,y,lenX,lenY;
+			if(type == Picture){
+				PicObject pic_obj = (picObject)e;
+				id = getPicID(pic_obj);
+				x = getPicX(pic_obj);
+				y = getPicY(pic_obj);
+				lenX = getPicLenX(pic_obj);
+				lenY = getPicLenY(pic_obj);
+			} else {
+				TextObject text_obj = (TextObject)e;
+				id = getTextID(text_obj);
+				x = getTextX(text_obj);
+				y = getTextY(text_obj);
+				lenX = getTextLenX(text_obj);
+				lenY = getTextLenY(text_obj);
+			}
+			if(type == Picture){
+				xil_printf("\tThe Picture object is of ID: %d\n",id);
+			} else {
+				xil_printf("\tThe Text object is of ID: %d\n",id);
+			}
+			xil_printf("\t\tIt starts at point (%d,%d). its lenX is %d and its lenY is %d\n",x, y, lenX, lenY);
+		}        
+    }
+	xil_printf("**************************************************************\n");
+}
 
 void swapBuffer(){
     *(copy_cntl+0) = 0Xffffffff;
@@ -871,7 +907,7 @@ void dealPictureObject(PicObject pic_obj){
 	free(rgb_data);
 
 }
-LedSignResult DrawBoard() {
+void DrawBoard() {
 
 	for(int i=0; i<4*N; i++){
 		for(int j=0; j<8*N; j++){
@@ -890,7 +926,6 @@ LedSignResult DrawBoard() {
     }
     rotate_board_matrices();
     print_board();
-    return LED_SIGN_SUCCESS;
 }
 
 void mirror_rgb_arr(byte* rgb_arr, int txtLen, int lenY){
