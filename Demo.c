@@ -30,7 +30,7 @@ Insert_picture (2,3,2);
 Insert_text(2,1,{58,29,63,49,96,64,57,69,67,43},10);
 Insert_text(2,2,{83,49},2);
 Insert_picture (3,3,3);
-Draw_board();
+
 
 
 // ------------ This is the demo itself: type these in command window ------------
