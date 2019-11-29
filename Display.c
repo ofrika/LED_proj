@@ -691,8 +691,9 @@ LedSignResult deleteArea(int dispID, int areaID){
 
 
 void getStatus(){
-	xil_printf("The Number of sub-Boards id %d.\n", listSize(mainBoard->subBoards));
-	
+	xil_printf("\n====================================== Current Status ====================================== \n");
+	xil_printf("------ Total number of Sub-boards = %d. Detailed information as follows: -------------------\n", listSize(mainBoard->subBoards));
+	int e = ;
 	for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
 		int sub_board_id = itr_disp->id;
 		int sub_board_x = itr_disp->x;
@@ -701,8 +702,8 @@ void getStatus(){
 		int sub_board_lenY = itr_disp->lenY;
 		int objects_number = listSize(itr_disp->objects);
 		
-		xil_printf("The sub-Board of ID: %d starts at point (%d,%d). its lenX is %d and its lenY is %d\n",sub_board_id, sub_board_x, sub_board_y, sub_board_lenX, sub_board_lenY);
-		xil_printf("It contains %d objects.\nwhich is:\n",objects_number);
+		xil_printf("------ Sub-board #%d ID = %d, start location = (%d,%d), end location = (%d,%d) -------------\n", e, sub_board_id, sub_board_x, sub_board_y, sub_board_x+sub_board_lenX, sub_board_y+sub_board_lenY);
+		xil_printf("----------- It contains %d areas. Detailed information as follows --------------------------\n", objects_number);
 		
 		for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
 			Type type = listGetIteratorType(itr_disp->objects);
@@ -714,6 +715,7 @@ void getStatus(){
 				y = getPicY(pic_obj);
 				lenX = getPicLenX(pic_obj);
 				lenY = getPicLenY(pic_obj);
+				xil_printf("----------- Picture area with ID = %d ------------------------------------------------------\n",id);
 			} else {
 				TextObject text_obj = (TextObject)e;
 				id = getTextID(text_obj);
@@ -721,16 +723,13 @@ void getStatus(){
 				y = getTextY(text_obj);
 				lenX = getTextLenX(text_obj);
 				lenY = getTextLenY(text_obj);
+				xil_printf("----------- Text area with ID = %d ---------------------------------------------------------\n",id)
 			}
-			if(type == Picture){
-				xil_printf("\tThe Picture object is of ID: %d\n",id);
-			} else {
-				xil_printf("\tThe Text object is of ID: %d\n",id);
-			}
-			xil_printf("\t\tIt starts at point (%d,%d). its lenX is %d and its lenY is %d\n",x, y, lenX, lenY);
-		}        
+			xil_printf("---------------- start location = (%d,%d), end location = (%d,%d)---------------------------\n",x, y, x+lenX, y+lenY);
+			e++;
+		}
     }
-	xil_printf("**************************************************************\n");
+	xil_printf("============================================================================================\n\n");
 }
 
 void swapBuffer(){
