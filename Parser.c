@@ -123,15 +123,15 @@ int parseMessage(char* input)
 	int len = 0, end = 0, k = 0;
 	while (input[len] != '\0')
 		len++;
-	xil_xil_printf("\n***************************************************\n");
+	xil_printf("\n***************************************************\n");
 	switch (com)
 	{
 		case 0: // Initialize board
 		{
 			if (strstr(input, "default") != NULL)
 			{
-				xil_xil_printf("Initializing board with current default settings:\n");
-				xil_xil_printf("-------- #Ports = 4 ------------------------------\n");
+				xil_printf("Initializing board with current default settings:\n");
+				xil_printf("-------- #Ports = 4 ------------------------------\n");
 				xil_printf("-------- #Matrices in each port = 8,8,8,8 --------\n");
 				xil_printf("-------- All matrices are directed right ----------\n");
 				int arr[] = { 8,8,8,8 };
