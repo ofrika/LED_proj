@@ -123,29 +123,29 @@ int parseMessage(char* input)
 	int len = 0, end = 0, k = 0;
 	while (input[len] != '\0')
 		len++;
-	printf("\n***************************************************\n");
+	xil_xil_printf("\n***************************************************\n");
 	switch (com)
 	{
 		case 0: // Initialize board
 		{
 			if (strstr(input, "default") != NULL)
 			{
-				printf("Initializing board with current default settings:\n");
-				printf("-------- #Ports = 4 ------------------------------\n");
-				printf("-------- #Matrices in each port = 8,8,8,8 --------\n");
-				printf("-------- All matrices are directed right ----------\n");
+				xil_xil_printf("Initializing board with current default settings:\n");
+				xil_xil_printf("-------- #Ports = 4 ------------------------------\n");
+				xil_printf("-------- #Matrices in each port = 8,8,8,8 --------\n");
+				xil_printf("-------- All matrices are directed right ----------\n");
 				int arr[] = { 8,8,8,8 };
 				char* dir = { '\0' };
 				LedSignResult res = initBoard(4, arr, dir);
 				free(dir);
 				if (res != LED_SIGN_SUCCESS)
 				{
-					printf("Init ERROR! Please restart machine\n");
+					xil_printf("Init ERROR! Please restart machine\n");
 					destroyBoard();
 					return 1;
 				}
 				else
-					printf("Init succeeded!\n***************************************************\n\n");
+					xil_printf("Init succeeded!\n***************************************************\n\n");
 			}
 			else
 			{
@@ -159,38 +159,38 @@ int parseMessage(char* input)
 				for (k = 0; k < (strlen(input) - end - 4); k++)
 					dir[k] = input[end + 2 + k];
 				dir[k] = '\0';
-				printf("Initializing board with current received settings:\n");
-				printf("-------- #Ports = %d ------------------------------\n", num_ports);
-				printf("-------- #Matrices in each port = ");
+				xil_printf("Initializing board with current received settings:\n");
+				xil_printf("-------- #Ports = %d ------------------------------\n", num_ports);
+				xil_printf("-------- #Matrices in each port = ");
 				for (k = 0; k < num_ports; k++)
 				{
-					if (k != 0) printf(",");
-					printf("%d", clean_port_arr[k]);
+					if (k != 0) xil_printf(",");
+					xil_printf("%d", clean_port_arr[k]);
 				}
-				printf(" --------\n");
-				printf("-------- Rotated matrices = %s", dir);
+				xil_printf(" --------\n");
+				xil_printf("-------- Rotated matrices = %s", dir);
 				if (strcmp(dir, "") == 0)
-					printf("None");
-				printf(" --------\n");
+					xil_printf("None");
+				xil_printf(" --------\n");
 				LedSignResult res = initBoard(num_ports, clean_port_arr, dir);
 				free(dir);
 				free(tmp);
 				if (res != LED_SIGN_SUCCESS)
 				{
-					printf("Init ERROR! Please restart machine\n");
+					xil_printf("Init ERROR! Please restart machine\n");
 					destroyBoard();
 					return 1;
 				}
 				else
-					printf("Init succeeded!\n***************************************************\n\n");
+					xil_printf("Init succeeded!\n***************************************************\n\n");
 			}
 			break;
 		}
 		case 1: // Destroy board
 		{
 			destroyBoard();
-			printf("Exit succeeded! You can turn off machine now.\n");
-			printf("***************************************************\n\n");
+			xil_printf("Exit succeeded! You can turn off machine now.\n");
+			xil_printf("***************************************************\n\n");
 			return 1;
 			break;
 		}
@@ -201,17 +201,17 @@ int parseMessage(char* input)
 			int y = get_next_numerical_input(input, end, len, &end);
 			int len_x = get_next_numerical_input(input, end, len, &end);
 			int len_y = get_next_numerical_input(input, end, len, &end);
-			printf("Adding sub-board with the following parameters:\n");
-			printf("-------- ID = %d -------------------------------\n", id);
-			printf("-------- Start location = %d, %d --------------\n", x, y);
-			printf("-------- End location = %d, %d ----------------\n", x + len_x, y + len_y);
+			xil_printf("Adding sub-board with the following parameters:\n");
+			xil_printf("-------- ID = %d -------------------------------\n", id);
+			xil_printf("-------- Start location = %d, %d --------------\n", x, y);
+			xil_printf("-------- End location = %d, %d ----------------\n", x + len_x, y + len_y);
 			LedSignResult res = addSubBoard(id, x, y, len_x, len_y);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Adding sub-board failed!");
+				xil_printf("Adding sub-board failed!");
 			else
 			{
-				printf("Adding sub-board succeeded!\n");
-				printf("***************************************************\n\n");
+				xil_printf("Adding sub-board succeeded!\n");
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -220,11 +220,11 @@ int parseMessage(char* input)
 			int id = get_next_numerical_input(input, end, len, &end);
 			LedSignResult res = cleanSubBoard(id);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Clearing sub-board #%d failed!", id);
+				xil_printf("Clearing sub-board #%d failed!", id);
 			else
 			{
-				printf("Clearing sub-board #%d succeeded!\n", id);
-				printf("***************************************************\n\n");
+				xil_printf("Clearing sub-board #%d succeeded!\n", id);
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -233,11 +233,11 @@ int parseMessage(char* input)
 			int id = get_next_numerical_input(input, end, len, &end);
 			LedSignResult res = deleteSubBoard(id);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Deleting sub-board #%d failed!", id);
+				xil_printf("Deleting sub-board #%d failed!", id);
 			else
 			{
-				printf("Deleting sub-board #%d succeeded!\n", id);
-				printf("***************************************************\n\n");
+				xil_printf("Deleting sub-board #%d succeeded!\n", id);
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -258,21 +258,21 @@ int parseMessage(char* input)
 				scrollable = 1;
 			else
 				scrollable = 0;
-			printf("Adding text area with the following parameters:\n");
-			printf("-------- ID = %d -----------------------------------\n", id);
-			if (scrollable) printf("-------- Text is scrollable ------------------------\n");
-			else printf("-------- Text is not scrollable --------------------\n");
-			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
-			printf("-------- Start location = %d, %d -------------------\n", x, y);
-			printf("-------- End location = %d, %d ---------------------\n", x + len_x, y + len_y);
-			printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
+			xil_printf("Adding text area with the following parameters:\n");
+			xil_printf("-------- ID = %d -----------------------------------\n", id);
+			if (scrollable) xil_printf("-------- Text is scrollable ------------------------\n");
+			else xil_printf("-------- Text is not scrollable --------------------\n");
+			xil_printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			xil_printf("-------- Start location = %d, %d -------------------\n", x, y);
+			xil_printf("-------- End location = %d, %d ---------------------\n", x + len_x, y + len_y);
+			xil_printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
 			LedSignResult res = createTextArea(id_board, id, x, y, len_x, len_y, r, g, b, scrollable);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Adding text area failed!");
+				xil_printf("Adding text area failed!");
 			else
 			{
-				printf("Adding text area succeeded!\n");
-				printf("***************************************************\n\n");
+				xil_printf("Adding text area succeeded!\n");
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -293,19 +293,19 @@ int parseMessage(char* input)
 				color = 1;
 			else
 				color = 0;
-			printf("Adding picture area with the following parameters:\n");
-			printf("-------- ID = %d -----------------------------------\n", id);
-			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
-			printf("-------- Start location = %d, %d -------------------\n", x, y);
-			printf("-------- End location = %d, %d ---------------------\n", x + len_x, y + len_y);
-			if (with_color) printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
+			xil_printf("Adding picture area with the following parameters:\n");
+			xil_printf("-------- ID = %d -----------------------------------\n", id);
+			xil_printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			xil_printf("-------- Start location = %d, %d -------------------\n", x, y);
+			xil_printf("-------- End location = %d, %d ---------------------\n", x + len_x, y + len_y);
+			if (with_color) xil_printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
 			LedSignResult res = createPictureArea(id_board, id, x, y, len_x, len_y);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Adding picture area failed!");
+				xil_printf("Adding picture area failed!");
 			else
 			{
-				printf("Adding picture area succeeded!\n");
-				printf("***************************************************\n\n");
+				xil_printf("Adding picture area succeeded!\n");
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -319,24 +319,24 @@ int parseMessage(char* input)
 			for (k = 0; k < arr_size; k++)
 				clean_arr[k] = tmp[k];
 			free(tmp);
-			printf("Printint text with the following parameters:\n");
-			printf("-------- ID = %d ------------------------------------\n", id);
-			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
-			printf("-------- Text string = ");
+			xil_printf("Printint text with the following parameters:\n");
+			xil_printf("-------- ID = %d ------------------------------------\n", id);
+			xil_printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			xil_printf("-------- Text string = ");
 			for (k = 0; k < arr_size; k++)
 				if (k != arr_size - 1)
-					printf("%d,", clean_arr[k]);
+					xil_printf("%d,", clean_arr[k]);
 				else
-					printf("%d ", clean_arr[k]);
-			printf("------------------\n");
+					xil_printf("%d ", clean_arr[k]);
+			xil_printf("------------------\n");
 			LedSignResult res = updateText(id_board, id, clean_arr, arr_size);
 			free(clean_arr);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Printing text failed!");
+				xil_printf("Printing text failed!");
 			else
 			{
-				printf("Printing text succeeded! Check out the board :)\n");
-				printf("***************************************************\n\n");
+				xil_printf("Printing text succeeded! Check out the board :)\n");
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -345,17 +345,17 @@ int parseMessage(char* input)
 			int id_board = get_next_numerical_input(input, end, len, &end);
 			int id = get_next_numerical_input(input, end, len, &end);
 			int index = get_next_numerical_input(input, end, len, &end);
-			printf("Printing picture with the following parameters:\n");
-			printf("-------- ID = %d -----------------------------------\n", id);
-			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
-			printf("-------- Index = %d --------------------------------\n", index);
+			xil_printf("Printing picture with the following parameters:\n");
+			xil_printf("-------- ID = %d -----------------------------------\n", id);
+			xil_printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			xil_printf("-------- Index = %d --------------------------------\n", index);
 			LedSignResult res = updatePicture(id_board, id, index);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Printing picture object failed!");
+				xil_printf("Printing picture object failed!");
 			else
 			{
-				printf("Printing picture object succeeded! Check out the board :)\n");
-				printf("***************************************************\n\n");
+				xil_printf("Printing picture object succeeded! Check out the board :)\n");
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -380,39 +380,39 @@ int parseMessage(char* input)
 			unsigned char* clean_arr_b = malloc(sizeof(int)*arr_size_b);
 			for (k = 0; k < arr_size_b; k++)
 				clean_arr_b[k] = (unsigned char)tmp[k];
-			printf("Adding image to database with the following parameters:\n");
-			printf("-------- Index = %d ---------------------------------\n", index);
-			printf("-------- Dimensions = %dx%d --------------------------\n", width, length);
-			printf("-------- R data = {");
+			xil_printf("Adding image to database with the following parameters:\n");
+			xil_printf("-------- Index = %d ---------------------------------\n", index);
+			xil_printf("-------- Dimensions = %dx%d --------------------------\n", width, length);
+			xil_printf("-------- R data = {");
 			for (k = 0; k < arr_size_r; k++)
 				if (k != arr_size_r - 1)
-					printf("%d,", clean_arr_r[k]);
+					xil_printf("%d,", clean_arr_r[k]);
 				else
-					printf("%d", clean_arr_r[k]);
-			printf("} ------------------\n-------- G data = {");
+					xil_printf("%d", clean_arr_r[k]);
+			xil_printf("} ------------------\n-------- G data = {");
 			for (k = 0; k < arr_size_g; k++)
 				if (k != arr_size_g - 1)
-					printf("%d,", clean_arr_g[k]);
+					xil_printf("%d,", clean_arr_g[k]);
 				else
-					printf("%d", clean_arr_g[k]);
-			printf("} ------------------\n-------- B data = {");
+					xil_printf("%d", clean_arr_g[k]);
+			xil_printf("} ------------------\n-------- B data = {");
 			for (k = 0; k < arr_size_b; k++)
 				if (k != arr_size_b - 1)
-					printf("%d,", clean_arr_b[k]);
+					xil_printf("%d,", clean_arr_b[k]);
 				else
-					printf("%d", clean_arr_b[k]);
-			printf("} ------------------\n");
+					xil_printf("%d", clean_arr_b[k]);
+			xil_printf("} ------------------\n");
 			LedSignResult res = addImageToDB(index, length, width, clean_arr_r, clean_arr_g, clean_arr_b);
 			free(tmp);
 			free(clean_arr_r);
 			free(clean_arr_g);
 			free(clean_arr_b);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Adding image to database failed!");
+				xil_printf("Adding image to database failed!");
 			else
 			{
-				printf("Adding image to database succeeded!\n");
-				printf("***************************************************\n\n");
+				xil_printf("Adding image to database succeeded!\n");
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -422,11 +422,11 @@ int parseMessage(char* input)
 			int id = get_next_numerical_input(input, end, len, &end);
 			LedSignResult res = deleteArea(id_board, id);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Deleting area #%d failed!", id);
+				xil_printf("Deleting area #%d failed!", id);
 			else
 			{
-				printf("Deleting area #%d succeeded!\n", id);
-				printf("***************************************************\n\n");
+				xil_printf("Deleting area #%d succeeded!\n", id);
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -442,17 +442,17 @@ int parseMessage(char* input)
 			unsigned char r = (unsigned char)get_next_numerical_input(input, end, len, &end);
 			unsigned char g = (unsigned char)get_next_numerical_input(input, end, len, &end);
 			unsigned char b = (unsigned char)get_next_numerical_input(input, end, len, &end);
-			printf("Changing text color with the following parameters:\n");
-			printf("-------- ID = %d -----------------------------------\n", id);
-			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
-			printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
+			xil_printf("Changing text color with the following parameters:\n");
+			xil_printf("-------- ID = %d -----------------------------------\n", id);
+			xil_printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			xil_printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
 			LedSignResult res = updateTextColor(id_board, id, r, g, b);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Changing text color failed!");
+				xil_printf("Changing text color failed!");
 			else
 			{
-				printf("Changing text color succeeded!\n");
-				printf("***************************************************\n\n");
+				xil_printf("Changing text color succeeded!\n");
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -463,17 +463,17 @@ int parseMessage(char* input)
 			unsigned char r = (unsigned char)get_next_numerical_input(input, end, len, &end);
 			unsigned char g = (unsigned char)get_next_numerical_input(input, end, len, &end);
 			unsigned char b = (unsigned char)get_next_numerical_input(input, end, len, &end);
-			printf("Changing picture color with the following parameters:\n");
-			printf("-------- ID = %d -----------------------------------\n", id);
-			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
-			printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
+			xil_printf("Changing picture color with the following parameters:\n");
+			xil_printf("-------- ID = %d -----------------------------------\n", id);
+			xil_printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			xil_printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
 			LedSignResult res = updatePictureColor(id_board, id, r, g, b);
 			if (res != LED_SIGN_SUCCESS)
-				printf("Changing picture color failed!");
+				xil_printf("Changing picture color failed!");
 			else
 			{
-				printf("Changing picture color succeeded!\n");
-				printf("***************************************************\n\n");
+				xil_printf("Changing picture color succeeded!\n");
+				xil_printf("***************************************************\n\n");
 			}
 			break;
 		}
@@ -481,26 +481,26 @@ int parseMessage(char* input)
 		{
 			LedSignResult res = FlipDown();
 			if (res != LED_SIGN_SUCCESS)
-				printf("Flipping down failed!");
+				xil_printf("Flipping down failed!");
 			else
 			{
-				printf("Flipping down succeeded! Check out board :)\n");
-				printf("***************************************************\n\n");
+				xil_printf("Flipping down succeeded! Check out board :)\n");
+				xil_printf("***************************************************\n\n");
 			}
 		}
 		case 15: // Flip right
 		{
 			LedSignResult res = FlipRight();
 			if (res != LED_SIGN_SUCCESS)
-				printf("Flipping right failed!");
+				xil_printf("Flipping right failed!");
 			else
 			{
-				printf("Flipping right succeeded! Check out board :)\n");
-				printf("***************************************************\n\n");
+				xil_printf("Flipping right succeeded! Check out board :)\n");
+				xil_printf("***************************************************\n\n");
 			}
 		}
 		default:
-			printf("Invalid command!\n");
+			xil_printf("Invalid command!\n");
 			break;
 		}
 	return 0;
