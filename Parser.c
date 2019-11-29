@@ -284,21 +284,11 @@ int parseMessage(char* input)
 			int y = get_next_numerical_input(input, end, len, &end);
 			int len_x = get_next_numerical_input(input, end, len, &end);
 			int len_y = get_next_numerical_input(input, end, len, &end);
-			int with_color = get_next_numerical_input(input, end, len, &end);
-			unsigned char r = (unsigned char)get_next_numerical_input(input, end, len, &end);
-			unsigned char g = (unsigned char)get_next_numerical_input(input, end, len, &end);
-			unsigned char b = (unsigned char)get_next_numerical_input(input, end, len, &end);
-			bool color;
-			if (with_color)
-				color = 1;
-			else
-				color = 0;
 			xil_printf("Adding picture area with the following parameters:\n");
 			xil_printf("-------- ID = %d -----------------------------------\n", id);
 			xil_printf("-------- ID of containing sub-board = %d -----------\n", id_board);
 			xil_printf("-------- Start location = %d, %d -------------------\n", x, y);
 			xil_printf("-------- End location = %d, %d ---------------------\n", x + len_x, y + len_y);
-			if (with_color) xil_printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
 			LedSignResult res = createPictureArea(id_board, id, x, y, len_x, len_y);
 			if (res != LED_SIGN_SUCCESS)
 				xil_printf("Adding picture area failed!");
