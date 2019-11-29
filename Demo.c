@@ -45,18 +45,15 @@ Draw_board();
 // Write: Get_status()
 
 // Shows live adding of a new picture
-// Write: Add_picture_area(2,25,0,64,50,50,1,255,255,255);
+// Write: Add_picture_area(2,25,0,64,50,50,1,255,255,255)
 
 // Shows the board exists and there is a new picture area inside with ID=25
 // Write: Get_status()
 
 // Shows inserting a smiley face to the picture area
-// Write: Insert_picture (2,1,5);
+// Write: Insert_picture (2,1,5)
 
-
-
-
-
-
+// Shows flipping board
+// Write: Flip_down()
 
 

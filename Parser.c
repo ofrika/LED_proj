@@ -1,3 +1,507 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <stdbool.h>
 #include "Parser.h"
-#include "Display.h"
-#include "xil_io.h"
+
+#define MAX_LEN 10
+
+int get_next_numerical_input(char* orig_comm, int start_from, int len, int* end)
+{
+	char *e_start;
+	char *e_end;
+	char *comm;
+	int i;
+	if (start_from == 0)
+	{
+		comm = malloc(sizeof(char)*(len));
+		for (i = 0; i < len; i++)
+			comm[i] = orig_comm[i];
+		e_start = strchr(comm, '(');
+	}
+	else
+	{
+		comm = malloc(sizeof(char)*(len - start_from));
+		for (i = 0; i < len - start_from; i++)
+			comm[i] = orig_comm[i + start_from];
+		e_start = strchr(comm, ',');
+	}
+	int index_start = (int)(e_start - comm) + 1;
+	char *substr = malloc(sizeof(char)*(len - index_start));
+	for (i = 0; i < len - index_start; i++)
+		substr[i] = comm[i + index_start];
+	e_end = strchr(substr, ',');
+	int index_end = (int)(e_end - substr) + index_start;
+	char *final = malloc(sizeof(char)*(index_end - index_start));
+	for (i = 0; i < index_end - index_start; i++)
+		final[i] = comm[i + index_start];
+	int out = atoi(substr);
+	free(substr);
+	free(final);
+	(*end) = start_from + index_end - 1;
+	return  out;
+}
+
+int get_array_input(char* orig_comm, int start_from, int* end, int* array_out, int full_len)
+{
+	char *e_start;
+	char *e_end;
+	char *comm;
+	int i = 0, j = 0, pos = 0, count_cells = 0, count_len = 0;
+	char buff[MAX_LEN];
+	for (j = 0; j < MAX_LEN; j++)
+		buff[j] = '\0';
+	for (j = 0; j < full_len; j++)
+		array_out[j] = -1;
+	while (orig_comm[start_from + i] != '\0') {
+		if (orig_comm[start_from + i] == '{')
+			pos = i;
+		if (orig_comm[start_from + i] == '}') {
+			(*end) = start_from + i + 1;
+			break;
+		}
+		i++;
+	}
+	for (i = start_from + pos + 1; i < (*end); i++) {
+		if ((orig_comm[i] != ',') && (orig_comm[i] != '}')) {
+			buff[count_len] = orig_comm[i];
+			count_len++;
+		}
+		else {
+			count_len = 0;
+			sscanf(buff, "%d", &array_out[count_cells]);
+			count_cells++;
+			for (j = 0; j < MAX_LEN; j++)
+				buff[j] = '\0';
+		}
+	}
+	return count_cells;
+}
+
+int translateCommand(char* com)
+{
+	if (strstr(com, "Init") != NULL)
+		return 0;
+	if (strstr(com, "Exit") != NULL)
+		return 1;
+	if (strstr(com, "Add_sub_board") != NULL)
+		return 2;
+	if (strstr(com, "Clear_sub_board") != NULL)
+		return 3;
+	if (strstr(com, "Delete_sub_board") != NULL)
+		return 4;
+	if (strstr(com, "Add_text_area") != NULL)
+		return 5;
+	if (strstr(com, "Add_picture_area") != NULL)
+		return 6;
+	if (strstr(com, "Insert_text") != NULL)
+		return 7;
+	if (strstr(com, "Insert_picture") != NULL)
+		return 8;
+	if (strstr(com, "Add_picture_to_db") != NULL)
+		return 9;
+	if (strstr(com, "Delete_area") != NULL)
+		return 10;
+	if (strstr(com, "Get_status") != NULL)
+		return 11;
+	if (strstr(com, "Change_text_color") != NULL)
+		return 12;
+	if (strstr(com, "Change_picture_color") != NULL)
+		return 13;
+	if (strstr(com, "Flip_down") != NULL)
+		return 14;
+	if (strstr(com, "Flip_right") != NULL)
+		return 15;
+	return -1;
+}
+
+int parseMessage(char* input)
+{
+	int com = translateCommand(input);
+	int len = 0, end = 0, k = 0;
+	while (input[len] != '\0')
+		len++;
+	printf("\n***************************************************\n");
+	switch (com)
+	{
+		case 0: // Initialize board
+		{
+			if (strstr(input, "default") != NULL)
+			{
+				printf("Initializing board with current default settings:\n");
+				printf("-------- #Ports = 4 ------------------------------\n");
+				printf("-------- #Matrices in each port = 8,8,8,8 --------\n");
+				printf("-------- All matrices are directed right ----------\n");
+				int arr[] = { 8,8,8,8 };
+				char* dir = { '\0' };
+				LedSignResult res = initBoard(4, arr, dir);
+				free(dir);
+				if (res != LED_SIGN_SUCCESS)
+				{
+					printf("Init ERROR! Please restart machine\n");
+					destroyBoard();
+					return 1;
+				}
+				else
+					printf("Init succeeded!\n***************************************************\n\n");
+			}
+			else
+			{
+				int num_ports = get_next_numerical_input(input, end, len, &end);
+				int* tmp = malloc(sizeof(int)*(strlen(input)));
+				int port_arr_size = get_array_input(input, end, &end, tmp, strlen(input));
+				int* clean_port_arr = malloc(sizeof(int)*port_arr_size);
+				for (k = 0; k < port_arr_size; k++)
+					clean_port_arr[k] = tmp[k];
+				char* dir = malloc(sizeof(char)*((strlen(input) - end - 3)));
+				for (k = 0; k < (strlen(input) - end - 4); k++)
+					dir[k] = input[end + 2 + k];
+				dir[k] = '\0';
+				printf("Initializing board with current received settings:\n");
+				printf("-------- #Ports = %d ------------------------------\n", num_ports);
+				printf("-------- #Matrices in each port = ");
+				for (k = 0; k < num_ports; k++)
+				{
+					if (k != 0) printf(",");
+					printf("%d", clean_port_arr[k]);
+				}
+				printf(" --------\n");
+				printf("-------- Rotated matrices = %s", dir);
+				if (strcmp(dir, "") == 0)
+					printf("None");
+				printf(" --------\n");
+				LedSignResult res = initBoard(num_ports, clean_port_arr, dir);
+				free(dir);
+				free(tmp);
+				if (res != LED_SIGN_SUCCESS)
+				{
+					printf("Init ERROR! Please restart machine\n");
+					destroyBoard();
+					return 1;
+				}
+				else
+					printf("Init succeeded!\n***************************************************\n\n");
+			}
+			break;
+		}
+		case 1: // Destroy board
+		{
+			destroyBoard();
+			printf("Exit succeeded! You can turn off machine now.\n");
+			printf("***************************************************\n\n");
+			return 1;
+			break;
+		}
+		case 2: // Add sub board
+		{
+			int id = get_next_numerical_input(input, end, len, &end);
+			int x = get_next_numerical_input(input, end, len, &end);
+			int y = get_next_numerical_input(input, end, len, &end);
+			int len_x = get_next_numerical_input(input, end, len, &end);
+			int len_y = get_next_numerical_input(input, end, len, &end);
+			printf("Adding sub-board with the following parameters:\n");
+			printf("-------- ID = %d -------------------------------\n", id);
+			printf("-------- Start location = %d, %d --------------\n", x, y);
+			printf("-------- End location = %d, %d ----------------\n", x + len_x, y + len_y);
+			LedSignResult res = addSubBoard(id, x, y, len_x, len_y);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Adding sub-board failed!");
+			else
+			{
+				printf("Adding sub-board succeeded!\n");
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 3: // Clear sub board
+		{
+			int id = get_next_numerical_input(input, end, len, &end);
+			LedSignResult res = cleanSubBoard(id);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Clearing sub-board #%d failed!", id);
+			else
+			{
+				printf("Clearing sub-board #%d succeeded!\n", id);
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 4: // Delete sub board
+		{
+			int id = get_next_numerical_input(input, end, len, &end);
+			LedSignResult res = deleteSubBoard(id);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Deleting sub-board #%d failed!", id);
+			else
+			{
+				printf("Deleting sub-board #%d succeeded!\n", id);
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 5: // Add text object (area)
+		{
+			int id_board = get_next_numerical_input(input, end, len, &end);
+			int id = get_next_numerical_input(input, end, len, &end);
+			int x = get_next_numerical_input(input, end, len, &end);
+			int y = get_next_numerical_input(input, end, len, &end);
+			int len_x = get_next_numerical_input(input, end, len, &end);
+			int len_y = get_next_numerical_input(input, end, len, &end);
+			unsigned char r = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			unsigned char g = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			unsigned char b = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			int scrollable_in = get_next_numerical_input(input, end, len, &end);
+			bool scrollable;
+			if (scrollable_in)
+				scrollable = 1;
+			else
+				scrollable = 0;
+			printf("Adding text area with the following parameters:\n");
+			printf("-------- ID = %d -----------------------------------\n", id);
+			if (scrollable) printf("-------- Text is scrollable ------------------------\n");
+			else printf("-------- Text is not scrollable --------------------\n");
+			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			printf("-------- Start location = %d, %d -------------------\n", x, y);
+			printf("-------- End location = %d, %d ---------------------\n", x + len_x, y + len_y);
+			printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
+			LedSignResult res = createTextArea(id_board, id, x, y, len_x, len_y, r, g, b, scrollable);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Adding text area failed!");
+			else
+			{
+				printf("Adding text area succeeded!\n");
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 6: // Add picture object (area)
+		{
+			int id_board = get_next_numerical_input(input, end, len, &end);
+			int id = get_next_numerical_input(input, end, len, &end);
+			int x = get_next_numerical_input(input, end, len, &end);
+			int y = get_next_numerical_input(input, end, len, &end);
+			int len_x = get_next_numerical_input(input, end, len, &end);
+			int len_y = get_next_numerical_input(input, end, len, &end);
+			int with_color = get_next_numerical_input(input, end, len, &end);
+			unsigned char r = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			unsigned char g = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			unsigned char b = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			bool color;
+			if (with_color)
+				color = 1;
+			else
+				color = 0;
+			printf("Adding picture area with the following parameters:\n");
+			printf("-------- ID = %d -----------------------------------\n", id);
+			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			printf("-------- Start location = %d, %d -------------------\n", x, y);
+			printf("-------- End location = %d, %d ---------------------\n", x + len_x, y + len_y);
+			if (with_color) printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
+			LedSignResult res = createPictureArea(id_board, id, x, y, len_x, len_y);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Adding picture area failed!");
+			else
+			{
+				printf("Adding picture area succeeded!\n");
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 7: // Print (insert/update) text
+		{
+			int id_board = get_next_numerical_input(input, end, len, &end);
+			int id = get_next_numerical_input(input, end, len, &end);
+			int* tmp = malloc(sizeof(int)*(strlen(input)));
+			int arr_size = get_array_input(input, end, &end, tmp, strlen(input));
+			int* clean_arr = malloc(sizeof(int)*arr_size);
+			for (k = 0; k < arr_size; k++)
+				clean_arr[k] = tmp[k];
+			free(tmp);
+			printf("Printint text with the following parameters:\n");
+			printf("-------- ID = %d ------------------------------------\n", id);
+			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			printf("-------- Text string = ");
+			for (k = 0; k < arr_size; k++)
+				if (k != arr_size - 1)
+					printf("%d,", clean_arr[k]);
+				else
+					printf("%d ", clean_arr[k]);
+			printf("------------------\n");
+			LedSignResult res = updateText(id_board, id, clean_arr, arr_size);
+			free(clean_arr);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Printing text failed!");
+			else
+			{
+				printf("Printing text succeeded! Check out the board :)\n");
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 8: // Print picture object
+		{
+			int id_board = get_next_numerical_input(input, end, len, &end);
+			int id = get_next_numerical_input(input, end, len, &end);
+			int index = get_next_numerical_input(input, end, len, &end);
+			printf("Printing picture with the following parameters:\n");
+			printf("-------- ID = %d -----------------------------------\n", id);
+			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			printf("-------- Index = %d --------------------------------\n", index);
+			LedSignResult res = updatePicture(id_board, id, index);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Printing picture object failed!");
+			else
+			{
+				printf("Printing picture object succeeded! Check out the board :)\n");
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 9: // Add picture to database
+		{
+			int index = get_next_numerical_input(input, end, len, &end);
+			int width = get_next_numerical_input(input, end, len, &end);
+			int length = get_next_numerical_input(input, end, len, &end);
+			// Get R data
+			int* tmp = malloc(sizeof(int)*(strlen(input)));
+			int arr_size_r = get_array_input(input, end, &end, tmp, strlen(input));
+			unsigned char* clean_arr_r = malloc(sizeof(int)*arr_size_r);
+			for (k = 0; k < arr_size_r; k++)
+				clean_arr_r[k] = (unsigned char)tmp[k];
+			// Get G data
+			int arr_size_g = get_array_input(input, end, &end, tmp, strlen(input));
+			unsigned char* clean_arr_g = malloc(sizeof(int)*arr_size_g);
+			for (k = 0; k < arr_size_g; k++)
+				clean_arr_g[k] = (unsigned char)tmp[k];
+			// Get B data
+			int arr_size_b = get_array_input(input, end, &end, tmp, strlen(input));
+			unsigned char* clean_arr_b = malloc(sizeof(int)*arr_size_b);
+			for (k = 0; k < arr_size_b; k++)
+				clean_arr_b[k] = (unsigned char)tmp[k];
+			printf("Adding image to database with the following parameters:\n");
+			printf("-------- Index = %d ---------------------------------\n", index);
+			printf("-------- Dimensions = %dx%d --------------------------\n", width, length);
+			printf("-------- R data = {");
+			for (k = 0; k < arr_size_r; k++)
+				if (k != arr_size_r - 1)
+					printf("%d,", clean_arr_r[k]);
+				else
+					printf("%d", clean_arr_r[k]);
+			printf("} ------------------\n-------- G data = {");
+			for (k = 0; k < arr_size_g; k++)
+				if (k != arr_size_g - 1)
+					printf("%d,", clean_arr_g[k]);
+				else
+					printf("%d", clean_arr_g[k]);
+			printf("} ------------------\n-------- B data = {");
+			for (k = 0; k < arr_size_b; k++)
+				if (k != arr_size_b - 1)
+					printf("%d,", clean_arr_b[k]);
+				else
+					printf("%d", clean_arr_b[k]);
+			printf("} ------------------\n");
+			LedSignResult res = addImageToDB(index, length, width, clean_arr_r, clean_arr_g, clean_arr_b);
+			free(tmp);
+			free(clean_arr_r);
+			free(clean_arr_g);
+			free(clean_arr_b);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Adding image to database failed!");
+			else
+			{
+				printf("Adding image to database succeeded!\n");
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 10: // Delete object (area)
+		{
+			int id_board = get_next_numerical_input(input, end, len, &end);
+			int id = get_next_numerical_input(input, end, len, &end);
+			LedSignResult res = deleteArea(id_board, id);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Deleting area #%d failed!", id);
+			else
+			{
+				printf("Deleting area #%d succeeded!\n", id);
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 11: // Get status
+		{
+			getStatus();
+			break;
+		}
+		case 12: // Change text color
+		{
+			int id_board = get_next_numerical_input(input, end, len, &end);
+			int id = get_next_numerical_input(input, end, len, &end);
+			unsigned char r = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			unsigned char g = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			unsigned char b = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			printf("Changing text color with the following parameters:\n");
+			printf("-------- ID = %d -----------------------------------\n", id);
+			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
+			LedSignResult res = updateTextColor(id_board, id, r, g, b);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Changing text color failed!");
+			else
+			{
+				printf("Changing text color succeeded!\n");
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 13: // Change picture color
+		{
+			int id_board = get_next_numerical_input(input, end, len, &end);
+			int id = get_next_numerical_input(input, end, len, &end);
+			unsigned char r = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			unsigned char g = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			unsigned char b = (unsigned char)get_next_numerical_input(input, end, len, &end);
+			printf("Changing picture color with the following parameters:\n");
+			printf("-------- ID = %d -----------------------------------\n", id);
+			printf("-------- ID of containing sub-board = %d -----------\n", id_board);
+			printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
+			LedSignResult res = updatePictureColor(id_board, id, r, g, b);
+			if (res != LED_SIGN_SUCCESS)
+				printf("Changing picture color failed!");
+			else
+			{
+				printf("Changing picture color succeeded!\n");
+				printf("***************************************************\n\n");
+			}
+			break;
+		}
+		case 14: // Flip down
+		{
+			LedSignResult res = FlipDown();
+			if (res != LED_SIGN_SUCCESS)
+				printf("Flipping down failed!");
+			else
+			{
+				printf("Flipping down succeeded! Check out board :)\n");
+				printf("***************************************************\n\n");
+			}
+		}
+		case 15: // Flip right
+		{
+			LedSignResult res = FlipRight();
+			if (res != LED_SIGN_SUCCESS)
+				printf("Flipping right failed!");
+			else
+			{
+				printf("Flipping right succeeded! Check out board :)\n");
+				printf("***************************************************\n\n");
+			}
+		}
+		default:
+			printf("Invalid command!\n");
+			break;
+		}
+	return 0;
+}
