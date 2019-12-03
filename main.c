@@ -39,10 +39,7 @@
 #include "lwip/priv/tcp_priv.h"
 #include "lwip/init.h"
 #include "lwip/inet.h"
-#include "Display.h"
-#include "logoR0.h"
-#include "logoB0.h"
-#include "logoG0.h"
+#include "Parser.h"
 #include "xtime_l.h"
 
 #define LWIP_IPV6 0
@@ -127,107 +124,6 @@ static void assign_default_ip(ip_addr_t *ip, ip_addr_t *mask, ip_addr_t *gw)
 }
 #endif /* LWIP_IPV6 */
 
-// ################################################## XILINX CODE END ##################################################
-
-
-
-
-// ############################################## OFRI & SAMAH CODE START ##############################################
-
-unsigned char* port44 = (unsigned char *) 0x46000000;
-
-#define N 32
-
-
-void One_Mat_RGB(unsigned char* port,int matrix_shift)
-{
-	unsigned char pixel[4];
-	int i,j;
-	for (j = 0; j<32; j++)
-	{
-		for (i = 0; i<32 ; i++)
-		{
-			pixel[3] = 0;	// r
-			pixel[2] = 150;	// g
-			pixel[1] = 150;	// b
-
-			if(i==0 && j==0 && matrix_shift ==7){
-				pixel[3] = 255;	// r
-				pixel[2] = 0;	// g
-				pixel[1] = 0;	// b
-			}
-
-			Xil_Out32((u32) (port + j*1024 + (i+N*matrix_shift)*4) ,*((int*)pixel));
-		}
-	}
-	xil_printf("matrix shift %d end\r\n",matrix_shift);
-}
-/*
-void Test_Running_Pixel()
-{
-	Draw_Picture();
-	unsigned char running_pixel[4];
-	running_pixel[3] = 255;	// r
-	running_pixel[2] = 0;	// g
-	running_pixel[1] = 0;	// b
-	unsigned char bg_pixel[4];
-	bg_pixel[3] = 0;	// r
-	bg_pixel[2] = 150;	// g
-	bg_pixel[1] = 150;	// b
-	int i,j, prevI=31, prevJ=31;
-	for (j = 31; j>=0; j--)
-	{
-		if (j !=31 )
-			prevJ = j+1;
-		for (i = 31; i>=0 ; i--)
-		{
-			if (i !=31 )
-				prevI = i+1;
-			Xil_Out32((u32) (port44 + j*1024 + (i+N*6)*4) ,*((int*)running_pixel));
-			Xil_Out32((u32) (port44 + prevJ*1024 + (prevI+N*6)*4) ,*((int*)bg_pixel));
-			swapBuffer();
-			sleep(1);
-		}
-		prevI = 31;
-	}
-}
-*/
-
-void Draw_Picture()
-{
-	int i;
-	xil_printf("Draw picture start\r\n");
-	/*for (i = 7; i>=0 ; i--){one_matrgb(port1,i);}
-	 	xil_printf(" painting port 1 done\r\n");
-		for (i = 7; i>=0 ; i--){one_matrgb(port2,i);}
-		 xil_printf(" painting port 2 done\r\n");
-		 for (i = 7; i>=0;  i--){one_matrgb(port3,i);}
-		 xil_printf(" painting port 3 done\r\n");
-*/
-	for (i = 7; i>=6 ; i--)
-	{
-		One_Mat_RGB(port44,i);
-	}
-
-//	for (i = 0; i<=100; i++)
-//	{
-//		xil_printf(" painting port 4 done\r\n");
-//		Xil_Out32((u32) (port4 + (8191-i)*4) ,*((int*)pixel));
-//		swapBuffer();
-//		sleep(1);
-//	}
-
-	swapBuffer();
-	xil_printf(" buffer swap triggered\r\n");
-}
-
-// ############################################### OFRI & SAMAH CODE END ###############################################
-
-
-
-
-
-// ################################################## XILINX CODE START ##################################################
 
 int main(void)
 {
@@ -306,31 +202,65 @@ int main(void)
 
 	start_application();
 
+	// Initial setup (See appendix in book for explanation)
+	int leave_loop;
+
+	leave_loop = parseMessage("Init(default)");
+	leave_loop = parseMessage("Draw_frame(255,255,255");
+
+	leave_loop = parseMessage("Add_sub_board(1,0,0,255,32)");
+	leave_loop = parseMessage("Add_sub_board(2,0,64,82,63)");
+	leave_loop = parseMessage("Add_sub_board(3,120,64,82,63)");
+
+	leave_loop = parseMessage("Clear_sub_board(1)");
+	leave_loop = parseMessage("Clear_sub_board(2)");
+	leave_loop = parseMessage("Clear_sub_board(3)");
+
+	leave_loop = parseMessage("Add_text_area(1,1,32,0,192,32,255,100,180,1)");
+
+	leave_loop = parseMessage("Add_text_area(2,1,0,64,80,8,0,20,220,0)");
+	leave_loop = parseMessage("Add_text_area(2,2,20,77,16,8,0,20,220,0)");
+
+//	leave_loop = parseMessage("Add_picture_area(2,3,50,77,20,20,1,255,255,255)");
+
+	leave_loop = parseMessage("Add_text_area(3,1,120,64,80,8,255,255,0,0)");
+
+	leave_loop = parseMessage("Add_text_area(3,2,140,77,16,8,255,255,0,0)");
+
+	leave_loop = parseMessage("Add_picture_area(3,3,170,77,20,20,1,255,255,255)");
+
+	leave_loop = parseMessage("Insert_text(1,1,{72,37,51,33,57,53,37,96,66,57,96,36,36,91})");
+	leave_loop = parseMessage("Insert_text(2,1,{58,29,63,49,96,54,57,63,67,43})");
+	leave_loop = parseMessage("Insert_text(2,2,{82,81},2)");
+	//leave_loop = parseMessage("Insert_picture (2,3,2)");
+
+	leave_loop = parseMessage("Insert_text(3,1,{58,29,63,49,96,64,57,69,67,43})");
+	leave_loop = parseMessage("Insert_text(3,2,{83,49},2)");
+	//leave_loop = parseMessage("Insert_picture (3,3,3)");
+
+	XTime start, end;
+		double cpu_time_used;
+		XTime_GetTime(&start);
+		int i = 1;
+		while (i<200)
+		{
+			// If new msg - do msg
+			XTime_GetTime(&end);
+			cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+			if (cpu_time_used > 0.5)
+			{
+				scroll_whole_board(i);
+				XTime_GetTime(&start);
+			}
+			i++;
+		}
+
+		leave_loop = parseMessage("Exit");
+
+		xil_printf("\r\n ---------- All done! ~Ofri & Samah ---------- \r\n");
+		xil_printf(" ------------------------------------------------ \r\n");
 
 /*
-	xil_printf("\r\n ------- Starting ~Ofri & Samah ------- \r\n");
-
-	xil_printf("Entering loop to read input from user\r\n");
-	char buff[1024];
-	int isDone=0;
-	xil_printf("Please insert input:\r\n");
-	do
-	{
-		if (scanf("%s", buff) != -1)
-		{
-			if (strcmp(buff, "Done") == 0)
-				isDone = 1;
-			if (strcmp(buff, "DrawPic") == 0)
-				Draw_Picture();
-			if (strcmp(buff, "TestRunningPixel") == 0)
-				Test_Running_Pixel();
-			xil_printf("I just received: %s\r\n", buff);
-		}
-		sleep(1);
-	} while(isDone == 0);
-	xil_printf("Receiving input from user loop has ended.");
-*/
-
 
     int arr[] = {8,8,8,8};
     // direction is in the format: "Row,Column,D" , while D={L/U/D/R}, and directions are seperated by semicolon; indexes from 0
@@ -349,24 +279,11 @@ int main(void)
         return 0;
     }
 
-    /*
 
-    byte imageR[16] = {255,0,255,0,255,0,255,0,255,0,255,0,255,0,255,0};
-    byte imageG[16] = {0,255,0,255,0,255,0,255,0,255,0,255,0,255,0,255};
-    byte imageB[16] = {255,0,255,0,255,0,255,0,255,0,255,0,255,0,255,0};
 
-	LedSignResult res3 = addImageToStock(9,4,4,imageR, imageG, imageB);
-	if(res3 != LED_SIGN_SUCCESS){
-		xil_printf("res3 ERROR!!\n");
-		destroyBoard();
-		return 0;
-	} else {
-		xil_printf("Adding Image To Stock Succeed \n \n");
-	}
-*/
 
-    int text1[11] = {15,10,1,2,5,15,10,11,6,25,2};
-    int text2[4] = {8,1,14,18};
+    int text1[12] = {15,10,1,2,5,96,15,10,11,6,25,2};
+    int text2[5] = {64,29,53,29,43};
 
 
     LedSignResult res6 = createTextArea(5,4,190,100,45,16,0,0,255,true);
@@ -387,7 +304,7 @@ int main(void)
 		xil_printf("Creating Text Succeed\n \n");
 	}
 
-    LedSignResult res7 = updateText(5,4, text1, 11,false);
+    LedSignResult res7 = updateText(5,4, text1, 12);
     if(res7 != LED_SIGN_SUCCESS){
     	xil_printf("res7 ERROR %d !!\n",res7);
     	destroyBoard();
@@ -397,7 +314,7 @@ int main(void)
 	}
 
 
-    LedSignResult res15 = updateTextColor(5,4, 255,0,0,false);
+    LedSignResult res15 = updateTextColor(5,4, 255,0,0);
     if(res15 != LED_SIGN_SUCCESS){
     	xil_printf("res15 ERROR %d !!\n",res15);
     	destroyBoard();
@@ -407,9 +324,7 @@ int main(void)
 	}
 
 
-
-
-    LedSignResult res10 = updateText(5,8, text2, 4,false);
+    LedSignResult res10 = updateText(5,8, text2, 5);
     if(res10 != LED_SIGN_SUCCESS){
     	xil_printf("res10 ERROR %d !!\n",res10);
     	destroyBoard();
@@ -418,54 +333,12 @@ int main(void)
 		xil_printf("updating Text Succeed\n \n");
 	}
 
-//	LedSignResult res8 = DrawBoard();
-//	if(res8 != LED_SIGN_SUCCESS){
-//		xil_printf("Drawing Board ERROR!!\n");
-//    	destroyBoard();
-//		return 0;
-//    } else {
-//		xil_printf("Draw Board Succeed\n \n");
-//	}
 
 
-    /*
 
-	XTime start, end;
-	double cpu_time_used;
-	XTime_GetTime(&start);
-	int i = 1;
-	while (i<100)
-	{
-		// If no new msg
-		scroll_whole_board(i);
-		// else - do scrolling
-		XTime_GetTime(&end);
-		cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-		xil_printf("cpu time = %lf\n", cpu_time_used);
-		if (cpu_time_used > 0.5)
-		{
-			xil_printf("It's time to scroll!!\n");
-			// Call scrolling function
-			XTime_GetTime(&start);
 
-		}
-		i++;
-	}
 
 */
-
-
-	int i = 1;
-	while (i<300)
-	{
-		scroll_whole_board(i);
-		i++;
-	}
-	destroyBoard();
-
-	xil_printf("\r\n ---------- All done! ~Ofri & Samah ---------- \r\n");
-	xil_printf(" ------------------------------------------------ \r\n");
-
 	// ############################################### Ofri & Samah CODE END ###############################################
 
 
