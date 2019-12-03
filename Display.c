@@ -1980,23 +1980,23 @@ void scroll_whole_board(int k){
 
 void print_flipped_right_board(){
 
-    for(int i=31; i>=0; i--) {
-        for (int j = 255; j >= 0; j--) {
+    for(int i=0; i<32; i++) {
+        for (int j = 0; j < 256; j++) {
             Xil_Out32((u32) (port1 + i*1024 + j*4) ,board_rgb[i][8*N-j-1]); // multiplied by 4 cuz port1 is of type char*
         }
     }
-    for(int i=31; i>=0; i--) {
-        for (int j = 255; j >= 0; j--) {
+    for(int i=0; i<32; i++) {
+        for (int j = 0; j < 256; j++) {
             Xil_Out32((u32) (port2 + i*1024 + j*4) ,board_rgb[i+N][8*N-j-1]); // multiplied by 4 cuz port1 is of type char*
         }
     }
-    for(int i=31; i>=0; i--) {
-        for (int j = 255; j >= 0; j--) {
+    for(int i=0; i<32; i++) {
+        for (int j = 0; j < 256; j++) {
             Xil_Out32((u32) (port3 + i*1024 + j*4) ,board_rgb[i+2*N][8*N-j-1]); // multiplied by 4 cuz port1 is of type char*
         }
     }
-    for(int i=31; i>=0; i--) {
-        for (int j = 255; j >= 0; j--) {
+    for(int i=0; i<32; i++) {
+        for (int j = 0; j < 256; j++) {
             Xil_Out32((u32) (port4 + i*1024 + j*4) ,board_rgb[i+3*N][8*N-j-1]); // multiplied by 4 cuz port1 is of type char*
         }
     }
@@ -2004,7 +2004,6 @@ void print_flipped_right_board(){
 
 }
 
-// the user should call draw board
 LedSignResult FlipRight(){
 	print_flipped_right_board();
     return LED_SIGN_SUCCESS;
@@ -2012,24 +2011,24 @@ LedSignResult FlipRight(){
 
 void print_flipped_down_board(){
 
-    for(int i=31; i>=0; i--) {
-        for (int j = 255; j >= 0; j--) {
-            Xil_Out32((u32) (port4 + i*1024 + j*4) ,board_rgb[4*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+    for(int i=0; i<32; i++) {
+        for (int j = 0; j < 256; j++) {
+            Xil_Out32((u32) (port1 + i*1024 + j*4) ,board_rgb[4*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
-    for(int i=31; i>=0; i--) {
-        for (int j = 255; j >= 0; j--) {
-            Xil_Out32((u32) (port3 + i*1024 + j*4) ,board_rgb[3*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+    for(int i=0; i<32; i++) {
+        for (int j = 0; j < 256; j++) {
+            Xil_Out32((u32) (port2 + i*1024 + j*4) ,board_rgb[3*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
-    for(int i=31; i>=0; i--) {
-        for (int j = 255; j >= 0; j--) {
-            Xil_Out32((u32) (port2 + i*1024 + j*4) ,board_rgb[2*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+    for(int i=0; i<32; i++) {
+        for (int j = 0; j < 256; j++) {
+            Xil_Out32((u32) (port3 + i*1024 + j*4) ,board_rgb[2*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
-    for(int i=31; i>=0; i--) {
-        for (int j = 255; j >= 0; j--) {
-            Xil_Out32((u32) (port1 + i*1024 + j*4) ,board_rgb[N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+    for(int i=0; i<32; i++) {
+        for (int j = 0; j < 256; j++) {
+            Xil_Out32((u32) (port4 + i*1024 + j*4) ,board_rgb[N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
 	swapBuffer();

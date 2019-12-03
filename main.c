@@ -193,6 +193,9 @@ int main(void)
 	#endif // LWIP_IPV6
 	print_app_header();
 
+	start_application();
+
+
 	// ################################################## XILINX CODE END ##################################################
 
 
@@ -200,7 +203,6 @@ int main(void)
 
 	// ############################################## Ofri & Samah CODE START ##############################################
 
-	start_application();
 
 	// Initial setup (See appendix in book for explanation)
 	int leave_loop;
@@ -226,8 +228,19 @@ int main(void)
 	leave_loop = parseMessage("Insert_text(3,1,{80,17,6,10,16,8})");
 	leave_loop = parseMessage("Insert_text(3,2,{83,89},2)");
 	leave_loop = parseMessage("Insert_picture (3,3,3)");
-
 	leave_loop = parseMessage("Draw_frame(255,255,255)");
+
+	//Added
+	leave_loop = parseMessage("Insert_text(3,2,{87,87})");
+	leave_loop = parseMessage("Insert_picture(2,3,2)");
+	leave_loop = parseMessage("Change_text_color(3,1,0,255,255)");
+	leave_loop = parseMessage("Change_picture_color(3,3,0,0,255)");
+	leave_loop = parseMessage("deleteArea(2,2)");
+	leave_loop = parseMessage("Clear_sub_board(2)");
+	leave_loop = parseMessage("Flip_down()");
+	leave_loop = parseMessage("Flip_Right()");
+
+
 
 
 	XTime start, end;
@@ -251,89 +264,6 @@ int main(void)
 
 		xil_printf("\r\n ---------- All done! ~Ofri & Samah ---------- \r\n");
 		xil_printf(" ------------------------------------------------ \r\n");
-
-/*
-
-    int arr[] = {8,8,8,8};
-    // direction is in the format: "Row,Column,D" , while D={L/U/D/R}, and directions are seperated by semicolon; indexes from 0
-    // for example: "3,6,L;3,7,D;"
-    LedSignResult res1 = initBoard(4,arr,"");
-    if(res1 != LED_SIGN_SUCCESS){
-        xil_printf("res1 ERROR!!\n");
-    	destroyBoard();
-        return 0;
-    }
-
-    LedSignResult res2 = addSubBoard(5,0,0,256,128);
-    if(res2 != LED_SIGN_SUCCESS){
-    	xil_printf("res2 ERROR!!\n");
-    	destroyBoard();
-        return 0;
-    }
-
-
-
-
-    int text1[12] = {15,10,1,2,5,96,15,10,11,6,25,2};
-    int text2[5] = {64,29,53,29,43};
-
-
-    LedSignResult res6 = createTextArea(5,4,190,100,45,16,0,0,255,true);
-    if(res6 != LED_SIGN_SUCCESS){
-    	xil_printf("res6 ERROR %d !!\n",res6);
-    	destroyBoard();
-        return 0;
-    } else {
-		xil_printf("Creating Text Succeed\n \n");
-	}
-
-    LedSignResult res9 = createTextArea(5,8,190,117,15,8,0,0,255,true);
-    if(res9 != LED_SIGN_SUCCESS){
-    	xil_printf("res9 ERROR %d !!\n",res9);
-    	destroyBoard();
-        return 0;
-    } else {
-		xil_printf("Creating Text Succeed\n \n");
-	}
-
-    LedSignResult res7 = updateText(5,4, text1, 12);
-    if(res7 != LED_SIGN_SUCCESS){
-    	xil_printf("res7 ERROR %d !!\n",res7);
-    	destroyBoard();
-        return 0;
-    } else {
-		xil_printf("updating Text Succeed\n \n");
-	}
-
-
-    LedSignResult res15 = updateTextColor(5,4, 255,0,0);
-    if(res15 != LED_SIGN_SUCCESS){
-    	xil_printf("res15 ERROR %d !!\n",res15);
-    	destroyBoard();
-        return 0;
-    } else {
-		xil_printf("updating Text Succeed\n \n");
-	}
-
-
-    LedSignResult res10 = updateText(5,8, text2, 5);
-    if(res10 != LED_SIGN_SUCCESS){
-    	xil_printf("res10 ERROR %d !!\n",res10);
-    	destroyBoard();
-        return 0;
-    } else {
-		xil_printf("updating Text Succeed\n \n");
-	}
-
-
-
-
-
-
-*/
-	// ############################################### Ofri & Samah CODE END ###############################################
-
-
 
 
 	// ################################################## XILINX CODE START ##################################################
