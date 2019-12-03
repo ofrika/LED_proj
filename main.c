@@ -206,43 +206,35 @@ int main(void)
 	int leave_loop;
 
 	leave_loop = parseMessage("Init(default)");
-	leave_loop = parseMessage("Draw_frame(255,255,255");
 
-	leave_loop = parseMessage("Add_sub_board(1,0,0,255,32)");
-	leave_loop = parseMessage("Add_sub_board(2,0,64,82,63)");
-	leave_loop = parseMessage("Add_sub_board(3,120,64,82,63)");
-
-	leave_loop = parseMessage("Clear_sub_board(1)");
-	leave_loop = parseMessage("Clear_sub_board(2)");
-	leave_loop = parseMessage("Clear_sub_board(3)");
-
-	leave_loop = parseMessage("Add_text_area(1,1,32,0,192,32,255,100,180,1)");
-
-	leave_loop = parseMessage("Add_text_area(2,1,0,64,80,8,0,20,220,0)");
-	leave_loop = parseMessage("Add_text_area(2,2,20,77,16,8,0,20,220,0)");
-
-//	leave_loop = parseMessage("Add_picture_area(2,3,50,77,20,20,1,255,255,255)");
-
-	leave_loop = parseMessage("Add_text_area(3,1,120,64,80,8,255,255,0,0)");
-
-	leave_loop = parseMessage("Add_text_area(3,2,140,77,16,8,255,255,0,0)");
-
-	leave_loop = parseMessage("Add_picture_area(3,3,170,77,20,20,1,255,255,255)");
-
+	leave_loop = parseMessage("Add_sub_board(1,1,1,250,60)");
+	leave_loop = parseMessage("Add_text_area(1,1,32,15,192,32,250,0,0,1)");
 	leave_loop = parseMessage("Insert_text(1,1,{72,37,51,33,57,53,37,96,66,57,96,36,36,91})");
-	leave_loop = parseMessage("Insert_text(2,1,{58,29,63,49,96,54,57,63,67,43})");
-	leave_loop = parseMessage("Insert_text(2,2,{82,81},2)");
-	//leave_loop = parseMessage("Insert_picture (2,3,2)");
 
-	leave_loop = parseMessage("Insert_text(3,1,{58,29,63,49,96,64,57,69,67,43})");
-	leave_loop = parseMessage("Insert_text(3,2,{83,49},2)");
-	//leave_loop = parseMessage("Insert_picture (3,3,3)");
+	leave_loop = parseMessage("Add_sub_board(2,5,64,90,63)");
+	leave_loop = parseMessage("Add_text_area(2,1,5,64,80,16,255,255,0,0)");
+	leave_loop = parseMessage("Add_text_area(2,2,15,90,32,16,0,20,220,0)");
+	leave_loop = parseMessage("Add_picture_area(2,3,52,90,16,16,1,255,255,255)");
+	leave_loop = parseMessage("Insert_text(2,1,{81,17,6,10,16,8})");
+	leave_loop = parseMessage("Insert_text(2,2,{82,81},2)");
+	leave_loop = parseMessage("Insert_picture(2,3,0)");
+
+	leave_loop = parseMessage("Add_sub_board(3,160,64,82,63)");
+	leave_loop = parseMessage("Add_text_area(3,1,160,64,80,16,255,255,0,0)");
+	leave_loop = parseMessage("Add_text_area(3,2,170,90,32,16,0,20,220,0)");
+	leave_loop = parseMessage("Add_picture_area(3,3,210,90,16,16,1,255,255,255)");
+	leave_loop = parseMessage("Insert_text(3,1,{80,17,6,10,16,8})");
+	leave_loop = parseMessage("Insert_text(3,2,{83,89},2)");
+	leave_loop = parseMessage("Insert_picture (3,3,3)");
+
+	leave_loop = parseMessage("Draw_frame(255,255,255)");
+
 
 	XTime start, end;
 		double cpu_time_used;
 		XTime_GetTime(&start);
 		int i = 1;
-		while (i<200)
+		while (i<4000)
 		{
 			// If new msg - do msg
 			XTime_GetTime(&end);

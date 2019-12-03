@@ -60,6 +60,8 @@ LedSignResult FlipRight();
 // Flip entire board Down
 LedSignResult FlipDown();
 
+void scroll_whole_board(int k);
+
 // ************** Function declerations - text object handling *******************
 
 // Adds Text to the requested sub-board. Returns -1 if the location is Illegal
@@ -84,6 +86,9 @@ LedSignResult updatePicture(int subBoardID, int pictureID, int index);
 
 // Updates the picture color
 LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b);
+
+// Draw frame around board
+LedSignResult drawFrame(byte r, byte g, byte b);
 
 
 #endif

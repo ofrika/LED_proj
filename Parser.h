@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include "Display.h"
 
 #define BUFFSIZE 8192
 

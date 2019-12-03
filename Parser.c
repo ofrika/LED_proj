@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,6 +79,63 @@ int get_array_input(char* orig_comm, int start_from, int* end, int* array_out, i
 	return count_cells;
 }
 
+void check_error(LedSignResult res){
+	if(res != LED_SIGN_SUCCESS){
+		switch(res){
+			case LED_SIGN_OUT_OF_MEMORY:
+					xil_printf("ERROR: LED_SIGN_OUT_OF_MEMORY\n\n");
+					break;
+			case LED_SIGN_ILLEGAL_ARGUMENTS:
+				xil_printf("ERROR: LED_SIGN_ILLEGAL_ARGUMENTS\n\n");
+				break;
+			case LED_SIGN_ERROR_WHILE_PARSING_DIRECTIONS:
+				xil_printf("ERROR: LED_SIGN_ERROR_WHILE_PARSING_DIRECTIONS\n\n");
+				break;
+			case LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK:
+				xil_printf("ERROR: LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK\n\n");
+				break;
+			case LED_SIGN_OUT_OF_BOARD_COARDINATES:
+				xil_printf("ERROR: LED_SIGN_OUT_OF_BOARD_COARDINATES\n\n");
+				break;
+			case LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_TEXT:
+				xil_printf("ERROR: LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_TEXT\n\n");
+				break;
+			case LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_PICTURE:
+				xil_printf("ERROR: LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_PICTURE\n\n");
+				break;
+			case LED_SIGN_DISPLAY_ID_ALREADY_EXIST:
+				xil_printf("ERROR: LED_SIGN_DISPLAY_ID_ALREADY_EXIST\n\n");
+				break;
+			case LED_SIGN_OBJECT_ID_ALREADY_EXIST:
+				xil_printf("ERROR: LED_SIGN_OBJECT_ID_ALREADY_EXIST\n\n");
+				break;
+			case LED_SIGN_ANOTHER_DISPLAY_LOCATED_THERE:
+				xil_printf("ERROR: LED_SIGN_ANOTHER_DISPLAY_LOCATED_THERE\n\n");
+				break;
+			case LED_SIGN_ANOTHER_OBJECT_LOCATED_THERE:
+				xil_printf("ERROR: LED_SIGN_ANOTHER_OBJECT_LOCATED_THERE\n\n");
+				break;
+			case LED_SIGN_OBJECT_WITH_THE_GIVEN_ID:
+				xil_printf("ERROR: LED_SIGN_OBJECT_WITH_THE_GIVEN_ID\n\n");
+				break;
+			case LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID:
+				xil_printf("ERROR: LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID\n\n");
+				break;
+			case LED_SIGN_NO_PICTURE_WITH_THE_GIVEN_ID:
+				xil_printf("ERROR: LED_SIGN_NO_PICTURE_WITH_THE_GIVEN_ID\n\n");
+				break;
+			case LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID:
+				xil_printf("ERROR: LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID\n\n");
+				break;
+			case LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL:
+				xil_printf("ERROR: LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL\n\n");
+				break;
+			default:
+				xil_printf("ERROR: Unkown error\n\n");
+		}
+	}
+}
+
 int translateCommand(char* com)
 {
 	if (strstr(com, "Init") != NULL)
@@ -114,6 +170,8 @@ int translateCommand(char* com)
 		return 14;
 	if (strstr(com, "Flip_right") != NULL)
 		return 15;
+	if (strstr(com, "Draw_frame") != NULL)
+			return 16;
 	return -1;
 }
 
@@ -135,12 +193,11 @@ int parseMessage(char* input)
 				xil_printf("-------- #Matrices in each port = 8,8,8,8 --------\n");
 				xil_printf("-------- All matrices are directed right ----------\n");
 				int arr[] = { 8,8,8,8 };
-				char* dir = { '\0' };
-				LedSignResult res = initBoard(4, arr, dir);
-				free(dir);
+				LedSignResult res = initBoard(4, arr, "");
 				if (res != LED_SIGN_SUCCESS)
 				{
 					xil_printf("Init ERROR! Please restart machine\n");
+					check_error(res);
 					destroyBoard();
 					return 1;
 				}
@@ -178,6 +235,7 @@ int parseMessage(char* input)
 				if (res != LED_SIGN_SUCCESS)
 				{
 					xil_printf("Init ERROR! Please restart machine\n");
+					check_error(res);
 					destroyBoard();
 					return 1;
 				}
@@ -206,8 +264,10 @@ int parseMessage(char* input)
 			xil_printf("-------- Start location = %d, %d --------------\n", x, y);
 			xil_printf("-------- End location = %d, %d ----------------\n", x + len_x, y + len_y);
 			LedSignResult res = addSubBoard(id, x, y, len_x, len_y);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Adding sub-board failed!");
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Adding sub-board succeeded!\n");
@@ -219,8 +279,10 @@ int parseMessage(char* input)
 		{
 			int id = get_next_numerical_input(input, end, len, &end);
 			LedSignResult res = cleanSubBoard(id);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Clearing sub-board #%d failed!", id);
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Clearing sub-board #%d succeeded!\n", id);
@@ -232,8 +294,10 @@ int parseMessage(char* input)
 		{
 			int id = get_next_numerical_input(input, end, len, &end);
 			LedSignResult res = deleteSubBoard(id);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Deleting sub-board #%d failed!", id);
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Deleting sub-board #%d succeeded!\n", id);
@@ -267,8 +331,10 @@ int parseMessage(char* input)
 			xil_printf("-------- End location = %d, %d ---------------------\n", x + len_x, y + len_y);
 			xil_printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
 			LedSignResult res = createTextArea(id_board, id, x, y, len_x, len_y, r, g, b, scrollable);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Adding text area failed!");
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Adding text area succeeded!\n");
@@ -290,8 +356,10 @@ int parseMessage(char* input)
 			xil_printf("-------- Start location = %d, %d -------------------\n", x, y);
 			xil_printf("-------- End location = %d, %d ---------------------\n", x + len_x, y + len_y);
 			LedSignResult res = createPictureArea(id_board, id, x, y, len_x, len_y);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Adding picture area failed!");
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Adding picture area succeeded!\n");
@@ -321,8 +389,10 @@ int parseMessage(char* input)
 			xil_printf("------------------\n");
 			LedSignResult res = updateText(id_board, id, clean_arr, arr_size);
 			free(clean_arr);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Printing text failed!");
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Printing text succeeded! Check out the board :)\n");
@@ -340,8 +410,10 @@ int parseMessage(char* input)
 			xil_printf("-------- ID of containing sub-board = %d -----------\n", id_board);
 			xil_printf("-------- Index = %d --------------------------------\n", index);
 			LedSignResult res = updatePicture(id_board, id, index);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Printing picture object failed!");
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Printing picture object succeeded! Check out the board :)\n");
@@ -357,19 +429,19 @@ int parseMessage(char* input)
 			// Get R data
 			int* tmp = malloc(sizeof(int)*(strlen(input)));
 			int arr_size_r = get_array_input(input, end, &end, tmp, strlen(input));
-			unsigned char* clean_arr_r = malloc(sizeof(int)*arr_size_r);
+			byte* clean_arr_r = malloc(sizeof(int)*arr_size_r);
 			for (k = 0; k < arr_size_r; k++)
-				clean_arr_r[k] = (unsigned char)tmp[k];
+				clean_arr_r[k] = (byte)tmp[k];
 			// Get G data
 			int arr_size_g = get_array_input(input, end, &end, tmp, strlen(input));
-			unsigned char* clean_arr_g = malloc(sizeof(int)*arr_size_g);
+			byte* clean_arr_g = malloc(sizeof(int)*arr_size_g);
 			for (k = 0; k < arr_size_g; k++)
-				clean_arr_g[k] = (unsigned char)tmp[k];
+				clean_arr_g[k] = (byte)tmp[k];
 			// Get B data
 			int arr_size_b = get_array_input(input, end, &end, tmp, strlen(input));
-			unsigned char* clean_arr_b = malloc(sizeof(int)*arr_size_b);
+			byte* clean_arr_b = malloc(sizeof(int)*arr_size_b);
 			for (k = 0; k < arr_size_b; k++)
-				clean_arr_b[k] = (unsigned char)tmp[k];
+				clean_arr_b[k] = (byte)tmp[k];
 			xil_printf("Adding image to database with the following parameters:\n");
 			xil_printf("-------- Index = %d ---------------------------------\n", index);
 			xil_printf("-------- Dimensions = %dx%d --------------------------\n", width, length);
@@ -397,8 +469,10 @@ int parseMessage(char* input)
 			free(clean_arr_r);
 			free(clean_arr_g);
 			free(clean_arr_b);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Adding image to database failed!");
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Adding image to database succeeded!\n");
@@ -411,8 +485,10 @@ int parseMessage(char* input)
 			int id_board = get_next_numerical_input(input, end, len, &end);
 			int id = get_next_numerical_input(input, end, len, &end);
 			LedSignResult res = deleteArea(id_board, id);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Deleting area #%d failed!", id);
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Deleting area #%d succeeded!\n", id);
@@ -437,8 +513,10 @@ int parseMessage(char* input)
 			xil_printf("-------- ID of containing sub-board = %d -----------\n", id_board);
 			xil_printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
 			LedSignResult res = updateTextColor(id_board, id, r, g, b);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Changing text color failed!");
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Changing text color succeeded!\n");
@@ -458,8 +536,10 @@ int parseMessage(char* input)
 			xil_printf("-------- ID of containing sub-board = %d -----------\n", id_board);
 			xil_printf("-------- RGB = %d,%d,%d ---------------------------\n", r, g, b);
 			LedSignResult res = updatePictureColor(id_board, id, r, g, b);
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Changing picture color failed!");
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Changing picture color succeeded!\n");
@@ -470,8 +550,10 @@ int parseMessage(char* input)
 		case 14: // Flip down
 		{
 			LedSignResult res = FlipDown();
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Flipping down failed!");
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Flipping down succeeded! Check out board :)\n");
@@ -481,17 +563,37 @@ int parseMessage(char* input)
 		case 15: // Flip right
 		{
 			LedSignResult res = FlipRight();
-			if (res != LED_SIGN_SUCCESS)
+			if (res != LED_SIGN_SUCCESS){
 				xil_printf("Flipping right failed!");
+				check_error(res);
+			}
 			else
 			{
 				xil_printf("Flipping right succeeded! Check out board :)\n");
 				xil_printf("***************************************************\n\n");
 			}
+			break;
+		}
+		case 16: // Flip right
+		{
+			byte r = (byte)get_next_numerical_input(input, end, len, &end);
+			byte g = (byte)get_next_numerical_input(input, end, len, &end);
+			byte b = (byte)get_next_numerical_input(input, end, len, &end);
+			LedSignResult res = drawFrame(r,g,b);
+			if (res != LED_SIGN_SUCCESS){
+				xil_printf("Drawing frame failed!");
+				check_error(res);
+			}
+			else
+			{
+				xil_printf("Drawing frame succeeded! Check out the board :)\n");
+				xil_printf("***************************************************\n\n");
+			}
+			break;
 		}
 		default:
 			xil_printf("Invalid command!\n");
 			break;
-		}
+	}
 	return 0;
 }
