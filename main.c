@@ -39,7 +39,6 @@
 #include "lwip/priv/tcp_priv.h"
 #include "lwip/init.h"
 #include "lwip/inet.h"
-#include "Parser.h"
 #include "xtime_l.h"
 
 #define LWIP_IPV6 0
@@ -205,68 +204,90 @@ int main(void)
 
 
 	// Initial setup (See appendix in book for explanation)
-	int leave_loop;
+//	int leave_loop;
+//
+//	leave_loop = parseMessage("Init(default)");
+//
+//	leave_loop = parseMessage("Add_sub_board(1,1,1,250,60)");
+//	leave_loop = parseMessage("Add_text_area(1,1,32,15,192,32,250,0,0,1)");
+//	leave_loop = parseMessage("Insert_text(1,1,{72,37,51,33,57,53,37,96,66,57,96,36,36,91})");
+//
+//	leave_loop = parseMessage("Add_sub_board(2,5,64,90,63)");
+//	leave_loop = parseMessage("Add_text_area(2,1,5,64,80,16,255,255,0,0)");
+//	leave_loop = parseMessage("Add_text_area(2,2,15,90,32,16,0,20,220,0)");
+//	leave_loop = parseMessage("Add_picture_area(2,3,52,90,16,16,1,255,255,255)");
+//	leave_loop = parseMessage("Insert_text(2,1,{81,17,6,10,16,8})");
+//	leave_loop = parseMessage("Insert_text(2,2,{82,81},2)");
+//	leave_loop = parseMessage("Insert_picture(2,3,0)");
+//
+//	leave_loop = parseMessage("Add_sub_board(3,160,64,82,63)");
+//	leave_loop = parseMessage("Add_text_area(3,1,160,64,80,16,255,255,0,0)");
+//	leave_loop = parseMessage("Add_text_area(3,2,170,90,32,16,0,20,220,0)");
+//	leave_loop = parseMessage("Add_picture_area(3,3,210,90,16,16,1,255,255,255)");
+//	leave_loop = parseMessage("Insert_text(3,1,{80,17,6,10,16,8})");
+//	leave_loop = parseMessage("Insert_text(3,2,{80,86},2)");
+//	leave_loop = parseMessage("Insert_picture(3,3,3)");
+//	leave_loop = parseMessage("Draw_frame(255,255,255)");
+//
 
-	leave_loop = parseMessage("Init(default)");
 
-	leave_loop = parseMessage("Add_sub_board(1,1,1,250,60)");
-	leave_loop = parseMessage("Add_text_area(1,1,32,15,192,32,250,0,0,1)");
-	leave_loop = parseMessage("Insert_text(1,1,{72,37,51,33,57,53,37,96,66,57,96,36,36,91})");
-
-	leave_loop = parseMessage("Add_sub_board(2,5,64,90,63)");
-	leave_loop = parseMessage("Add_text_area(2,1,5,64,80,16,255,255,0,0)");
-	leave_loop = parseMessage("Add_text_area(2,2,15,90,32,16,0,20,220,0)");
-	leave_loop = parseMessage("Add_picture_area(2,3,52,90,16,16,1,255,255,255)");
-	leave_loop = parseMessage("Insert_text(2,1,{81,17,6,10,16,8})");
-	leave_loop = parseMessage("Insert_text(2,2,{82,81},2)");
-	leave_loop = parseMessage("Insert_picture(2,3,0)");
-
-	leave_loop = parseMessage("Add_sub_board(3,160,64,82,63)");
-	leave_loop = parseMessage("Add_text_area(3,1,160,64,80,16,255,255,0,0)");
-	leave_loop = parseMessage("Add_text_area(3,2,170,90,32,16,0,20,220,0)");
-	leave_loop = parseMessage("Add_picture_area(3,3,210,90,16,16,1,255,255,255)");
-	leave_loop = parseMessage("Insert_text(3,1,{80,17,6,10,16,8})");
-	leave_loop = parseMessage("Insert_text(3,2,{83,89},2)");
-	leave_loop = parseMessage("Insert_picture (3,3,3)");
-	leave_loop = parseMessage("Draw_frame(255,255,255)");
 
 	//Added
-	leave_loop = parseMessage("Insert_text(3,2,{87,87})");
-	leave_loop = parseMessage("Insert_picture(2,3,2)");
-	leave_loop = parseMessage("Change_text_color(3,1,0,255,255)");
-	leave_loop = parseMessage("Change_picture_color(3,3,0,0,255)");
-	leave_loop = parseMessage("deleteArea(2,2)");
-	leave_loop = parseMessage("Clear_sub_board(2)");
-	leave_loop = parseMessage("Flip_down()");
-	leave_loop = parseMessage("Flip_Right()");
+
+//	sleep(8);
+//	leave_loop = parseMessage("Insert_picture(2,3,2)");
+//	leave_loop = parseMessage("Draw_frame(255,255,255)");
+//
+//	sleep(8);
+//	leave_loop = parseMessage("Change_text_color(3,1,0,255,255)");
+//	leave_loop = parseMessage("Draw_frame(255,255,255)");
+//
+//	sleep(8);
+//	leave_loop = parseMessage("Change_picture_color(3,3,0,0,255)");
+//	leave_loop = parseMessage("Draw_frame(255,255,255)");
+
+	//sleep(8);
+	//leave_loop = parseMessage("Delete_area(2,2)");
+	//leave_loop = parseMessage("Draw_frame(255,255,255)");
+
+	//sleep(8);
+	//leave_loop = parseMessage("Clear_sub_board(2)");
+	//leave_loop = parseMessage("Draw_frame(255,255,255)");
+
+	//sleep(8);
+	//leave_loop = parseMessage("Flip_right()");
+	//leave_loop = parseMessage("Draw_frame(255,255,255)");
+
+//	sleep(8);
 
 
 
-
-	XTime start, end;
-		double cpu_time_used;
-		XTime_GetTime(&start);
-		int i = 1;
-		while (i<4000)
-		{
-			// If new msg - do msg
-			XTime_GetTime(&end);
-			cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-			if (cpu_time_used > 0.5)
-			{
-				scroll_whole_board(i);
-				XTime_GetTime(&start);
-			}
-			i++;
-		}
-
-		leave_loop = parseMessage("Exit");
-
-		xil_printf("\r\n ---------- All done! ~Ofri & Samah ---------- \r\n");
-		xil_printf(" ------------------------------------------------ \r\n");
+//	XTime start, end;
+//		double cpu_time_used;
+//		XTime_GetTime(&start);
+//		int i = 1;
+//		while (i<8000)
+//		{
+//			// If new msg - do msg
+//			XTime_GetTime(&end);
+//			cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+//			if (cpu_time_used >0.5)
+//			{
+//				scroll_whole_board(i);
+//				XTime_GetTime(&start);
+//			}
+//			i++;
+//		}
+//
+//		leave_loop = parseMessage("Exit");
+//
+//		xil_printf("\r\n ---------- All done! ~Ofri & Samah ---------- \r\n");
+//		xil_printf(" ------------------------------------------------ \r\n");
 
 
 	// ################################################## XILINX CODE START ##################################################
+
+
 
 
 
@@ -275,15 +296,15 @@ int main(void)
 			tcp_fasttmr();
 			TcpFastTmrFlag = 0;
 		}
+
 		if (TcpSlowTmrFlag) {
 			tcp_slowtmr();
 			TcpSlowTmrFlag = 0;
 		}
-
 		xemacif_input(netif);
 		transfer_data();
-
 	}
+
 
 	xil_printf("Exit\r\n"); // Never reached
 	cleanup_platform();

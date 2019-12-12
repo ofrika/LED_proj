@@ -1234,10 +1234,10 @@ LedSignResult cleanSubBoard(int dispID){
                     destroyPicObject((PicObject)e);
                 }
             }
+        	DrawBoard();
             return LED_SIGN_SUCCESS;
         }
     }
-	DrawBoard();
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
@@ -1254,10 +1254,10 @@ LedSignResult deleteSubBoard(int dispID){
             }
             destroyDisplay(itr_disp);
             listRemove(mainBoard->subBoards,itr_disp);
+        	DrawBoard();
             return LED_SIGN_SUCCESS;
         }
     }
-	DrawBoard();
     return LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID;
 }
 
@@ -1814,7 +1814,7 @@ void DrawBoard() {
 	print_board();
     for (Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards); itr_disp = listGetNext(mainBoard->subBoards)) {
         for (Element itr_obj = listGetFirst(itr_disp->objects); itr_obj != listGetLast(itr_disp->objects); itr_obj = listGetNext(itr_disp->objects)) {
-            if ((listGetIteratorType(itr_disp->objects) == Text) && (isTextScrollable((TextObject)itr_obj) == false)) {
+            if ((listGetIteratorType(itr_disp->objects) == Text) && (isTextScrollable((TextObject)itr_obj) == false) && getTextLen((TextObject)itr_obj) > -1) {
             	dealTextObject((TextObject)itr_obj);
             } else if (listGetIteratorType(itr_disp->objects) == Picture) {
             	dealPictureObject((PicObject)itr_obj);
@@ -2013,22 +2013,22 @@ void print_flipped_down_board(){
 
     for(int i=0; i<32; i++) {
         for (int j = 0; j < 256; j++) {
-            Xil_Out32((u32) (port1 + i*1024 + j*4) ,board_rgb[4*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+            Xil_Out32((u32) (port4 + i*1024 + j*4) ,board_rgb[4*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=0; i<32; i++) {
         for (int j = 0; j < 256; j++) {
-            Xil_Out32((u32) (port2 + i*1024 + j*4) ,board_rgb[3*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+            Xil_Out32((u32) (port3 + i*1024 + j*4) ,board_rgb[3*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=0; i<32; i++) {
         for (int j = 0; j < 256; j++) {
-            Xil_Out32((u32) (port3 + i*1024 + j*4) ,board_rgb[2*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+            Xil_Out32((u32) (port2 + i*1024 + j*4) ,board_rgb[2*N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
     for(int i=0; i<32; i++) {
         for (int j = 0; j < 256; j++) {
-            Xil_Out32((u32) (port4 + i*1024 + j*4) ,board_rgb[N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
+            Xil_Out32((u32) (port1 + i*1024 + j*4) ,board_rgb[N-i-1][j]); // multiplied by 4 cuz port1 is of type char*
         }
     }
 	swapBuffer();

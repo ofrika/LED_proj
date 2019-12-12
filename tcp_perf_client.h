@@ -89,10 +89,10 @@ struct perf_stats {
 #define INTERIM_REPORT_INTERVAL 5
 
 /* Client port to connect */
-#define TCP_CONN_PORT 5001
+#define TCP_CONN_PORT 7833
 
 /* time in seconds to transmit packets */
-#define TCP_TIME_INTERVAL 300
+#define TCP_TIME_INTERVAL 30 /*was 300*/
 
 #if LWIP_IPV6==1
 /* Server to connect with */

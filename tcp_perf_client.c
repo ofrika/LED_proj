@@ -29,6 +29,7 @@
 /* Connection handle for a TCP Client session */
 
 #include "tcp_perf_client.h"
+#include "Parser.h"
 
 static struct tcp_pcb *c_pcb;
 static char send_buf[TCP_SEND_BUFSIZE];
@@ -238,6 +239,8 @@ static err_t tcp_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
 err_t recv_callback(void *arg, struct tcp_pcb *tpcb,
                                struct pbuf *p, err_t err)
 {
+
+
 	/* do not read the packet if we are not in ESTABLISHED state */
 	if (!p) {
 		tcp_close(tpcb);
@@ -245,13 +248,18 @@ err_t recv_callback(void *arg, struct tcp_pcb *tpcb,
 		return ERR_OK;
 	}
 
+	xil_printf("what recieved? %s\n", p->payload);
+
+	parseMessage(p->payload);
 	/* indicate that the packet has been received */
 	tcp_recved(tpcb, p->len);
 
 	/* echo back the payload */
 	/* in this case, we assume that the payload is < TCP_SND_BUF */
 	if (tcp_sndbuf(tpcb) > p->len) {
-		err = tcp_write(tpcb, p->payload, p->len, 1);
+		strcpy(send_buf,p->payload);
+//		xil_printf("send buf  = %s\n", send_buf);
+		err = tcp_write(tpcb, send_buf, p->len, 1);
 	} else
 		print("no space in tcp_sndbuf\n\r");
 
@@ -289,12 +297,10 @@ static err_t tcp_client_connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 
 	tcp_arg(c_pcb, NULL);
 	tcp_sent(c_pcb, tcp_client_sent);
-	tcp_err(c_pcb, tcp_client_err);
+//	tcp_err(c_pcb, tcp_client_err);
 
 	// Added
 	tcp_recv(c_pcb, recv_callback);
-	//
-
 
 	/* initiate data transfer */
 	return ERR_OK;
@@ -304,7 +310,7 @@ void transfer_data(void)
 {
 	if (client.client_id)
 	{
-		xil_printf("client_id=%d\r\n",client.client_id);
+//		xil_printf("client_id=%d\r\n",client.client_id);
 		tcp_send_perf_traffic();
 	}
 
@@ -343,7 +349,8 @@ void start_application(void)
 		tcp_client_close(pcb);
 		return;
 	}
-	client.client_id = 1;
+
+	client.client_id = 0;
 
 
 	send_buf[0]='H';
