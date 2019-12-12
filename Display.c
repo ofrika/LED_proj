@@ -2038,3 +2038,58 @@ LedSignResult FlipDown(){
 	print_flipped_down_board();
 	return LED_SIGN_SUCCESS;
 }
+
+
+void TestRunningPixel(byte r, byte g, byte b){
+
+	unsigned char running_pixel[4];
+
+	running_pixel[3] = r;	// r
+	running_pixel[2] = g;	// g
+	running_pixel[1] = b;	// b
+
+	for(int i=0; i<=8*N*N; i++){
+		if(i>0){
+			Xil_Out32((u32)(port1 + (i-1)*4) ,0);
+		}
+		if(i<8*N*N){
+			Xil_Out32((u32)(port1 + i*4) ,*((int*)running_pixel));
+		}
+		swapBuffer();
+		sleep(1);
+	}
+
+	for(int i=0; i<=8*N*N; i++){
+		if(i>0){
+			Xil_Out32((u32)(port2 + (i-1)*4) ,0);
+		}
+		if(i<8*N*N){
+			Xil_Out32((u32)(port2 + i*4) ,*((int*)running_pixel));
+		}
+		swapBuffer();
+		sleep(1);
+	}
+
+	for(int i=0; i<=8*N*N; i++){
+		if(i>0){
+			Xil_Out32((u32)(port3 + (i-1)*4),0);
+		}
+		if(i<8*N*N){
+			Xil_Out32((u32)(port3 + i*4) ,*((int*)running_pixel));
+		}
+		swapBuffer();
+		sleep(1);
+	}
+
+	for(int i=0; i<=8*N*N; i++){
+		if(i>0){
+			Xil_Out32((u32)(port4 + (i-1)*4) ,0);
+		}
+		if(i<8*N*N){
+			Xil_Out32((u32)(port4 + i*4) ,*((int*)running_pixel));
+		}
+		swapBuffer();
+		sleep(1);
+	}
+
+}

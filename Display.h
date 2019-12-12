@@ -90,5 +90,8 @@ LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte
 // Draw frame around board
 LedSignResult drawFrame(byte r, byte g, byte b);
 
+// Test All the pixels in the board by calling the Running Pixel
+void TestRunningPixel(byte r, byte g, byte b);
+
 
 #endif

@@ -5,6 +5,12 @@
 
 #define BUFF_SIZE 256
 
+void zeros(char* buff_in, int len){
+    for (int i = 0; i < len; ++i) {
+        buff_in[i] = 0;
+    }
+}
+
 int main(int argc, char *argv[])
 {
 
@@ -55,8 +61,8 @@ int main(int argc, char *argv[])
                 }
                 printf("%s", buff_in);
 //                memset(&buff_in, 0, sizeof(buff_in));
-                memset(buff_in, BUFF_SIZE, '\0');
-
+//                memset(buff_in, BUFF_SIZE, '\0');
+                zeros(buff_in,bytesRead);
             }
             while (bytesRead > 0);
         }
