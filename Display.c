@@ -1586,9 +1586,19 @@ LedSignResult deleteArea(int dispID, int areaID){
 }
 
 
-void getStatus(){
+void getStatus(char* buff){
+	char numbuff[80];
+	int num;
+	strcpy(buff, "");
+	strcpy(numbuff, "");
 	xil_printf("\n====================================== Current Status ====================================== \n");
 	xil_printf("------ Total number of Sub-boards = %d. Detailed information as follows: -------------------\n", listSize(mainBoard->subBoards));
+	strcat(buff, "\n====================================== Current Status ====================================== \n");
+	strcat(buff, "------ Total number of Sub-boards = ");
+	num = listSize(mainBoard->subBoards);
+	itoa(num, numbuff, 10);
+	strcat(buff, numbuff);
+	strcat(buff, ". Detailed information as follows: -------------------\n");
 	int disp_num = 1;
 	for(Display itr_disp = listGetFirst(mainBoard->subBoards); itr_disp != listGetLast(mainBoard->subBoards) ; itr_disp = listGetNext(mainBoard->subBoards)){
 		int sub_board_id = itr_disp->id;
@@ -1600,7 +1610,44 @@ void getStatus(){
 
 		xil_printf("------ Sub-board #%d ID = %d, start location = (%d,%d), end location = (%d,%d) -------------\n", disp_num, sub_board_id, sub_board_x, sub_board_y, sub_board_x+sub_board_lenX, sub_board_y+sub_board_lenY);
 		xil_printf("----------- It contains %d areas. Detailed information as follows --------------------------\n", objects_number);
-
+		strcat(buff, "------ Sub-board #");
+		strcpy(numbuff, "");
+		num = disp_num;
+		itoa(num, numbuff, 10);
+		strcat(buff, numbuff);
+		strcat(buff, " ID = ");
+		strcpy(numbuff, "");
+		num = sub_board_id;
+		itoa(num, numbuff, 10);
+		strcat(buff, numbuff);
+		strcat(buff, ", start location = (");
+		strcpy(numbuff, "");
+		num = sub_board_x;
+		itoa(num, numbuff, 10);
+		strcat(buff, numbuff);
+		strcat(buff, ",");
+		strcpy(numbuff, "");
+		num = sub_board_y;
+		itoa(num, numbuff, 10);
+		strcat(buff, numbuff);
+		strcat(buff, "), end location = (");
+		strcpy(numbuff, "");
+		num = sub_board_x+sub_board_lenX;
+		itoa(num, numbuff, 10);
+		strcat(buff, numbuff);
+		strcat(buff, ",");
+		strcpy(numbuff, "");
+		num = sub_board_y+sub_board_lenY;
+		itoa(num, numbuff, 10);
+		strcat(buff, numbuff);
+		strcat(buff, ") -------------\n----------- It contains ");
+		strcpy(numbuff, "");
+		num = objects_number;
+		itoa(num, numbuff, 10);
+		strcat(buff, numbuff);
+		strcat(buff, " areas. Detailed information as follows --------------------------\n");
+		
+		
 		for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
 			Type type = listGetIteratorType(itr_disp->objects);
 			int id,x,y,lenX,lenY;
@@ -1612,6 +1659,13 @@ void getStatus(){
 				lenX = getPicLenX(pic_obj);
 				lenY = getPicLenY(pic_obj);
 				xil_printf("----------- Picture area with ID = %d ------------------------------------------------------\n",id);
+				strcat(buff, "----------- Picture area with ID = ");
+				strcpy(numbuff, "");
+				num = id;
+				itoa(num, numbuff, 10);
+				strcat(buff, numbuff);
+				strcat(buff, " ------------------------------------------------------\n");
+			
 			} else {
 				TextObject text_obj = (TextObject)e;
 				id = getTextID(text_obj);
@@ -1620,12 +1674,40 @@ void getStatus(){
 				lenX = getTextLenX(text_obj);
 				lenY = getTextLenY(text_obj);
 				xil_printf("----------- Text area with ID = %d ---------------------------------------------------------\n",id);
+				strcat(buff, "----------- Text area with ID = ");
+				strcpy(numbuff, "");
+				num = id;
+				itoa(num, numbuff, 10);
+				strcat(buff, numbuff);
+				strcat(buff, " ------------------------------------------------------\n");
 			}
 			xil_printf("---------------- start location = (%d,%d), end location = (%d,%d)---------------------------\n",x, y, x+lenX, y+lenY);
+			strcat(buff, "---------------- start location = (");
+			strcpy(numbuff, "");
+			num = x;
+			itoa(num, numbuff, 10);
+			strcat(buff, numbuff);
+			strcat(buff, ",");
+			strcpy(numbuff, "");
+			num = y;
+			itoa(num, numbuff, 10);
+			strcat(buff, numbuff);
+			strcat(buff, "), end location = (");
+			strcpy(numbuff, "");
+			num = x+lenX;
+			itoa(num, numbuff, 10);
+			strcat(buff, numbuff);
+			strcat(buff, ",");
+			strcpy(numbuff, "");
+			num = y+lenY;
+			itoa(num, numbuff, 10);
+			strcat(buff, numbuff);
+			strcat(buff, ")---------------------------\n");
 		}
 		disp_num++;
     }
 	xil_printf("============================================================================================\n\n");
+	strcat(buff, "============================================================================================\n\n");
 }
 
 void swapBuffer(){

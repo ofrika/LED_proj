@@ -79,59 +79,76 @@ int get_array_input(char* orig_comm, int start_from, int* end, int* array_out, i
 	return count_cells;
 }
 
-void check_error(LedSignResult res){
+void check_error(LedSignResult res, char* buff_out){
 	if(res != LED_SIGN_SUCCESS){
 		switch(res){
 			case LED_SIGN_OUT_OF_MEMORY:
 					xil_printf("ERROR: LED_SIGN_OUT_OF_MEMORY\n\n");
+					strcpy(buff_out,"ERROR: LED_SIGN_OUT_OF_MEMORY\n\n");
 					break;
 			case LED_SIGN_ILLEGAL_ARGUMENTS:
 				xil_printf("ERROR: LED_SIGN_ILLEGAL_ARGUMENTS\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_ILLEGAL_ARGUMENTS\n\n");
 				break;
 			case LED_SIGN_ERROR_WHILE_PARSING_DIRECTIONS:
 				xil_printf("ERROR: LED_SIGN_ERROR_WHILE_PARSING_DIRECTIONS\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_ERROR_WHILE_PARSING_DIRECTIONS\n\n");
 				break;
 			case LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK:
 				xil_printf("ERROR: LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_IMAGE_DOESNT_EXIST_IN_STOCK\n\n");
 				break;
 			case LED_SIGN_OUT_OF_BOARD_COARDINATES:
 				xil_printf("ERROR: LED_SIGN_OUT_OF_BOARD_COARDINATES\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_OUT_OF_BOARD_COARDINATES\n\n");
 				break;
 			case LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_TEXT:
 				xil_printf("ERROR: LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_TEXT\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_TEXT\n\n");
 				break;
 			case LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_PICTURE:
 				xil_printf("ERROR: LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_PICTURE\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_DISPLAY_CAN_NOT_CONTAIN_THAT_PICTURE\n\n");
 				break;
 			case LED_SIGN_DISPLAY_ID_ALREADY_EXIST:
 				xil_printf("ERROR: LED_SIGN_DISPLAY_ID_ALREADY_EXIST\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_DISPLAY_ID_ALREADY_EXIST\n\n");
 				break;
 			case LED_SIGN_OBJECT_ID_ALREADY_EXIST:
 				xil_printf("ERROR: LED_SIGN_OBJECT_ID_ALREADY_EXIST\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_OBJECT_ID_ALREADY_EXIST\n\n");
 				break;
 			case LED_SIGN_ANOTHER_DISPLAY_LOCATED_THERE:
 				xil_printf("ERROR: LED_SIGN_ANOTHER_DISPLAY_LOCATED_THERE\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_ANOTHER_DISPLAY_LOCATED_THERE\n\n");
 				break;
 			case LED_SIGN_ANOTHER_OBJECT_LOCATED_THERE:
 				xil_printf("ERROR: LED_SIGN_ANOTHER_OBJECT_LOCATED_THERE\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_ANOTHER_OBJECT_LOCATED_THERE\n\n");
 				break;
 			case LED_SIGN_OBJECT_WITH_THE_GIVEN_ID:
 				xil_printf("ERROR: LED_SIGN_OBJECT_WITH_THE_GIVEN_ID\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_OBJECT_WITH_THE_GIVEN_ID\n\n");
 				break;
 			case LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID:
 				xil_printf("ERROR: LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_NO_DISPLAY_WITH_THE_GIVEN_ID\n\n");
 				break;
 			case LED_SIGN_NO_PICTURE_WITH_THE_GIVEN_ID:
 				xil_printf("ERROR: LED_SIGN_NO_PICTURE_WITH_THE_GIVEN_ID\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_NO_PICTURE_WITH_THE_GIVEN_ID\n\n");
 				break;
 			case LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID:
 				xil_printf("ERROR: LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_NO_TEXT_WITH_THE_GIVEN_ID\n\n");
 				break;
 			case LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL:
 				xil_printf("ERROR: LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL\n\n");
+				strcpy(buff_out,"ERROR: LED_SIGN_PICTURE_DIMENSIONS_ARE_TOO_MUCH_SMALL\n\n");
 				break;
 			default:
 				xil_printf("ERROR: Unkown error\n\n");
+				strcpy(buff_out,"ERROR: Unkown error\n\n");
 		}
 	}
 }
@@ -171,11 +188,13 @@ int translateCommand(char* com)
 	if (strstr(com, "Flip_right") != NULL)
 		return 15;
 	if (strstr(com, "Draw_frame") != NULL)
-			return 16;
+		return 16;
+	if (strstr(com, "Test_running_pixel") != NULL)
+		return 17;
 	return -1;
 }
 
-int parseMessage(char* input)
+int parseMessage(char* input, char* buff_out)
 {
 	int com = translateCommand(input);
 	int len = 0, end = 0, k = 0;
@@ -201,8 +220,10 @@ int parseMessage(char* input)
 					destroyBoard();
 					return 1;
 				}
-				else
+				else{
 					xil_printf("Init succeeded!\n***************************************************\n\n");
+					strcpy(buff_out,"SUCCESS");
+				}
 			}
 			else
 			{
@@ -239,8 +260,10 @@ int parseMessage(char* input)
 					destroyBoard();
 					return 1;
 				}
-				else
+				else{
 					xil_printf("Init succeeded!\n***************************************************\n\n");
+					strcpy(buff_out,"SUCCESS");
+				}
 			}
 			break;
 		}
@@ -249,6 +272,7 @@ int parseMessage(char* input)
 			destroyBoard();
 			xil_printf("Exit succeeded! You can turn off machine now.\n");
 			xil_printf("***************************************************\n\n");
+			strcpy(buff_out,"SUCCESS");
 			return 1;
 			break;
 		}
@@ -272,6 +296,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Adding sub-board succeeded!\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
@@ -287,6 +312,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Clearing sub-board #%d succeeded!\n", id);
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
@@ -302,6 +328,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Deleting sub-board #%d succeeded!\n", id);
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
@@ -339,6 +366,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Adding text area succeeded!\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
@@ -364,6 +392,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Adding picture area succeeded!\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
@@ -397,6 +426,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Printing text succeeded! Check out the board :)\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
@@ -418,6 +448,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Printing picture object succeeded! Check out the board :)\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
@@ -477,6 +508,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Adding image to database succeeded!\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
@@ -493,12 +525,13 @@ int parseMessage(char* input)
 			{
 				xil_printf("Deleting area #%d succeeded!\n", id);
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
 		case 11: // Get status
 		{
-			getStatus();
+			getStatus(buff_out);
 			break;
 		}
 		case 12: // Change text color
@@ -521,6 +554,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Changing text color succeeded!\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
@@ -544,6 +578,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Changing picture color succeeded!\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
@@ -558,6 +593,7 @@ int parseMessage(char* input)
 			{
 				xil_printf("Flipping down succeeded! Check out board :)\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 		}
 		case 15: // Flip right
@@ -571,10 +607,11 @@ int parseMessage(char* input)
 			{
 				xil_printf("Flipping right succeeded! Check out board :)\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
-		case 16: // Flip right
+		case 16: // Draw frame
 		{
 			byte r = (byte)get_next_numerical_input(input, end, len, &end);
 			byte g = (byte)get_next_numerical_input(input, end, len, &end);
@@ -588,11 +625,31 @@ int parseMessage(char* input)
 			{
 				xil_printf("Drawing frame succeeded! Check out the board :)\n");
 				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
+			}
+			break;
+		}
+		case 17: // Test running pixel
+		{
+			byte r = (byte)get_next_numerical_input(input, end, len, &end);
+			byte g = (byte)get_next_numerical_input(input, end, len, &end);
+			byte b = (byte)get_next_numerical_input(input, end, len, &end);
+			LedSignResult res = TestRunningPixel(r,g,b);
+			if (res != LED_SIGN_SUCCESS){
+				xil_printf("Testing running pixel failed!");
+				check_error(res);
+			}
+			else
+			{
+				xil_printf("Testing running pixel succeeded! Check out the board :)\n");
+				xil_printf("***************************************************\n\n");
+				strcpy(buff_out,"SUCCESS");
 			}
 			break;
 		}
 		default:
 			xil_printf("Invalid command!\n");
+			strcpy(buff_out,"ERROR: INVALID COMMAND");
 			break;
 	}
 	return 0;
