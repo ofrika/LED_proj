@@ -258,14 +258,11 @@ err_t recv_callback(void *arg, struct tcp_pcb *tpcb,
 	/* in this case, we assume that the payload is < TCP_SND_BUF */
 	if (tcp_sndbuf(tpcb) > p->len) {
 		strcpy(send_buf,p->payload);
+		send_buf[p->len] = '\0';
 		err = tcp_write(tpcb, send_buf, p->len, 1);
 	} else
 		print("no space in tcp_sndbuf\n\r");
 
-
-	for (int i = 0; i < p->len; ++i){
-		send_buf[i] = '\0';
-	}
 
 	/* free the received pbuf */
 	pbuf_free(p);
