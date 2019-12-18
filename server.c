@@ -1,15 +1,7 @@
-
 #include <stdio.h>//compile: gcc TCPServer_windows.c -o TCPServer_windows.exe -lws2_32
 #include <winsock.h> //Warning: This program does not perform any error handling.
 
-
-#define BUFF_SIZE 256
-
-void zeros(char* buff_in, int len){
-    for (int i = 0; i < len; ++i) {
-        buff_in[i] = 0;
-    }
-}
+#define BUFF_SIZE 8192
 
 int main(int argc, char *argv[])
 {
@@ -40,64 +32,33 @@ int main(int argc, char *argv[])
     //    for (int j = 5; (--j) >= 0;) {
     client_socket = accept(server_socket, (struct sockaddr *) &clientAddr, &addrSize); //(*@\serverBox{3)}@*)
     printf("New connection from %s\n", inet_ntoa(clientAddr.sin_addr));
-    bytesRead = recv(client_socket, buff_in, BUFF_SIZE, 0);
-    printf("I received From the Server %s\n", buff_in);
-    printf("Please enter something to send to Server:\n");
 
-    bytesRead = 0;
-    while(strcmp(buff_out,"Exit") != 0){
+    while(1)
+    {
         printf("Please enter something to send to Server:\n");
         scanf("%s", buff_user_input);
         strcpy(buff_out, buff_user_input);
 
-        if (send(client_socket, buff_out, BUFF_SIZE, 0) == -1)
-            printf("OOPS! Error in sending data from server to Server\n");
-        else
+        //Send some data
+        if(send(client_socket , buff_out , strlen(buff_out) , 0) < 0)
         {
-            do{
-                bytesRead = recv(client_socket, buff_in, BUFF_SIZE, 0);
-                if ( bytesRead < 0) {
-                    printf("recv() failed");
-                }
-                printf("%s", buff_in);
-//                memset(&buff_in, 0, sizeof(buff_in));
-//                memset(buff_in, BUFF_SIZE, '\0');
-                zeros(buff_in,bytesRead);
-            }
-            while (bytesRead > 0);
+            printf("ERROR in sending. \n");
+            return 1;
         }
+
+        int num;//Receive a reply from the server
+        if( (num = recv(client_socket , buff_in , BUFF_SIZE , 0)) < 0)
+        {
+            printf("ERROR in receiving. \n");
+            break;
+        }
+        printf("%s %d \n", buff_in, num);
+        printf("******************************************************\n");
     }
+    closesocket(client_socket);
+    closesocket(server_socket);
 
-
-//        if (bytesRead != 0)
-//        {
-//            if (strncmp(buff_in, "Hello, Server!\n", 14) == 0)
-//            {
-//                printf("I just got from Server: %s\n", buff_in);
-//                while (1)
-//                {
-//                    printf("Please enter something to send to Server:\n");
-//                    scanf_s("%s", buff_user_input, BUFF_SIZE);
-//                    strcpy_s(buff_out, BUFF_SIZE, buff_user_input);
-//                    if (send(client_socket, buff_out, BUFF_SIZE, 0) == -1)
-//                        printf("OOPS! Error in sending data from server to Server\n");
-//                    else
-//                    {
-//                        bytesRead = recv(client_socket, buff_in, BUFF_SIZE, 0);
-//                        if (bytesRead != 0)
-//                        {
-//                            printf("Received from Server: %s\n", buff_in);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-
-    closesocket(client_socket); //(*@\clientBox{4)}@*)
-//    }
-
-    closesocket(server_socket);  //(*@\serverBox{5)}@*)
-    WSACleanup(); //Finalize WinSock
+    WSACleanup();
     printf("Exit\n");
 
 }

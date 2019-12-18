@@ -179,8 +179,8 @@ static err_t tcp_send_perf_traffic(void)
 	apiflags = 0;
 #endif
 
-	while (tcp_sndbuf(c_pcb) > TCP_SEND_BUFSIZE) {
-		err = tcp_write(c_pcb, send_buf, TCP_SEND_BUFSIZE, apiflags);
+	if (tcp_sndbuf(c_pcb) < TCP_SEND_BUFSIZE) {
+		err = tcp_write(c_pcb, send_buf, strlen(send_buf), apiflags);
 		if (err != ERR_OK) {
 			xil_printf("TCP client: Error on tcp_write: %d\r\n",
 					err);
@@ -193,8 +193,8 @@ static err_t tcp_send_perf_traffic(void)
 					err);
 			return err;
 		}
-		client.total_bytes += TCP_SEND_BUFSIZE;
-		client.i_report.total_bytes += TCP_SEND_BUFSIZE;
+		client.total_bytes += strlen(send_buf);
+		client.i_report.total_bytes += strlen(send_buf);
 	}
 
 	if (client.end_time || client.i_report.report_interval_time) {
@@ -240,7 +240,7 @@ err_t recv_callback(void *arg, struct tcp_pcb *tpcb,
                                struct pbuf *p, err_t err)
 {
 
-
+	xil_printf("something was catched \n");
 	/* do not read the packet if we are not in ESTABLISHED state */
 	if (!p) {
 		tcp_close(tpcb);
@@ -258,10 +258,14 @@ err_t recv_callback(void *arg, struct tcp_pcb *tpcb,
 	/* in this case, we assume that the payload is < TCP_SND_BUF */
 	if (tcp_sndbuf(tpcb) > p->len) {
 		strcpy(send_buf,p->payload);
-//		xil_printf("send buf  = %s\n", send_buf);
 		err = tcp_write(tpcb, send_buf, p->len, 1);
 	} else
 		print("no space in tcp_sndbuf\n\r");
+
+
+	for (int i = 0; i < p->len; ++i){
+		send_buf[i] = '\0';
+	}
 
 	/* free the received pbuf */
 	pbuf_free(p);
@@ -297,7 +301,7 @@ static err_t tcp_client_connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 
 	tcp_arg(c_pcb, NULL);
 	tcp_sent(c_pcb, tcp_client_sent);
-//	tcp_err(c_pcb, tcp_client_err);
+	tcp_err(c_pcb, tcp_client_err);
 
 	// Added
 	tcp_recv(c_pcb, recv_callback);
@@ -353,11 +357,11 @@ void start_application(void)
 	client.client_id = 0;
 
 
-	send_buf[0]='H';
-	send_buf[1]='e';
-	send_buf[2]='l';
-	send_buf[3]='l';
-	send_buf[4]='o';
-	send_buf[5]= '\0';
+//	send_buf[0]='H';
+//	send_buf[1]='e';
+//	send_buf[2]='l';
+//	send_buf[3]='l';
+//	send_buf[4]='o';
+//	send_buf[5]= '\0';
 	return;
 }
