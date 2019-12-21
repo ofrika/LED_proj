@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     server_socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP); //Allocate TCP socket
     bind(server_socket, (struct sockaddr *) &serverAddr, sizeof(serverAddr));//(*@\serverBox{1)}@*)
     
-	// while(1){
+	while(1){
 		listen(server_socket, 1);  //(*@\serverBox{2)}@*)
 		printf("listening\n");
 
@@ -66,8 +66,8 @@ int main(int argc, char *argv[])
 			printf("************************ DONE **********************\n");
 		}
 		closesocket(client_socket);
-	
-	//}
+		printf("************************ CLOSED **********************\n");
+	}
     closesocket(server_socket);
 
     WSACleanup();
