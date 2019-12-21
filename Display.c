@@ -51,6 +51,7 @@ struct board_t
 {
     int numPorts; // Default: 4
     int* MatsPerLine;
+    int terminator;
     List subBoards;
     List imagesStock;
     Direction** matrixDirections;
@@ -69,7 +70,7 @@ void createImageDB(){
 	addImageToDB(2, 9, 9, ARROW_U, ARROW_U, ARROW_U);
 	addImageToDB(3, 9, 9, ARROW_D, ARROW_D, ARROW_D);
 	addImageToDB(4, 11, 11, SMILEY, SMILEY, SMILEY);
-	addImageToDB(5, 11, 11, LOGO, LOGO, LOGO);
+	addImageToDB(5, 11, 11, LOGO_R, LOGO_G, LOGO_B);
 }
 
 Display createDisplay(int id, int x, int y, int lenX, int lenY){
@@ -1150,6 +1151,16 @@ void deleteAllSubBoards(){
 
 // ************************* Called by user functions implementations *****************************
 
+int getTerminator()
+{
+	return mainBoard->terminator;
+}
+
+void setTerminator(int val)
+{
+	mainBoard->terminator = val;
+}
+
 LedSignResult initBoard(int numPorts, int* ports, char* directions)
 {
 	set_Full_Brightness();
@@ -1158,6 +1169,7 @@ LedSignResult initBoard(int numPorts, int* ports, char* directions)
     if(!mainBoard){
         return LED_SIGN_OUT_OF_MEMORY;
     }
+    mainBoard->terminator = 0;
     mainBoard->numPorts = numPorts; // Default: 4
     mainBoard->MatsPerLine = malloc(numPorts*sizeof(int));
     if(!(mainBoard->MatsPerLine)){
@@ -1404,7 +1416,7 @@ LedSignResult createPictureArea(int dispID, int pictureID, int x, int y, int len
     return LED_SIGN_SUCCESS;
 }
 
-LedSignResult drawFrame(byte r, byte g, byte b){
+LedSignResult drawFrame(){
 	unsigned char pink[4] = {0,127,0,255};
 	unsigned char orange[4] = {0,0,128,255};
 	unsigned char green[4] = {0,0,255,0};
@@ -1646,8 +1658,8 @@ void getStatus(char* buff){
 		itoa(num, numbuff, 10);
 		strcat(buff, numbuff);
 		strcat(buff, " areas. Detailed information as follows --------------------------\n");
-		
-		
+
+
 		for(Element e = listGetFirst(itr_disp->objects); e != listGetLast(itr_disp->objects); e = listGetNext(itr_disp->objects)){
 			Type type = listGetIteratorType(itr_disp->objects);
 			int id,x,y,lenX,lenY;
@@ -1665,7 +1677,7 @@ void getStatus(char* buff){
 				itoa(num, numbuff, 10);
 				strcat(buff, numbuff);
 				strcat(buff, " ------------------------------------------------------\n");
-			
+
 			} else {
 				TextObject text_obj = (TextObject)e;
 				id = getTextID(text_obj);

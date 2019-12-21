@@ -134,7 +134,6 @@ int updateTextData(TextObject textObject, int* new_data, int new_data_size){
         return -1;
     }
     textObject->data_len = new_data_size;
-    xil_printf("new size in %d", textObject->data_len);
 
     for(int i=0; i<new_data_size; i++){
     	textObject->data[i] = new_data[i];

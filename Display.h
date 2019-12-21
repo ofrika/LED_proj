@@ -88,10 +88,13 @@ LedSignResult updatePicture(int subBoardID, int pictureID, int index);
 LedSignResult updatePictureColor(int dispID, int pictureID, byte r, byte g, byte b);
 
 // Draw frame around board
-LedSignResult drawFrame(byte r, byte g, byte b);
+LedSignResult drawFrame();
 
 // Test All the pixels in the board by calling the Running Pixel
 void TestRunningPixel(byte r, byte g, byte b);
 
+// For internal use, to close the connection and exit program when required
+int getTerminator();
+void setTerminator(int val);
 
 #endif

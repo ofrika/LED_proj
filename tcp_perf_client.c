@@ -53,10 +53,10 @@ void print_app_header()
 static void print_tcp_conn_stats()
 {
 #if LWIP_IPv6==1
-	xil_printf("[%3d] local %s port %d connected with ",
+	//xil_printf("[%3d] local %s port %d connected with ",
 			client.client_id, inet6_ntoa(c_pcb->local_ip),
 			c_pcb->local_port);
-	xil_printf("%s port %d\r\n",inet6_ntoa(c_pcb->remote_ip),
+	//xil_printf("%s port %d\r\n",inet6_ntoa(c_pcb->remote_ip),
 			c_pcb->remote_port);
 #else
 	xil_printf("[%3d] local %s port %d connected with ",
@@ -66,7 +66,7 @@ static void print_tcp_conn_stats()
 			c_pcb->remote_port);
 #endif /* LWIP_IPV6 */
 
-	xil_printf("[ ID] Interval\t\tTransfer   Bandwidth\n\r");
+	// xil_printf("[ ID] Interval\t\tTransfer   Bandwidth\n\r");
 }
 
 static void stats_buffer(char* outString,
@@ -123,12 +123,13 @@ static void tcp_conn_report(u64_t diff,
 	/* On 32-bit platforms, xil_printf is not able to print
 	 * u64_t values, so converting these values in strings and
 	 * displaying results
-	 */
+
 	sprintf(time, "%4.1f-%4.1f sec",
 			(double)client.i_report.last_report_time,
 			(double)(client.i_report.last_report_time + duration));
-	xil_printf("[%3d] %s  %sBytes  %sbits/sec\n\r", client.client_id,
+	 xil_printf("[%3d] %s  %sBytes  %sbits/sec\n\r", client.client_id,
 			time, data, perf);
+			 */
 
 	if (report_type == INTER_REPORT)
 		client.i_report.last_report_time += duration;
@@ -163,7 +164,7 @@ static void tcp_client_err(void *arg, err_t err)
 	xil_printf("TCP connection aborted\n\r");
 }
 
-static err_t tcp_send_perf_traffic(void)
+static err_t tcp_send_perf_traffic()
 {
 	err_t err;
 	u8_t apiflags = TCP_WRITE_FLAG_COPY | TCP_WRITE_FLAG_MORE;
@@ -180,6 +181,7 @@ static err_t tcp_send_perf_traffic(void)
 #endif
 
 	if (tcp_sndbuf(c_pcb) < TCP_SEND_BUFSIZE) {
+
 		err = tcp_write(c_pcb, send_buf, strlen(send_buf), apiflags);
 		if (err != ERR_OK) {
 			xil_printf("TCP client: Error on tcp_write: %d\r\n",
@@ -214,33 +216,34 @@ static err_t tcp_send_perf_traffic(void)
 		}
 
 		if (client.end_time) {
-			/* this session is time-limited */
+			// this session is time-limited
 			u64_t diff_ms = now - client.start_time;
 			if (diff_ms >= client.end_time) {
-				/* time specified is over,
-				 * close the connection */
+				// time specified is over => close the connection
 				tcp_conn_report(diff_ms, TCP_DONE_CLIENT);
-				xil_printf("TCP test passed Successfully\n\r");
+				xil_printf("Session closed successfully.\n\r");
 				tcp_client_close(c_pcb);
 				c_pcb = NULL;
 				return ERR_OK;
 			}
 		}
 	}
+	strcpy(send_buf, "");
 	return ERR_OK;
 }
 
 /** TCP sent callback, try to send more data */
 static err_t tcp_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len)
 {
-	return tcp_send_perf_traffic();
+	int end = 0;
+	return tcp_send_perf_traffic(&end);
 }
 
 err_t recv_callback(void *arg, struct tcp_pcb *tpcb,
                                struct pbuf *p, err_t err)
 {
 
-	xil_printf("something was catched \n");
+	// xil_printf("something was catched \n");
 	/* do not read the packet if we are not in ESTABLISHED state */
 	if (!p) {
 		tcp_close(tpcb);
@@ -248,24 +251,28 @@ err_t recv_callback(void *arg, struct tcp_pcb *tpcb,
 		return ERR_OK;
 	}
 
-	xil_printf("what recieved? %s\n", p->payload);
-
-	parseMessage(p->payload);
-	/* indicate that the packet has been received */
+	xil_printf("\nReceived from server: %s", p->payload);
+	parseMessage(p->payload, send_buf);
+		if (strstr(send_buf, "Terminating program") != NULL){
+			setTerminatorOut(1);
+		}
 	tcp_recved(tpcb, p->len);
+	send_buf[strlen(send_buf)] = '\0';
+	err = tcp_write(tpcb, send_buf, strlen(send_buf), 1);
 
 	/* echo back the payload */
 	/* in this case, we assume that the payload is < TCP_SND_BUF */
-	if (tcp_sndbuf(tpcb) > p->len) {
-		strcpy(send_buf,p->payload);
-		send_buf[p->len] = '\0';
-		err = tcp_write(tpcb, send_buf, p->len, 1);
-	} else
-		print("no space in tcp_sndbuf\n\r");
+	//if (tcp_sndbuf(tpcb) > count) {
+		// strcpy(send_buf,p->payload);
+		//send_buf[count] = '\0';
+		//err = tcp_write(tpcb, send_buf, p->len, 1);
+	//} else
+		//print("no space in tcp_sndbuf\n\r");
 
 
 	/* free the received pbuf */
 	pbuf_free(p);
+	strcpy(send_buf, "");
 
 	return ERR_OK;
 }
@@ -307,14 +314,14 @@ static err_t tcp_client_connected(void *arg, struct tcp_pcb *tpcb, err_t err)
 	return ERR_OK;
 }
 
-void transfer_data(void)
+void transfer_data()
 {
 	if (client.client_id)
 	{
 //		xil_printf("client_id=%d\r\n",client.client_id);
 		tcp_send_perf_traffic();
 	}
-
+	return;
 }
 
 void start_application(void)
@@ -352,13 +359,5 @@ void start_application(void)
 	}
 
 	client.client_id = 0;
-
-
-//	send_buf[0]='H';
-//	send_buf[1]='e';
-//	send_buf[2]='l';
-//	send_buf[3]='l';
-//	send_buf[4]='o';
-//	send_buf[5]= '\0';
 	return;
 }

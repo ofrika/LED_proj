@@ -102,6 +102,6 @@ struct perf_stats {
 #define TCP_SERVER_IP_ADDRESS "132.68.61.2"
 #endif
 
-#define TCP_SEND_BUFSIZE (5*TCP_MSS)
+#define TCP_SEND_BUFSIZE (800000)
 
 #endif /* __TCP_PERF_CLIENT_H_ */

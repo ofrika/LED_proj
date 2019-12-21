@@ -9,6 +9,9 @@
 #define BUFFSIZE 8192
 
 // Parse message and return whether it was destroy board message and therefore loop should end
-int parseMessage(char* input);
+int parseMessage(char* input, char* buff_out);
+
+int getTerminatorOut();
+void setTerminatorOut(int val);
 
 #endif
