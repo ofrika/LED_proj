@@ -70,7 +70,7 @@ void createImageDB(){
 	addImageToDB(2, 9, 9, ARROW_U, ARROW_U, ARROW_U);
 	addImageToDB(3, 9, 9, ARROW_D, ARROW_D, ARROW_D);
 	addImageToDB(4, 11, 11, SMILEY, SMILEY, SMILEY);
-	addImageToDB(5, 11, 11, LOGO_R, LOGO_G, LOGO_B);
+	addImageToDB(5, 28, 30, LOGO_R, LOGO_G, LOGO_B);
 }
 
 Display createDisplay(int id, int x, int y, int lenX, int lenY){

@@ -204,78 +204,70 @@ int main(void)
 
 
 	// Initial setup (See appendix in book for explanation)
-	int leave_loop;
-//
-	leave_loop = parseMessage("Init(default)");
+	parseMessage("Init(default)");
 
-	leave_loop = parseMessage("Add_sub_board(1,1,1,250,60)");
-	leave_loop = parseMessage("Add_text_area(1,1,32,15,192,32,250,0,0,1)");
-	leave_loop = parseMessage("Insert_text(1,1,{72,37,51,33,57,53,37,96,66,57,96,36,36,91})");
+	parseMessage("Add_sub_board(1,1,1,250,60)");
+	parseMessage("Add_text_area(1,1,32,15,192,32,250,0,0,1)");
+	parseMessage("Insert_text(1,1,{72,37,51,33,57,53,37,96,66,57,96,36,36,91})");
 
 	// left side
-	leave_loop = parseMessage("Add_sub_board(2,5,64,90,63)");
-	leave_loop = parseMessage("Add_text_area(2,1,5,64,80,16,255,255,0,0)");
-	leave_loop = parseMessage("Insert_text(2,1,{81,17,6,10,16,8})");
+	parseMessage("Add_sub_board(2,5,64,90,63)");
+	parseMessage("Add_text_area(2,1,5,64,80,16,255,255,0,0)");
+	parseMessage("Insert_text(2,1,{81,17,6,10,16,8})");
 	// floor A
-	leave_loop = parseMessage("Add_text_area(2,2,15,90,32,16,0,20,220,0)");
-	leave_loop = parseMessage("Add_picture_area(2,3,52,90,16,16,1,255,255,255)");
-	leave_loop = parseMessage("Add_text_area(2,4,68,90,16,16,255,255,255,0)");
-	leave_loop = parseMessage("Insert_text(2,2,{82,81},2)");
-	leave_loop = parseMessage("Insert_picture(2,3,0)");
-	leave_loop = parseMessage("Insert_text(2,4,{1},1)");
+	parseMessage("Add_text_area(2,2,15,90,32,16,0,20,220,0)");
+	parseMessage("Add_picture_area(2,3,52,90,16,16,1,255,255,255)");
+	parseMessage("Add_text_area(2,4,68,90,16,16,255,255,255,0)");
+	parseMessage("Insert_text(2,2,{82,81},2)");
+	parseMessage("Insert_picture(2,3,0)");
+	parseMessage("Insert_text(2,4,{1},1)");
 	// floor B
-	leave_loop = parseMessage("Add_text_area(2,5,15,106,32,16,0,20,220,0)");
-	leave_loop = parseMessage("Add_picture_area(2,6,52,106,16,16,1,255,255,255)");
-	leave_loop = parseMessage("Add_text_area(2,7,68,106,16,16,255,255,255,0)");
-	leave_loop = parseMessage("Insert_text(2,5,{85,86},2)");
-	leave_loop = parseMessage("Insert_picture(2,6,2)");
-	leave_loop = parseMessage("Insert_text(2,7,{2},1)");
+	parseMessage("Add_text_area(2,5,15,106,32,16,0,20,220,0)");
+	parseMessage("Add_picture_area(2,6,52,106,16,16,1,255,255,255)");
+	parseMessage("Add_text_area(2,7,68,106,16,16,255,255,255,0)");
+	parseMessage("Insert_text(2,5,{85,86},2)");
+	parseMessage("Insert_picture(2,6,2)");
+	parseMessage("Insert_text(2,7,{2},1)");
 
 	// right side
-	leave_loop = parseMessage("Add_sub_board(3,160,64,82,63)");
-	leave_loop = parseMessage("Add_text_area(3,1,160,64,80,16,255,255,0,0)");
-	leave_loop = parseMessage("Insert_text(3,1,{80,17,6,10,16,8})");
-	/*
+	parseMessage("Add_sub_board(3,165,64,90,63)");
+	parseMessage("Add_text_area(3,1,165,64,80,16,255,255,0,0)");
+	parseMessage("Insert_text(3,1,{80,17,6,10,16,8})");
 	// floor A
-	leave_loop = parseMessage("Add_text_area(3,2,170,90,32,16,0,20,220,0)");
-	leave_loop = parseMessage("Add_picture_area(3,3,210,90,16,16,2,255,255,255)");
-	leave_loop = parseMessage("Insert_text(3,2,{80,86},2)");
-	leave_loop = parseMessage("Insert_picture(3,3,3)");
-	*/
-
-	// floor A
-	leave_loop = parseMessage("Add_text_area(3,2,180,90,32,16,0,20,220,0)");
-	leave_loop = parseMessage("Add_picture_area(3,3,197,90,16,16,1,255,255,255)");
-	leave_loop = parseMessage("Add_text_area(3,4,213,90,16,16,255,255,255,0)");
-	leave_loop = parseMessage("Insert_text(3,2,{82,81},2)");
-	leave_loop = parseMessage("Insert_picture(3,3,0)");
-	leave_loop = parseMessage("Insert_text(3,4,{1},1)");
+	parseMessage("Add_text_area(3,2,170,90,32,16,0,20,220,0)");
+	parseMessage("Add_picture_area(3,3,207,90,16,16,1,255,255,255)");
+	parseMessage("Add_text_area(3,4,223,90,16,16,255,255,255,0)");
+	parseMessage("Insert_text(3,2,{80,88},2)");
+	parseMessage("Insert_picture(3,3,1)");
+	parseMessage("Insert_text(3,4,{1},1)");
 	// floor B
-	leave_loop = parseMessage("Add_text_area(3,5,180,106,32,16,0,20,220,0)");
-	leave_loop = parseMessage("Add_picture_area(3,6,197,106,16,16,1,255,255,255)");
-	leave_loop = parseMessage("Add_text_area(3,7,213,106,16,16,255,255,255,0)");
-	leave_loop = parseMessage("Insert_text(3,5,{85,86},2)");
-	leave_loop = parseMessage("Insert_picture(3,6,3)");
-	leave_loop = parseMessage("Insert_text(3,7,{2},1)");
+	parseMessage("Add_text_area(3,5,170,106,32,16,0,20,220,0)");
+	parseMessage("Add_picture_area(3,6,207,106,16,16,1,255,255,255)");
+	parseMessage("Add_text_area(3,7,223,106,16,16,255,255,255,0)");
+	parseMessage("Insert_text(3,5,{84,84},2)");
+	parseMessage("Insert_picture(3,6,3)");
+	parseMessage("Insert_text(3,7,{2},1)");
+
+	// logo
+	parseMessage("Add_sub_board(4,110,80,30,28)");
+	parseMessage("Add_picture_area(4,1,110,80,30,28,0,0,0,0)");
+	parseMessage("Insert_picture(4,1,5)");
+
+	parseMessage("Draw_frame(255,255,255)");
 
 
-	leave_loop = parseMessage("Draw_frame(255,255,255)");
-
-
-
-	/*
 	XTime start;
 	XTime end;
-	double cpu_time_used;
+	double cpu_time_used = 501;
 	XTime_GetTime(&start);
 
 
 	int i = 1;
 	while (1) {
-		sleep(0.6);
+		sleep(0.8);
 
 		XTime_GetTime(&end);
-		cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+		//cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
 
 		if (cpu_time_used >= 500)
 		{
@@ -301,11 +293,13 @@ int main(void)
 			break;
 		i++;
 	}
-	*/
+
+	// parseMessage("Exit");
 
 	xil_printf("\n\nProgram stopped.\r\n");
 	xil_printf("\r\n ---------- All done! ~Ofri & Samah ---------- \r\n");
 	xil_printf(" ------------------------------------------------ \r\n");
+
 	cleanup_platform();
 
 	return 0;
